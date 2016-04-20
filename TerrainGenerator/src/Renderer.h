@@ -10,6 +10,15 @@ namespace Renderer{
 
 	std::vector<gmtl::Point3f> vertices;
 
+    void draw(){
+        glBegin(GL_TRIANGLES);
+        int num_vert = vertices.size();
+        for (int i = 0; i < num_vert; i++){
+            glVertex3f(vertices[i][0], vertices[i][1], vertices[i][2]);
+        }
+        glEnd();
+    }
+
 	void display_function(){
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -17,13 +26,7 @@ namespace Renderer{
 		gluPerspective(view_angle, (float)w_width / (float)w_height, 0.1, 30);
 
 
-		glBegin(GL_TRIANGLES);
-		int num_vert = vertices.size();
-		for (int i = 0; i < num_vert; i++){
-			glVertex3f(vertices[i][0], vertices[i][1], vertices[i][2]);
-		}
-
-		glEnd();
+        draw();
 		glutSwapBuffers();
 	}
 
@@ -76,4 +79,12 @@ namespace Renderer{
 		vertices.clear();
 		vertices = v;
 	}
+
+    void setDisplayFunction(void(*dFunc)()){
+        if (dFunc != NULL){
+            glutDisplayFunc(dFunc);
+        }
+    }
+
+    
 }
