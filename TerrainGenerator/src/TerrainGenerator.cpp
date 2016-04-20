@@ -21,6 +21,10 @@ Cell::Cell(gmtl::Point3f bottom_front_left, int vCount){
 
             for (int k = 0; k < voxel_count; k++){
                 z += k * voxel_size;
+
+                std::vector<gmtl::Point3f> v = Voxel::getPolygonAt(
+                    gmtl::Point3f(x, y, z));
+                vertices.insert(vertices.end(), v.begin(), v.end());
             }
 
         }
