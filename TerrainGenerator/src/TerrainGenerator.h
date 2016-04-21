@@ -5,10 +5,12 @@
 
 struct Voxel{
     static std::vector<gmtl::Point3f> getPolygonAt(
-        gmtl::Point3f bottom_front_left);
+        gmtl::Point3f bottom_front_left, float voxel_size);
 
 private:
-    static float densityFunction(gmtl::Point3f p);
+    static float* densityFunction(std::vector<gmtl::Point3f> verts);
+
+	static gmtl::Point3f linear_interp(gmtl::Point3f p1, gmtl::Point3f p2, float d1, float d2);
 };
 
 struct Cell{
@@ -23,7 +25,7 @@ struct Cell{
 class TerrainGenerator{
 public:
     TerrainGenerator(int, int, int);
-    
+	std::vector<gmtl::Point3f> getVerts();
 
 private:
     int grid_w;
