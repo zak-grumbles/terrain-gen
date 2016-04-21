@@ -115,10 +115,10 @@ Point3f Voxel::linear_interp(Point3f p1, Point3f p2, float d1, float d2){
 
 float* Voxel::densityFunction(std::vector<gmtl::Point3f> verts){
 	float* d = new float[8];
-
+	noise::module::Perlin mod;
 
 	for (int i = 0; i < 8; i++){
-		d[i] = -verts[i][1];
+		d[i] = verts[i][1] * mod.GetValue(verts[i][0], verts[i][1], verts[i][2]);
 	}
 
 	return d;

@@ -13,7 +13,7 @@ void displayFunction(){
     glLoadIdentity();
     //gluPerspective(view_angle, (float)window_width/ (float)window_height, 0.1, 30);
 	
-	glTranslatef(0.5, -0.5, 0);
+	glTranslatef(1, -0.5, -4.0);
 	//glRotatef(-20, 1, 0, 0);
 
     Renderer::draw();
