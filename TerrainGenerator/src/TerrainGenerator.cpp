@@ -2,6 +2,7 @@
 #include "tables.h"
 #include <gmtl/Vec.h>
 #include <noise/noise.h>
+#include <stdio.h>
 
 using namespace gmtl;
 
@@ -25,14 +26,14 @@ std::vector<gmtl::Point3f> Voxel::getPolygonAt(gmtl::Point3f bottom_front_left, 
 	float* densities = densityFunction(verts);
 
 	int index = 0;
-	if (densities[0] < 0.0f) index |= 1;
-	if (densities[1] < 0.0f) index |= 2;
-	if (densities[2] < 0.0f) index |= 4;
-	if (densities[3] < 0.0f) index |= 8;
-	if (densities[4] < 0.0f) index |= 16;
-	if (densities[5] < 0.0f) index |= 32;
-	if (densities[6] < 0.0f) index |= 64;
-	if (densities[7] < 0.0f) index |= 128;
+	if (densities[0] <= 0.0f) index |= 1;
+	if (densities[1] <= 0.0f) index |= 2;
+	if (densities[2] <= 0.0f) index |= 4;
+	if (densities[3] <= 0.0f) index |= 8;
+	if (densities[4] <= 0.0f) index |= 16;
+	if (densities[5] <= 0.0f) index |= 32;
+	if (densities[6] <= 0.0f) index |= 64;
+	if (densities[7] <= 0.0f) index |= 128;
 
 	int edgeVal = edgeTable[index];
 	if (edgeVal == 0){
@@ -118,7 +119,7 @@ float* Voxel::densityFunction(std::vector<gmtl::Point3f> verts){
 	noise::module::Perlin mod;
 
 	for (int i = 0; i < 8; i++){
-		d[i] = verts[i][1] * mod.GetValue(verts[i][0], verts[i][1], verts[i][2]);
+		d[i] = -verts[i][1];
 	}
 
 	return d;
@@ -134,6 +135,8 @@ Cell::Cell(gmtl::Point3f bottom_front_left, int vCount){
 
     for (int i = 0; i < voxel_count; i++){
         x += i * voxel_size;
+
+
 
         for (int j = 0; j < voxel_count; j++){
             y += j * voxel_size;
@@ -151,44 +154,48 @@ Cell::Cell(gmtl::Point3f bottom_front_left, int vCount){
     }
 }
 
-TerrainGenerator::TerrainGenerator(int w, int l, int voxelCount){
+TerrainGenerator::TerrainGenerator(int w, int l, int h){
     grid_w = w;
     grid_l = l;
-    voxel_count = voxelCount;
-    if (grid_w > 0 && grid_l > 0){
-        cell_grid = std::vector<std::vector<Cell>>();
+	grid_h = h;
+    
+	float start_x = ((float)w * VOXEL_SIZE) / 2.0f;
+	float start_y = ((float)h * VOXEL_SIZE)/ 2.0f;
+	float start_z = ((float)l * VOXEL_SIZE) / 2.0f;
+	start_x *= -1;
+	start_y *= -1;
 
-        float start_x = ((float)grid_w * CELL_SIZE) / 2.0;
-        start_x *= -1;
-        float start_z = ((float)grid_l * CELL_SIZE) / 2.0;
-
-        float y = -0.5f;
-
-
-        for (int i = 0; i < grid_w; i++){
-            cell_grid.push_back(std::vector<Cell>());
-
-            start_x += i * CELL_SIZE;
-
-            for (int j = 0; j < grid_l; j++){
-                start_z -= j * CELL_SIZE;
-
-                cell_grid[i].push_back(Cell(gmtl::Point3f(start_x, y,
-                    start_z), voxel_count));
-            }
-
-        }
-    }
+	startPoint = Point3f(start_x, start_y, start_z);
 }
 
 std::vector<Point3f> TerrainGenerator::getVerts(){
 	std::vector<Point3f> verts = std::vector<Point3f>();
 
-	for (int i = 0; i < cell_grid.size(); i++){
-		for (int j = 0; j < cell_grid[i].size(); j++){
-			verts.insert(verts.end(), cell_grid[i][j].vertices.begin(), cell_grid[i][j].vertices.end());
+	for (int i = 0; i < grid_w; i++){
+		float x = startPoint[0] + i * VOXEL_SIZE;
+			
+		printf("%i ", i);
+		if (i % 25 == 0)
+			printf("\n");
+
+		for (int j = 0; j < grid_l; j++){
+			float y = startPoint[1] + j * VOXEL_SIZE;
+
+
+			for (int k = 0; k < grid_h; k++){
+				float z = startPoint[2] - k * VOXEL_SIZE;
+
+
+				std::vector<Point3f> v = Voxel::getPolygonAt(Point3f(x, y, z), VOXEL_SIZE);
+				verts.insert(verts.end(), v.begin(), v.end());
+
+			}
+
 		}
+
 	}
+
+	printf("Done\n");
 
 	return verts;
 }

@@ -10,11 +10,10 @@ float view_angle = 45.0f;
 void displayFunction(){
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glLoadIdentity();
-    //gluPerspective(view_angle, (float)window_width/ (float)window_height, 0.1, 30);
-	
-	glTranslatef(1, -0.5, -4.0);
-	//glRotatef(-20, 1, 0, 0);
+    gluPerspective(view_angle, (float)window_width/ (float)window_height, 0.1, 30);
+
 
     Renderer::draw();
     glutSwapBuffers();
@@ -30,7 +29,7 @@ int main(int argc, char* argv[]){
 	v.push_back(gmtl::Point3f(0.5, 0.0, -3.0));
 	*/
 
-	TerrainGenerator *tg = new TerrainGenerator(10, 10, 32);
+	TerrainGenerator *tg = new TerrainGenerator(50, 50, 50);
 	std::vector<gmtl::Point3f> verts = tg->getVerts();
 
 	Renderer::setVertices(verts);
