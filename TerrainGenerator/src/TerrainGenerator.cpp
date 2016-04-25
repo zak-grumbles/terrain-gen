@@ -118,8 +118,10 @@ float* Voxel::densityFunction(std::vector<gmtl::Point3f> verts){
 	float* d = new float[8];
 	noise::module::Perlin mod;
 
+
 	for (int i = 0; i < 8; i++){
 		d[i] = -verts[i][1];
+		//d[i] += 0.0f * (mod.GetValue(verts[i][0] + 0.1f, verts[i][1] + 0.1f, verts[i][2] + 0.1f));
 	}
 
 	return d;
@@ -160,10 +162,13 @@ TerrainGenerator::TerrainGenerator(int w, int l, int h){
 	grid_h = h;
     
 	float start_x = ((float)w * VOXEL_SIZE) / 2.0f;
-	float start_y = ((float)h * VOXEL_SIZE)/ 2.0f;
+	start_x *= -1.0f;
+
+	float start_y = ((float)h * VOXEL_SIZE) / 2.0f;
+	start_y *= -1.0f;
+
 	float start_z = ((float)l * VOXEL_SIZE) / 2.0f;
-	start_x *= -1;
-	start_y *= -1;
+	start_z *= -1.0f;
 
 	startPoint = Point3f(start_x, start_y, start_z);
 }
@@ -171,20 +176,17 @@ TerrainGenerator::TerrainGenerator(int w, int l, int h){
 std::vector<Point3f> TerrainGenerator::getVerts(){
 	std::vector<Point3f> verts = std::vector<Point3f>();
 
-	for (int i = 0; i < grid_w; i++){
-		float x = startPoint[0] + i * VOXEL_SIZE;
-			
-		printf("%i ", i);
-		if (i % 25 == 0)
-			printf("\n");
+	for (int i = 0; i < grid_h; i++){
+
+		float y = startPoint[1] + i * VOXEL_SIZE;
 
 		for (int j = 0; j < grid_l; j++){
-			float y = startPoint[1] + j * VOXEL_SIZE;
 
+			float z = startPoint[2] + j * VOXEL_SIZE;
 
-			for (int k = 0; k < grid_h; k++){
-				float z = startPoint[2] - k * VOXEL_SIZE;
+			for (int k = 0; k < grid_w; k++){
 
+				float x = startPoint[0] + k * VOXEL_SIZE;
 
 				std::vector<Point3f> v = Voxel::getPolygonAt(Point3f(x, y, z), VOXEL_SIZE);
 				verts.insert(verts.end(), v.begin(), v.end());
@@ -192,7 +194,6 @@ std::vector<Point3f> TerrainGenerator::getVerts(){
 			}
 
 		}
-
 	}
 
 	printf("Done\n");

@@ -13,10 +13,10 @@ int window_height = 480;
 float view_angle = 45.0f;
 
 float eye_x = 0;
-float eye_y = 0;
+float eye_y = 1;
 float eye_z = 1;
 float look_x = 0;
-float look_y = 0;
+float look_y = -1;
 float look_z = -1;
 float rot_u = 0.0f;
 float rot_v = 0;
@@ -58,7 +58,7 @@ void keyboardFunc(unsigned char k, int x, int y){
 
 	Point3f e = Point3f(eye_x, eye_y, eye_z);
 	Vec3f l = Vec3f(look_x, look_y, look_z);
-	Vec3f r = makeCross(l, c->GetUpVector());
+	Vec3f r = makeCross(c->GetUpVector(), c->GetUpVector());
 	Vec3f u = c->GetUpVector();
 	normalize(u);
 	normalize(l);
@@ -106,7 +106,7 @@ int main(int argc, char* argv[]){
 	v.push_back(gmtl::Point3f(0.5, 0.0, -3.0));
 	
 
-	TerrainGenerator *tg = new TerrainGenerator(50, 50, 50);
+	TerrainGenerator *tg = new TerrainGenerator(10, 10, 10);
 	std::vector<gmtl::Point3f> verts = tg->getVerts();
 
 	//Renderer::setVertices(v);

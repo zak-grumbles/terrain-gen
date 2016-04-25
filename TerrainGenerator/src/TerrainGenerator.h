@@ -2,7 +2,7 @@
 #include <gmtl/Point.h>
 
 #define CELL_SIZE 1.0f
-#define VOXEL_SIZE 0.5f
+#define VOXEL_SIZE 1.0f
 struct Voxel{
     static std::vector<gmtl::Point3f> getPolygonAt(
         gmtl::Point3f bottom_front_left, float voxel_size);
