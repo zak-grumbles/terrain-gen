@@ -13,11 +13,11 @@ int window_height = 480;
 float view_angle = 45.0f;
 
 float eye_x = 0;
-float eye_y = 1;
-float eye_z = 1;
+float eye_y = 10;
+float eye_z = 10;
 float look_x = 0;
-float look_y = -1;
-float look_z = -1;
+float look_y = -10;
+float look_z = -10;
 float rot_u = 0.0f;
 float rot_v = 0;
 float rot_w = 0;
@@ -25,6 +25,8 @@ float rot_w = 0;
 int wire = 0;
 
 Camera *c;
+
+GLUI_EditText* dFuncText = NULL;
 
 void displayFunction(){
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -91,28 +93,16 @@ int main(int argc, char* argv[]){
 	c = new Camera();
 	c->SetScreenSize(window_width, window_height);
 	c->Orient(Point3f(eye_x, eye_y, eye_z), Vec3f(look_x, look_y, look_z), Vec3f(0, 1, 0));
-	
-
-	//GLUI* glui = GLUI_Master.create_glui("Control Panel");
-	
 
 	Renderer::init(window_width, window_height, 45.0f, argc, argv);
 	glutKeyboardFunc(keyboardFunc);
-
-    //Test triangle to make sure everything is working
-	std::vector<gmtl::Point3f> v = std::vector<gmtl::Point3f>();
-	v.push_back(gmtl::Point3f(-0.5, 0.0, -3.0));
-	v.push_back(gmtl::Point3f(0.0, 0.5, -3.0));
-	v.push_back(gmtl::Point3f(0.5, 0.0, -3.0));
 	
 
 	TerrainGenerator *tg = new TerrainGenerator(10, 10, 10);
 	std::vector<gmtl::Point3f> verts = tg->getVerts();
-
-	//Renderer::setVertices(v);
 	Renderer::setVertices(verts);
     Renderer::setDisplayFunction(displayFunction);
-	
+
     Renderer::start();
 	return 0;
 }

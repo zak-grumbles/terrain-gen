@@ -1,6 +1,8 @@
 #include <GL/freeglut.h>
 #include <vector>
 #include <gmtl/Point.h>
+#include <GL/glui.h>
+#include <string>
 
 namespace Renderer{
 	int w_width;
@@ -10,13 +12,17 @@ namespace Renderer{
 
 	std::vector<gmtl::Point3f> vertices;
 
+	std::string custom_func = "d = -y";
+
     void draw(){
         glBegin(GL_TRIANGLES);
         int num_vert = vertices.size();
         for (int i = 0; i < num_vert; i++){
-            glVertex3f(vertices[i][0], vertices[i][1], vertices[i][2]);
+			
+			glVertex3f(vertices[i][0], vertices[i][1], vertices[i][2]);
+			
         }
-        glEnd();
+		glEnd();
     }
 
 	void display_function(){
@@ -32,6 +38,13 @@ namespace Renderer{
 
 	void reshape_function(int x, int y){
 		glutReshapeWindow(w_width, w_height);
+	}
+
+	void idle(){
+		if (glutGetWindow() != window)
+			glutSetWindow(window);
+
+		glutPostRedisplay();
 	}
 
 	bool init(int window_w, int window_h, float v_angle, int argc = 0, char* argv[] = NULL){
@@ -68,6 +81,23 @@ namespace Renderer{
 
 		vertices = std::vector<gmtl::Point3f>();
 
+		GLUI* g = GLUI_Master.create_glui("Control Panel");
+		GLUI_Panel *controls = g->add_panel("Movement");
+		(new GLUI_StaticText(controls, "W - Forward"));
+		(new GLUI_StaticText(controls, "A - Left"));
+		(new GLUI_StaticText(controls, "S - Back"));
+		(new GLUI_StaticText(controls, "D - Right"));
+		g->add_column_to_panel(controls, true);
+		(new GLUI_StaticText(controls, "Q - Up"));
+		(new GLUI_StaticText(controls, "E - Down"));
+		
+		GLUI_EditText *func = g->add_edittext("Custom Density Function", custom_func);
+		func->set_w(300);
+		func->set_h(20);
+		g->add_button("Update");
+		g->set_main_gfx_window(window);
+		GLUI_Master.set_glutIdleFunc(idle);
+
 		return true;
 	}
 
@@ -86,5 +116,5 @@ namespace Renderer{
         }
     }
 
-    
+
 }
