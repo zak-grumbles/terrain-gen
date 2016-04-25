@@ -6,7 +6,7 @@
 
 #define DEFAULT_FOCAL_LENGTH 1
 #define NEAR_PLANE 0.001
-#define FAR_PLANE 30
+#define FAR_PLANE 100
 #define VIEW_ANGLE 60.0
 
 using namespace gmtl;
@@ -48,6 +48,8 @@ public:
 	float GetFilmPlaneDepth();
 
 	Vec3f GetUpVector();
+	Vec3f GetRightVector();
+	Vec3f GetLeftVector();
 
 private:
 	Matrix44f model_view;

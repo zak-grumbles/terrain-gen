@@ -12,12 +12,12 @@ int window_width = 640;
 int window_height = 480;
 float view_angle = 45.0f;
 
-float eye_x = 0;
-float eye_y = 10;
-float eye_z = 10;
-float look_x = 0;
-float look_y = -10;
-float look_z = -10;
+float eye_x = 2;
+float eye_y = 2;
+float eye_z = 2;
+float look_x = -2;
+float look_y = -2;
+float look_z = -2;
 float rot_u = 0.0f;
 float rot_v = 0;
 float rot_w = 0;
@@ -51,6 +51,14 @@ void displayFunction(){
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
+	glEnable(GL_LIGHTING);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	
+	GLfloat pos[] = { 3.0, 3.0, 0.0, 1.0 };
+	glLightfv(GL_LIGHT0, GL_POSITION, pos);
+	glEnable(GL_LIGHT0);
+
+	glColor3f(0.8f, 0.8f, 0.8f);
     Renderer::draw();
     glutSwapBuffers();
 }
@@ -60,16 +68,24 @@ void keyboardFunc(unsigned char k, int x, int y){
 
 	Point3f e = Point3f(eye_x, eye_y, eye_z);
 	Vec3f l = Vec3f(look_x, look_y, look_z);
-	Vec3f r = makeCross(c->GetUpVector(), c->GetUpVector());
 	Vec3f u = c->GetUpVector();
 	normalize(u);
 	normalize(l);
-	normalize(r);
+
+	Vec3f r;
+	Vec3f left;
 
 	switch (k){
 	case 'w':
 		scale_vec(l, 0.05f);
 		e = add_point_vec(e, l);
+		break;
+	case 'a':
+		break;
+	case 'd':
+		r = c->GetRightVector();
+		scale_vec(r, 0.05f);
+		e = add_point_vec(e, r);
 		break;
 	case 's':
 		scale_vec(l, -0.05f);

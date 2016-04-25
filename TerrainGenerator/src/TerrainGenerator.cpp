@@ -26,14 +26,14 @@ std::vector<gmtl::Point3f> Voxel::getPolygonAt(gmtl::Point3f bottom_front_left, 
 	float* densities = densityFunction(verts);
 
 	int index = 0;
-	if (densities[0] <= 0.0f) index |= 1;
-	if (densities[1] <= 0.0f) index |= 2;
-	if (densities[2] <= 0.0f) index |= 4;
-	if (densities[3] <= 0.0f) index |= 8;
-	if (densities[4] <= 0.0f) index |= 16;
-	if (densities[5] <= 0.0f) index |= 32;
-	if (densities[6] <= 0.0f) index |= 64;
-	if (densities[7] <= 0.0f) index |= 128;
+	if (densities[0] < 0.0f) index |= 1;
+	if (densities[1] < 0.0f) index |= 2;
+	if (densities[2] < 0.0f) index |= 4;
+	if (densities[3] < 0.0f) index |= 8;
+	if (densities[4] < 0.0f) index |= 16;
+	if (densities[5] < 0.0f) index |= 32;
+	if (densities[6] < 0.0f) index |= 64;
+	if (densities[7] < 0.0f) index |= 128;
 
 	int edgeVal = edgeTable[index];
 	if (edgeVal == 0){
@@ -121,7 +121,7 @@ float* Voxel::densityFunction(std::vector<gmtl::Point3f> verts){
 
 	for (int i = 0; i < 8; i++){
 		d[i] = -verts[i][1];
-		//d[i] = (mod.GetValue(verts[i][0] + 0.1f, verts[i][1] + 0.1f, verts[i][2] + 0.1f));
+		//d[i] += (mod.GetValue(verts[i][0] + 0.1f, verts[i][1] + 0.1f, verts[i][2] + 0.1f));
 		//printf("%f\n", d[i]);
 	}
 

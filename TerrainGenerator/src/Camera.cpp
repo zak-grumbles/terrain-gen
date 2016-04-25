@@ -153,3 +153,22 @@ float Camera::GetFilmPlaneDepth(){
 float Camera::GetRatio(){
 	return ratio;
 }
+
+Vec3f Camera::GetRightVector(){
+	Vec3f v1 = GetLookVector();
+	Vec3f v2 = GetUpVector();
+	Vec3f r = Vec3f();
+	cross(r, v1, v2);
+	return r;
+}
+
+Vec3f Camera::GetLeftVector(){
+	Vec3f v1 = GetLookVector();
+	Vec3f v2 = GetUpVector();
+	scale_vec(v2, -1.0f);
+
+	Vec3f l = Vec3f();
+	cross(l, v1, v2);
+
+	return l;
+}

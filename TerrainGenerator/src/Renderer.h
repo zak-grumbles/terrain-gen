@@ -12,7 +12,7 @@ namespace Renderer{
 
 	std::vector<gmtl::Point3f> vertices;
 
-	std::string custom_func = "d = -y";
+	std::string custom_func = "-y";
 
     void draw(){
         glBegin(GL_TRIANGLES);
@@ -91,7 +91,7 @@ namespace Renderer{
 		(new GLUI_StaticText(controls, "Q - Up"));
 		(new GLUI_StaticText(controls, "E - Down"));
 		
-		GLUI_EditText *func = g->add_edittext("Custom Density Function", custom_func);
+		GLUI_EditText *func = g->add_edittext("Custom Density Function d=", custom_func);
 		func->set_w(300);
 		func->set_h(20);
 		g->add_button("Update");
