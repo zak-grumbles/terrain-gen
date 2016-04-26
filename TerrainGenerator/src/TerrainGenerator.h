@@ -19,16 +19,38 @@ private:
 
 class TerrainGenerator{
 public:
-    TerrainGenerator(int, int, int);
+    TerrainGenerator(int, int, int, float v_size = VOXEL_SIZE);
 	std::vector<Tri> getTriangles();
-	utils::NoiseMap height_map;
-	noise::module::Perlin plane_noise;
+    
+    void setWidth(int);
+    int getWidth();
+    
+    void setHeight(int);
+    int getHeight();
+    
+    void setLength(int);
+    int getLength();
+    
+    void setVoxelSize(float);
+    float getVoxelSize();
+
+    bool shouldUpdate();
+    
+
 
 private:
     int grid_w;
     int grid_l;
 	int grid_h;
-    int voxel_count;
+
+    float voxel_size;
+
+    bool should_update;
+
+    utils::NoiseMap height_map;
+    noise::module::Perlin plane_noise;
+
 	gmtl::Point3f startPoint;
+
 	void generateHeightMap();
 };

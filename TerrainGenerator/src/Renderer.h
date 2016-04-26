@@ -4,6 +4,7 @@
 #include <GL/glui.h>
 #include <string>
 #include "Tri.h"
+#include "Camera.h"
 
 namespace Renderer{
 	int w_width;
@@ -14,6 +15,12 @@ namespace Renderer{
 	std::vector<Tri> triangles = std::vector<Tri>();
 
 	std::string custom_func = "-y";
+
+    Camera *c = new Camera();
+
+    enum RENDER_MODE{
+        WIRE, FILL
+    };
 
     void draw(){
 		int num_tri = triangles.size();
@@ -101,6 +108,8 @@ namespace Renderer{
 		g->set_main_gfx_window(window);
 		GLUI_Master.set_glutIdleFunc(idle);
 
+        c->SetScreenSize(window_w, window_h);
+
 		return true;
 	}
 
@@ -118,4 +127,47 @@ namespace Renderer{
 		triangles.clear();
 		triangles.insert(triangles.end(), t.begin(), t.end());
 	}
+
+    void updateCamOrient(Point3f eye, Vec3f look, Vec3f up){
+        c->Orient(eye, look, up);
+    }
+
+    void updateCamRot(float rotU, float rotV, float rotW){
+        c->RotateV(rotV);
+        c->RotateU(rotU);
+        c->RotateW(rotW);
+    }
+
+    void updateViewAngle(float angle){
+        c->SetViewAngle(angle);
+    }
+
+    void applyModelView(){
+        glMatrixMode(GL_MODELVIEW);
+        glLoadMatrixf(c->GetModelView().getData());
+    }
+
+    void applyProjection(){
+        glMatrixMode(GL_PROJECTION);
+        glLoadMatrixf(c->GetProjection().getData());
+    }
+
+    void setRenderMode(RENDER_MODE m){
+        switch (m){
+        case WIRE:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            break;
+        case FILL:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            break;
+        }
+    }
+
+    Vec3f getCamUpVector(){
+        return c->GetUpVector();
+    }
+
+    Vec3f getCamRightVector(){
+        return c->GetRightVector();
+    }
 }

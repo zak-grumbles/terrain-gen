@@ -10,7 +10,7 @@ int monitor_width;
 int monitor_height;
 int window_width = 640;
 int window_height = 480;
-float view_angle = 45.0f;
+float v_angle = 45.0f;
 
 float eye_x = 0;
 float eye_y = 5;
@@ -28,27 +28,27 @@ Camera *c;
 
 GLUI_EditText* dFuncText = NULL;
 
+TerrainGenerator* tg;
+
+using namespace Renderer;
+
 void displayFunction(){
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	c->SetViewAngle(view_angle);
-	glMatrixMode(GL_PROJECTION);
-	Matrix44f proj = c->GetProjection();
-	glLoadMatrixf(proj.getData());
-	c->Orient(Point3f(eye_x, eye_y, eye_z), Vec3f(look_x, look_y, look_z), Vec3f(0, 1, 0));
-	c->RotateV(rot_v);
-	c->RotateU(rot_u);
-	c->RotateW(rot_w);
+    updateViewAngle(v_angle);
+    applyProjection();
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(c->GetModelView().getData());
+	updateCamOrient(Point3f(eye_x, eye_y, eye_z), Vec3f(look_x, look_y, look_z), Vec3f(0, 1, 0));
+    updateCamRot(rot_u, rot_v, rot_w);
+
+    applyModelView();
 
 	if (wire){
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        setRenderMode(WIRE);
 	}
 	else{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        setRenderMode(FILL);
 	}
 
 	glEnable(GL_LIGHTING);
@@ -59,7 +59,13 @@ void displayFunction(){
 	glEnable(GL_LIGHT0);
 
 	glColor3f(0.8f, 0.8f, 0.8f);
-    Renderer::draw();
+
+    if (tg->shouldUpdate()){
+        std::vector<Tri> triangles = tg->getTriangles();
+        setTriangles(triangles);
+    }
+
+    draw();
     glutSwapBuffers();
 }
 
@@ -68,7 +74,7 @@ void keyboardFunc(unsigned char k, int x, int y){
 
 	Point3f e = Point3f(eye_x, eye_y, eye_z);
 	Vec3f l = Vec3f(look_x, look_y, look_z);
-	Vec3f u = c->GetUpVector();
+    Vec3f u = getCamUpVector();
 	normalize(u);
 	normalize(l);
 
@@ -83,7 +89,7 @@ void keyboardFunc(unsigned char k, int x, int y){
 	case 'a':
 		break;
 	case 'd':
-		r = c->GetRightVector();
+        r = getCamRightVector();
 		scale_vec(r, 0.05f);
 		e = add_point_vec(e, r);
 		break;
@@ -106,17 +112,11 @@ void keyboardFunc(unsigned char k, int x, int y){
 }
 
 int main(int argc, char* argv[]){
-	c = new Camera();
-	c->SetScreenSize(window_width, window_height);
-	c->Orient(Point3f(eye_x, eye_y, eye_z), Vec3f(look_x, look_y, look_z), Vec3f(0, 1, 0));
-
 	Renderer::init(window_width, window_height, 45.0f, argc, argv);
 	glutKeyboardFunc(keyboardFunc);
 	
 
-	TerrainGenerator *tg = new TerrainGenerator(100, 100, 100);
-	std::vector<Tri> verts = tg->getTriangles();
-	Renderer::setTriangles(verts);
+    tg = new TerrainGenerator(100, 100, 100);
     Renderer::setDisplayFunction(displayFunction);
 
     Renderer::start();

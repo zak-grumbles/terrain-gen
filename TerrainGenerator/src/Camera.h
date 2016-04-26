@@ -1,3 +1,6 @@
+#ifndef CAMERA_H
+#define CAMERA_H
+
 #include <gmtl/Point.h>
 #include <gmtl/Vec.h>
 #include <gmtl/VecOps.h>
@@ -62,3 +65,5 @@ private:
 	int width, height;
 	float ratio;
 };
+
+#endif /*CAMERA_H*/

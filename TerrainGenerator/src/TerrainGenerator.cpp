@@ -110,32 +110,44 @@ float* Voxel::densityFunction(std::vector<gmtl::Point3f> verts){
 	return d;
 }
 
-TerrainGenerator::TerrainGenerator(int w, int l, int h){
+TerrainGenerator::TerrainGenerator(int w, int l, int h, float v_size){
+    if (v_size <= 0.0f)
+        v_size = VOXEL_SIZE;
+
     grid_w = w;
     grid_l = l;
 	grid_h = h;
-    
-	float start_x = ((float)w * VOXEL_SIZE) / 2.0f;
+    voxel_size = v_size;
+
+	float start_x = ((float)w * v_size) / 2.0f;
 	start_x *= -1.0f;
 
-	float start_y = ((float)h * VOXEL_SIZE) / 2.0f;
+	float start_y = ((float)h * v_size) / 2.0f;
 	start_y *= -1.0f;
 
-	float start_z = ((float)l * VOXEL_SIZE) / 2.0f;
+	float start_z = ((float)l * v_size) / 2.0f;
 	start_z *= -1.0f;
 
 	startPoint = Point3f(start_x, start_y, start_z);
 
 	generateHeightMap();
+
+    should_update = true;
 }
 
 void TerrainGenerator::generateHeightMap(){
 	
+    float x_start = -((float)grid_w * voxel_size) / 2.0f;
+    float z_start = -((float)grid_l * voxel_size) / 2.0f;
+    float x_end = x_start * -1.0f;
+    float z_end = z_start * -1.0f;
+
+
 	utils::NoiseMapBuilderPlane h_map_builder;
 	h_map_builder.SetSourceModule(plane_noise);
 	h_map_builder.SetDestNoiseMap(height_map);
 	h_map_builder.SetDestSize(grid_w, grid_l);
-	h_map_builder.SetBounds(2.0, 6.0, 1.0, 5.0);
+	h_map_builder.SetBounds(x_start, x_end, z_start, z_end);
 	h_map_builder.Build();
 
 	utils::RendererImage r;
@@ -156,17 +168,17 @@ std::vector<Tri> TerrainGenerator::getTriangles(){
 
 	for (int i = 0; i < grid_h; i++){
 
-		float y = startPoint[1] + i * VOXEL_SIZE;
+		float y = startPoint[1] + i * voxel_size;
 
 		for (int j = 0; j < grid_l; j++){
-
-			float z = startPoint[2] + j * VOXEL_SIZE;
+            
+			float z = startPoint[2] + j * voxel_size;
 
 			for (int k = 0; k < grid_w; k++){
 
-				float x = startPoint[0] + k * VOXEL_SIZE;
+				float x = startPoint[0] + k * voxel_size;
 
-				std::vector<Tri> v = Voxel::getPolygonAt(Point3f(x, y, z), VOXEL_SIZE);
+				std::vector<Tri> v = Voxel::getPolygonAt(Point3f(x, y, z), voxel_size);
 				verts.insert(verts.end(), v.begin(), v.end());
 
 			}
@@ -175,6 +187,54 @@ std::vector<Tri> TerrainGenerator::getTriangles(){
 	}
 
 	printf("Done\n");
-
+    should_update = false;
 	return verts;
+}
+
+void TerrainGenerator::setWidth(int w){
+    if (w > 0.0f && w != grid_w){
+        grid_w = w;
+        should_update = true;
+    }
+}
+
+int TerrainGenerator::getWidth(){
+    return grid_w;
+}
+
+void TerrainGenerator::setHeight(int h){
+    if (h > 0.0f && h != grid_h){
+        grid_h = h;
+        should_update = true;
+    }
+}
+
+int TerrainGenerator::getHeight(){
+    return grid_h;
+}
+
+void TerrainGenerator::setLength(int l){
+    if (l > 0.0f && l != grid_l){
+        grid_l = l;
+        should_update = true;
+    }
+}
+
+int TerrainGenerator::getLength(){
+    return grid_l;
+}
+
+void TerrainGenerator::setVoxelSize(float v_size){
+    if (v_size > 0.0f && v_size != voxel_size){
+        voxel_size = v_size;
+        should_update = true;
+    }
+}
+
+float TerrainGenerator::getVoxelSize(){
+    return voxel_size;
+}
+
+bool TerrainGenerator::shouldUpdate(){
+    return should_update;
 }
