@@ -115,8 +115,8 @@ int main(int argc, char* argv[]){
 	
 
 	TerrainGenerator *tg = new TerrainGenerator(10, 10, 10);
-	std::vector<gmtl::Point3f> verts = tg->getVerts();
-	Renderer::setVertices(verts);
+	std::vector<Tri> verts = tg->getTriangles();
+	Renderer::setTriangles(verts);
     Renderer::setDisplayFunction(displayFunction);
 
     Renderer::start();

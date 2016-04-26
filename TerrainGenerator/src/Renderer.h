@@ -3,6 +3,7 @@
 #include <gmtl/Point.h>
 #include <GL/glui.h>
 #include <string>
+#include "Tri.h"
 
 namespace Renderer{
 	int w_width;
@@ -10,18 +11,22 @@ namespace Renderer{
 	int window;
 	float view_angle;
 
-	std::vector<gmtl::Point3f> vertices;
+	std::vector<Tri> triangles = std::vector<Tri>();
 
 	std::string custom_func = "-y";
 
     void draw(){
-        glBegin(GL_TRIANGLES);
-        int num_vert = vertices.size();
-        for (int i = 0; i < num_vert; i++){
-			
-			glVertex3f(vertices[i][0], vertices[i][1], vertices[i][2]);
-			
-        }
+		int num_tri = triangles.size();
+		
+		glBegin(GL_TRIANGLES);
+		for (int i = 0; i < num_tri; i++){
+
+			for (int j = 0; j < 3; j++){
+				glVertex3f(triangles[i][j][0], triangles[i][j][1], triangles[i][j][2]);
+			}
+			glNormal3f(triangles[i].norm[0], triangles[i].norm[1], triangles[i].norm[2]);
+
+		}
 		glEnd();
     }
 
@@ -79,8 +84,6 @@ namespace Renderer{
 		glEnable(GL_DEPTH_TEST);
 		glPolygonOffset(1, 1);
 
-		vertices = std::vector<gmtl::Point3f>();
-
 		GLUI* g = GLUI_Master.create_glui("Control Panel");
 		GLUI_Panel *controls = g->add_panel("Movement");
 		(new GLUI_StaticText(controls, "W - Forward"));
@@ -105,16 +108,14 @@ namespace Renderer{
 		glutMainLoop();
 	}
 
-	void setVertices(std::vector<gmtl::Point3f> v){
-		vertices.clear();
-		vertices = v;
-	}
-
     void setDisplayFunction(void(*dFunc)()){
         if (dFunc != NULL){
             glutDisplayFunc(dFunc);
         }
     }
 
-
+	void setTriangles(std::vector<Tri> t){
+		triangles.clear();
+		triangles.insert(triangles.end(), t.begin(), t.end());
+	}
 }

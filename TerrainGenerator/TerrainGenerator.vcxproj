@@ -81,6 +81,7 @@
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\tables.h" />
     <ClInclude Include="src\TerrainGenerator.h" />
+    <ClInclude Include="src\Tri.h" />
     <ClInclude Include="src\utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

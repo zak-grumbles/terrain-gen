@@ -6,104 +6,90 @@
 
 using namespace gmtl;
 
-std::vector<gmtl::Point3f> Voxel::getPolygonAt(gmtl::Point3f bottom_front_left, float voxel_size)
+std::vector<Tri> Voxel::getPolygonAt(gmtl::Point3f start, float voxel_size)
 {
-	std::vector<gmtl::Point3f> verts = std::vector<gmtl::Point3f>();
+	std::vector<Point3f> v = std::vector<Point3f>();
+	Point3f next;
+	v.push_back(start);	//0 
+	v.push_back(Point3f(start[0] + voxel_size, start[1], start[2])); //1
+	v.push_back(Point3f(start[0] + voxel_size, start[1], start[2] + voxel_size)); //2
+	v.push_back(Point3f(start[0], start[1], start[2] + voxel_size)); //3
+	v.push_back(Point3f(start[0], start[1] + voxel_size, start[2])); //4
+	v.push_back(Point3f(start[0] + voxel_size, start[1] + voxel_size, start[2])); //5
+	v.push_back(Point3f(start[0] + voxel_size, start[1] + voxel_size, start[2] + voxel_size)); //6
+	v.push_back(Point3f(start[0], start[1] + voxel_size, start[2] + voxel_size)); //7
 
-	float x = bottom_front_left[0];
-	float y = bottom_front_left[1];
-	float z = bottom_front_left[2];
+	float *val = densityFunction(v);
 
-	verts.push_back(bottom_front_left);
-	verts.push_back(Point3f(x, y + voxel_size, z));
-	verts.push_back(Point3f(x+voxel_size, y + voxel_size, z));
-	verts.push_back(Point3f(x+voxel_size, y, z));
-	verts.push_back(Point3f(x, y, z - voxel_size));
-	verts.push_back(Point3f(x, y + voxel_size, z - voxel_size));
-	verts.push_back(Point3f(x + voxel_size, y + voxel_size, z - voxel_size));
-	verts.push_back(Point3f(x + voxel_size, y, z - voxel_size));
+	int tri_count;
+	int index;
 
-	float* densities = densityFunction(verts);
+	Vec3f vert_list[12];
+	Vec3f new_vert_list[12];
+	char remap[12];
 
-	int index = 0;
-	if (densities[0] < 0.0f) index |= 1;
-	if (densities[1] < 0.0f) index |= 2;
-	if (densities[2] < 0.0f) index |= 4;
-	if (densities[3] < 0.0f) index |= 8;
-	if (densities[4] < 0.0f) index |= 16;
-	if (densities[5] < 0.0f) index |= 32;
-	if (densities[6] < 0.0f) index |= 64;
-	if (densities[7] < 0.0f) index |= 128;
+	index = 0;
+	if (val[0] < 0.0f) index |= 1;
+	if (val[1] < 0.0f) index |= 2;
+	if (val[2] < 0.0f) index |= 4;
+	if (val[3] < 0.0f) index |= 8;
+	if (val[4] < 0.0f) index |= 16;
+	if (val[5] < 0.0f) index |= 32;
+	if (val[6] < 0.0f) index |= 64;
+	if (val[7] < 0.0f) index |= 128;
 
-	int edgeVal = edgeTable[index];
-	if (edgeVal == 0){
-		return std::vector<Point3f>();
+	if (edgeTable[index] == 0){
+		return std::vector<Tri>();
 	}
 
-	std::vector<Point3f> new_verts = std::vector<Point3f>();
-	if (edgeVal & 1)
-		new_verts.push_back(linear_interp(verts[0], verts[1], densities[0], densities[1]));
-	else
-		new_verts.push_back(Point3f());
-	if (edgeVal & 2)
-		new_verts.push_back(linear_interp(verts[1], verts[2], densities[1], densities[2]));
-	else
-		new_verts.push_back(Point3f());
-	if (edgeVal & 4)
-		new_verts.push_back(linear_interp(verts[2], verts[3], densities[2], densities[3]));
-	else
-		new_verts.push_back(Point3f());
-	if (edgeVal & 8)
-		new_verts.push_back(linear_interp(verts[3], verts[0], densities[3], densities[0]));
-	else
-		new_verts.push_back(Point3f());
-	if (edgeVal & 16)
-		new_verts.push_back(linear_interp(verts[4], verts[5], densities[4], densities[5]));
-	else
-		new_verts.push_back(Point3f());
-	if (edgeVal & 32)
-		new_verts.push_back(linear_interp(verts[5], verts[6], densities[5], densities[6]));
-	else
-		new_verts.push_back(Point3f());
-	if (edgeVal & 64)
-		new_verts.push_back(linear_interp(verts[6], verts[7], densities[6], densities[7]));
-	else
-		new_verts.push_back(Point3f());
-	if (edgeVal & 128)
-		new_verts.push_back(linear_interp(verts[7], verts[4], densities[7], densities[4]));
-	else
-		new_verts.push_back(Point3f());
-	if (edgeVal & 256)
-		new_verts.push_back(linear_interp(verts[0], verts[4], densities[0], densities[4]));
-	else
-		new_verts.push_back(Point3f());
-	if (edgeVal & 512)
-		new_verts.push_back(linear_interp(verts[1], verts[5], densities[1], densities[5]));
-	else
-		new_verts.push_back(Point3f());
-	if (edgeVal & 1024)
-		new_verts.push_back(linear_interp(verts[2], verts[6], densities[2], densities[6]));
-	else
-		new_verts.push_back(Point3f());
-	if (edgeVal & 2048)
-		new_verts.push_back(linear_interp(verts[3], verts[7], densities[3], densities[7]));
-	else
-		new_verts.push_back(Point3f());
+	if (edgeTable[index] & 1)
+		vert_list[0] =
+		linear_interp(v[0], v[1], val[0], val[1]);
+	if (edgeTable[index] & 2)
+		vert_list[1] =
+		linear_interp(v[1], v[2], val[1], val[2]);
+	if (edgeTable[index] & 4)
+		vert_list[2] =
+		linear_interp(v[2], v[3], val[2], val[3]);
+	if (edgeTable[index] & 8)
+		vert_list[3] =
+		linear_interp(v[3], v[0], val[3], val[0]);
+	if (edgeTable[index] & 16)
+		vert_list[4] =
+		linear_interp(v[4], v[5], val[4], val[5]);
+	if (edgeTable[index] & 32)
+		vert_list[5] =
+		linear_interp(v[5], v[6], val[5], val[6]);
+	if (edgeTable[index] & 64)
+		vert_list[6] =
+		linear_interp(v[6], v[7], val[6], val[7]);
+	if (edgeTable[index] & 128)
+		vert_list[7] =
+		linear_interp(v[7], v[4], val[7], val[4]);
+	if (edgeTable[index] & 256)
+		vert_list[8] =
+		linear_interp(v[0], v[4], val[0], val[4]);
+	if (edgeTable[index] & 512)
+		vert_list[9] =
+		linear_interp(v[1], v[5], val[1], val[5]);
+	if (edgeTable[index] & 1024)
+		vert_list[10] =
+		linear_interp(v[2], v[6], val[2], val[6]);
+	if (edgeTable[index] & 2048)
+		vert_list[11] =
+		linear_interp(v[3], v[7], val[3], val[7]);
 
-	int new_count = 0;
-	int remap[] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
-
-
-	std::vector<Point3f> final_verts = std::vector<Point3f>();
-	for (int i = 0; triTable[index][i] != -1; i++){
-		if (remap[triTable[index][i]] == -1){
-			final_verts.push_back(verts[triTable[index][i]]);
-			remap[triTable[index][i]] = new_count;
-			new_count++;
-		}
+	int num_tri = 0;
+	std::vector<Tri> result = std::vector<Tri>();
+	for (int i = 0; triTable[index][i] != -1; i += 3){
+		Point3f p0 = vert_list[triTable[index][i]];
+		Point3f p1 = vert_list[triTable[index][i + 1]];
+		Point3f p2 = vert_list[triTable[index][i + 2]];
+		result.push_back(Tri(p0, p1, p2));
+		num_tri++;
 	}
 
-	return final_verts;
+	return result;
 }
 
 Point3f Voxel::linear_interp(Point3f p1, Point3f p2, float d1, float d2){
@@ -121,40 +107,11 @@ float* Voxel::densityFunction(std::vector<gmtl::Point3f> verts){
 
 	for (int i = 0; i < 8; i++){
 		d[i] = -verts[i][1];
-		//d[i] += (mod.GetValue(verts[i][0] + 0.1f, verts[i][1] + 0.1f, verts[i][2] + 0.1f));
+		//d[i] += (mod.GetValue(0.0f, verts[i][1] + 0.1f, 0.0f));
 		//printf("%f\n", d[i]);
 	}
 
 	return d;
-}
-
-Cell::Cell(gmtl::Point3f bottom_front_left, int vCount){
-    voxel_count = vCount;
-    voxel_size = CELL_SIZE / (float)voxel_count;
-
-    int x = bottom_front_left[0];
-    int y = bottom_front_left[1];
-    int z = bottom_front_left[2];
-
-    for (int i = 0; i < voxel_count; i++){
-        x += i * voxel_size;
-
-
-
-        for (int j = 0; j < voxel_count; j++){
-            y += j * voxel_size;
-
-            for (int k = 0; k < voxel_count; k++){
-                z += k * voxel_size;
-
-                std::vector<gmtl::Point3f> v = Voxel::getPolygonAt(
-                    gmtl::Point3f(x, y, z), voxel_size);
-                vertices.insert(vertices.end(), v.begin(), v.end());
-            }
-
-        }
-
-    }
 }
 
 TerrainGenerator::TerrainGenerator(int w, int l, int h){
@@ -174,8 +131,8 @@ TerrainGenerator::TerrainGenerator(int w, int l, int h){
 	startPoint = Point3f(start_x, start_y, start_z);
 }
 
-std::vector<Point3f> TerrainGenerator::getVerts(){
-	std::vector<Point3f> verts = std::vector<Point3f>();
+std::vector<Tri> TerrainGenerator::getTriangles(){
+	std::vector<Tri> verts = std::vector<Tri>();
 
 	for (int i = 0; i < grid_h; i++){
 
@@ -189,7 +146,7 @@ std::vector<Point3f> TerrainGenerator::getVerts(){
 
 				float x = startPoint[0] + k * VOXEL_SIZE;
 
-				std::vector<Point3f> v = Voxel::getPolygonAt(Point3f(x, y, z), VOXEL_SIZE);
+				std::vector<Tri> v = Voxel::getPolygonAt(Point3f(x, y, z), VOXEL_SIZE);
 				verts.insert(verts.end(), v.begin(), v.end());
 
 			}
