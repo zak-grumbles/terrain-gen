@@ -1,9 +1,11 @@
 #include <vector>
 #include <gmtl/Point.h>
 #include "Tri.h"
+#include "noiseutils.h"
 
 #define CELL_SIZE 1.0f
-#define VOXEL_SIZE 0.5f
+#define VOXEL_SIZE 0.1f
+#define HEIGHT_MAP "h_map.bmp"
 
 struct Voxel{
     static std::vector<Tri> getPolygonAt(
@@ -19,6 +21,8 @@ class TerrainGenerator{
 public:
     TerrainGenerator(int, int, int);
 	std::vector<Tri> getTriangles();
+	utils::NoiseMap height_map;
+	noise::module::Perlin plane_noise;
 
 private:
     int grid_w;
@@ -26,5 +30,5 @@ private:
 	int grid_h;
     int voxel_count;
 	gmtl::Point3f startPoint;
-    
+	void generateHeightMap();
 };

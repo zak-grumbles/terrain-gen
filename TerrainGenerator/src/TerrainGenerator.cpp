@@ -102,13 +102,9 @@ Point3f Voxel::linear_interp(Point3f p1, Point3f p2, float d1, float d2){
 
 float* Voxel::densityFunction(std::vector<gmtl::Point3f> verts){
 	float* d = new float[8];
-	noise::module::Perlin mod;
-	mod.SetOctaveCount(3);
 
 	for (int i = 0; i < 8; i++){
 		d[i] = -verts[i][1];
-		//d[i] += (mod.GetValue(0.0f, verts[i][1] + 0.1f, 0.0f));
-		//printf("%f\n", d[i]);
 	}
 
 	return d;
@@ -129,6 +125,30 @@ TerrainGenerator::TerrainGenerator(int w, int l, int h){
 	start_z *= -1.0f;
 
 	startPoint = Point3f(start_x, start_y, start_z);
+
+	generateHeightMap();
+}
+
+void TerrainGenerator::generateHeightMap(){
+	
+	utils::NoiseMapBuilderPlane h_map_builder;
+	h_map_builder.SetSourceModule(plane_noise);
+	h_map_builder.SetDestNoiseMap(height_map);
+	h_map_builder.SetDestSize(grid_w, grid_l);
+	h_map_builder.SetBounds(2.0, 6.0, 1.0, 5.0);
+	h_map_builder.Build();
+
+	utils::RendererImage r;
+	utils::Image i;
+	r.SetSourceNoiseMap(height_map);
+	r.SetDestImage(i);
+
+	r.Render();
+
+	utils::WriterBMP w;
+	w.SetSourceImage(i);
+	w.SetDestFilename(HEIGHT_MAP);
+	w.WriteDestFile();
 }
 
 std::vector<Tri> TerrainGenerator::getTriangles(){

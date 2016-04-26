@@ -12,12 +12,12 @@ int window_width = 640;
 int window_height = 480;
 float view_angle = 45.0f;
 
-float eye_x = 2;
-float eye_y = 2;
-float eye_z = 2;
-float look_x = -2;
-float look_y = -2;
-float look_z = -2;
+float eye_x = 0;
+float eye_y = 5;
+float eye_z = 10;
+float look_x = 0;
+float look_y = 0;
+float look_z = -1;
 float rot_u = 0.0f;
 float rot_v = 0;
 float rot_w = 0;
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]){
 	glutKeyboardFunc(keyboardFunc);
 	
 
-	TerrainGenerator *tg = new TerrainGenerator(10, 10, 10);
+	TerrainGenerator *tg = new TerrainGenerator(100, 100, 100);
 	std::vector<Tri> verts = tg->getTriangles();
 	Renderer::setTriangles(verts);
     Renderer::setDisplayFunction(displayFunction);

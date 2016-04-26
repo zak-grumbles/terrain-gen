@@ -235,4 +235,6 @@ _Pvt_Extensions
 # FAKE - F# Make
 .fake/
 
+# ignore issue related files as well as generated heightmaps
 issues/
+*.bmp
