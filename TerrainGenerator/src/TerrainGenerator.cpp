@@ -1,12 +1,13 @@
 #include "TerrainGenerator.h"
 #include "tables.h"
+#include "utilities.h"
 #include <gmtl/Vec.h>
 #include <noise/noise.h>
 #include <stdio.h>
 
 using namespace gmtl;
 
-std::vector<Tri> Voxel::getPolygonAt(gmtl::Point3f start, float voxel_size)
+std::vector<Tri> TerrainGenerator::getPolygonAt(gmtl::Point3f start)
 {
 	std::vector<Point3f> v = std::vector<Point3f>();
 	Point3f next;
@@ -29,14 +30,28 @@ std::vector<Tri> Voxel::getPolygonAt(gmtl::Point3f start, float voxel_size)
 	char remap[12];
 
 	index = 0;
-	if (val[0] < 0.0f) index |= 1;
-	if (val[1] < 0.0f) index |= 2;
-	if (val[2] < 0.0f) index |= 4;
-	if (val[3] < 0.0f) index |= 8;
-	if (val[4] < 0.0f) index |= 16;
-	if (val[5] < 0.0f) index |= 32;
-	if (val[6] < 0.0f) index |= 64;
-	if (val[7] < 0.0f) index |= 128;
+	
+	
+	if (val[0] == 0.0f) index |= 1;
+	if (val[1] == 0.0f) index |= 2;
+	if (val[2] == 0.0f) index |= 4;
+	if (val[3] == 0.0f) index |= 8;
+	if (val[4] == 0.0f) index |= 16;
+	if (val[5] == 0.0f) index |= 32;
+	if (val[6] == 0.0f) index |= 64;
+	if (val[7] == 0.0f) index |= 128;
+	
+
+	/*
+	if (in_range(val[0], 0.0f)) index |= 1;
+	if (in_range(val[1], 0.0f)) index |= 2;
+	if (in_range(val[2], 0.0f)) index |= 4;
+	if (in_range(val[3], 0.0f)) index |= 8;
+	if (in_range(val[4], 0.0f)) index |= 16;
+	if (in_range(val[5], 0.0f)) index |= 32;
+	if (in_range(val[6], 0.0f)) index |= 64;
+	if (in_range(val[7], 0.0f)) index |= 128;
+	*/
 
 	if (edgeTable[index] == 0){
 		return std::vector<Tri>();
@@ -92,19 +107,31 @@ std::vector<Tri> Voxel::getPolygonAt(gmtl::Point3f start, float voxel_size)
 	return result;
 }
 
-Point3f Voxel::linear_interp(Point3f p1, Point3f p2, float d1, float d2){
-	float x = p1[0] + (-d1 / (d2 - d1)) * (p2[0] - p1[0]);
-	float y = p1[1] + (-d1 / (d2 - d1)) * (p2[1] - p1[1]);
-	float z = p1[2] + (-d1 / (d2 - d1)) * (p2[2] - p1[2]);
 
-	return Point3f(x, y, z);
-}
 
-float* Voxel::densityFunction(std::vector<gmtl::Point3f> verts){
+float* TerrainGenerator::densityFunction(std::vector<gmtl::Point3f> verts){
 	float* d = new float[8];
+
+	float min_x = startPoint[0];
+	float max_x = min_x * -1.0f;
+
+	float min_y = startPoint[1];
+	float max_y = min_y * -1.0f;
+
+	float max_z = startPoint[2];
+	float min_z = max_z * -1.0f;
+
+	noise::module::Perlin p;
+	p.SetOctaveCount(10);
 
 	for (int i = 0; i < 8; i++){
 		d[i] = -verts[i][1];
+		
+		float new_x = normalize_coordinate(verts[i][0], max_x, min_x);
+		float new_y = normalize_coordinate(verts[i][1], max_y, min_y);
+		float new_z = normalize_coordinate(verts[i][2], max_z, min_z);
+
+		d[i] = p.GetValue(new_x, new_y, new_z);
 	}
 
 	return d;
@@ -147,18 +174,28 @@ void TerrainGenerator::generateHeightMap(){
 	h_map_builder.SetSourceModule(plane_noise);
 	h_map_builder.SetDestNoiseMap(height_map);
 	h_map_builder.SetDestSize(grid_w, grid_l);
-	h_map_builder.SetBounds(x_start, x_end, z_start, z_end);
+	h_map_builder.SetBounds(0.0f, 1.0f, 0.0f, 1.0f);
 	h_map_builder.Build();
 
 	utils::RendererImage r;
-	utils::Image i;
 	r.SetSourceNoiseMap(height_map);
-	r.SetDestImage(i);
-
+	r.SetDestImage(height_image);
+	r.ClearGradient();
+	r.AddGradientPoint(-1.0000, utils::Color(0, 0, 128, 255)); // deeps
+	r.AddGradientPoint(-0.2500, utils::Color(0, 0, 255, 255)); // shallow
+	r.AddGradientPoint(0.0000, utils::Color(0, 128, 255, 255)); // shore
+	r.AddGradientPoint(0.0625, utils::Color(240, 240, 64, 255)); // sand
+	r.AddGradientPoint(0.1250, utils::Color(32, 160, 0, 255)); // grass
+	r.AddGradientPoint(0.3750, utils::Color(224, 224, 0, 255)); // dirt
+	r.AddGradientPoint(0.7500, utils::Color(128, 128, 128, 255)); // rock
+	r.AddGradientPoint(1.0000, utils::Color(255, 255, 255, 255)); // snow
+	r.EnableLight();
+	r.SetLightContrast(3.0);
+	
 	r.Render();
 
 	utils::WriterBMP w;
-	w.SetSourceImage(i);
+	w.SetSourceImage(height_image);
 	w.SetDestFilename(HEIGHT_MAP);
 	w.WriteDestFile();
 }
@@ -170,6 +207,9 @@ std::vector<Tri> TerrainGenerator::getTriangles(){
 
 		float y = startPoint[1] + i * voxel_size;
 
+		if (i % 25 == 0)
+			printf("%i ", i);
+
 		for (int j = 0; j < grid_l; j++){
             
 			float z = startPoint[2] + j * voxel_size;
@@ -178,7 +218,7 @@ std::vector<Tri> TerrainGenerator::getTriangles(){
 
 				float x = startPoint[0] + k * voxel_size;
 
-				std::vector<Tri> v = Voxel::getPolygonAt(Point3f(x, y, z), voxel_size);
+				std::vector<Tri> v = getPolygonAt(Point3f(x, y, z));
 				verts.insert(verts.end(), v.begin(), v.end());
 
 			}
@@ -237,4 +277,8 @@ float TerrainGenerator::getVoxelSize(){
 
 bool TerrainGenerator::shouldUpdate(){
     return should_update;
+}
+
+utils::Image TerrainGenerator::getHeightImage(){
+	return height_image;
 }

@@ -7,16 +7,6 @@
 #define VOXEL_SIZE 0.1f
 #define HEIGHT_MAP "h_map.bmp"
 
-struct Voxel{
-    static std::vector<Tri> getPolygonAt(
-        gmtl::Point3f bottom_front_left, float voxel_size);
-
-private:
-    static float* densityFunction(std::vector<gmtl::Point3f> verts);
-
-	static gmtl::Point3f linear_interp(gmtl::Point3f p1, gmtl::Point3f p2, float d1, float d2);
-};
-
 class TerrainGenerator{
 public:
     TerrainGenerator(int, int, int, float v_size = VOXEL_SIZE);
@@ -36,7 +26,7 @@ public:
 
     bool shouldUpdate();
     
-
+	utils::Image getHeightImage();
 
 private:
     int grid_w;
@@ -49,8 +39,13 @@ private:
 
     utils::NoiseMap height_map;
     noise::module::Perlin plane_noise;
+	utils::Image height_image;
 
 	gmtl::Point3f startPoint;
 
 	void generateHeightMap();
+
+	float* densityFunction(std::vector<gmtl::Point3f> verts);
+
+	std::vector<Tri> getPolygonAt(gmtl::Point3f bottom_front_left);
 };

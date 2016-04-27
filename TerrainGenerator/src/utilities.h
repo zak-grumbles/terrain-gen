@@ -81,3 +81,19 @@ inline void scale_vec(Vec3f& v, float scalar){
 	v[1] *= scalar;
 	v[2] *= scalar;
 }
+
+inline float normalize_coordinate(float a, float max, float min){
+	return (1) / (max - min)*(a - max) + 1;
+}
+
+inline Point3f linear_interp(Point3f p1, Point3f p2, float d1, float d2){
+	float x = p1[0] + (-d1 / (d2 - d1)) * (p2[0] - p1[0]);
+	float y = p1[1] + (-d1 / (d2 - d1)) * (p2[1] - p1[1]);
+	float z = p1[2] + (-d1 / (d2 - d1)) * (p2[2] - p1[2]);
+
+	return Point3f(x, y, z);
+}
+
+inline bool in_range(float a, float b){
+	return abs(a - b) < FLT_EPSILON;
+}
