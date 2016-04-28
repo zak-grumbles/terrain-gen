@@ -13,8 +13,8 @@ int window_height = 480;
 float v_angle = 45.0f;
 
 float eye_x = 0;
-float eye_y = 5;
-float eye_z = 10;
+float eye_y = 1;
+float eye_z = 5;
 float look_x = 0;
 float look_y = 0;
 float look_z = -1;
@@ -23,10 +23,6 @@ float rot_v = 0;
 float rot_w = 0;
 
 int wire = 0;
-
-Camera *c;
-
-GLUI_EditText* dFuncText = NULL;
 
 TerrainGenerator* tg;
 
@@ -51,19 +47,9 @@ void displayFunction(){
         setRenderMode(FILL);
 	}
 
-	glEnable(GL_LIGHTING);
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	
-	GLfloat pos[] = { 3.0, 3.0, 0.0, 1.0 };
-	glLightfv(GL_LIGHT0, GL_POSITION, pos);
-	glEnable(GL_LIGHT0);
-
 	glColor3f(0.8f, 0.8f, 0.8f);
 
-    if (tg->shouldUpdate()){
-        std::vector<Tri> triangles = tg->getTriangles();
-        setTriangles(triangles);
-    }
+	setTriangles(tg->getTriangles());
 
     draw();
     glutSwapBuffers();
@@ -116,7 +102,7 @@ int main(int argc, char* argv[]){
 	glutKeyboardFunc(keyboardFunc);
 	
 
-    tg = new TerrainGenerator(100, 100, 100);
+    tg = new TerrainGenerator(100, 100, 100, 0.1f);
     Renderer::setDisplayFunction(displayFunction);
 
     Renderer::start();

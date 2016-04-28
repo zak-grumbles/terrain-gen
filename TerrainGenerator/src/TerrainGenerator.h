@@ -3,49 +3,42 @@
 #include "Tri.h"
 #include "noiseutils.h"
 
-#define CELL_SIZE 1.0f
-#define VOXEL_SIZE 0.1f
+#define DEFAULT_VOX_SIZE = 1.0f;
 #define HEIGHT_MAP "h_map.bmp"
+
+struct Voxel{
+	Point3f p[8];	//corners of voxels
+	float d[8];		//density values of corners
+};
 
 class TerrainGenerator{
 public:
-    TerrainGenerator(int, int, int, float v_size = VOXEL_SIZE);
-	std::vector<Tri> getTriangles();
-    
-    void setWidth(int);
-    int getWidth();
-    
-    void setHeight(int);
-    int getHeight();
-    
-    void setLength(int);
-    int getLength();
-    
-    void setVoxelSize(float);
-    float getVoxelSize();
+	TerrainGenerator(int, int, int, float);
+	
+	void update();
 
-    bool shouldUpdate();
-    
-	utils::Image getHeightImage();
+	std::vector<Tri> getTriangles();
+
+	bool shouldUpdate();
 
 private:
-    int grid_w;
-    int grid_l;
-	int grid_h;
 
-    float voxel_size;
+	std::vector<Tri> triangles;
 
-    bool should_update;
+	bool should_update;
 
-    utils::NoiseMap height_map;
-    noise::module::Perlin plane_noise;
-	utils::Image height_image;
+	int x_count, y_count, z_count;
 
-	gmtl::Point3f startPoint;
+	float vox_size;
+	float x_bound, y_bound, z_bound;
 
-	void generateHeightMap();
+	Point3f start;
 
-	float* densityFunction(std::vector<gmtl::Point3f> verts);
+	void initSlab(float*, int);
 
-	std::vector<Tri> getPolygonAt(gmtl::Point3f bottom_front_left);
+	void makePolysFromSlabs(float*, float*, int);
+
+	float densityFunction(Point3f p);
+
+	void addTriangles(Voxel);
 };

@@ -97,3 +97,11 @@ inline Point3f linear_interp(Point3f p1, Point3f p2, float d1, float d2){
 inline bool in_range(float a, float b){
 	return abs(a - b) < FLT_EPSILON;
 }
+
+template <typename T>
+inline void swap_pointers(T *p1, T *p2){
+	T *temp = p1;
+	p1 = p2;
+	p2 = temp;
+	temp = NULL;
+}
