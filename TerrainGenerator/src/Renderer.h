@@ -1,10 +1,12 @@
 #include <GL/freeglut.h>
 #include <vector>
 #include <gmtl/Point.h>
-#include <GL/glui.h>
+#include <gmtl/Generate.h>
 #include <string>
 #include "Tri.h"
 #include "Camera.h"
+#include "utilities.h"
+#include "Mesh.h"
 
 namespace Renderer{
 	int w_width;
@@ -12,40 +14,15 @@ namespace Renderer{
 	int window;
 	float view_angle;
 
-	std::vector<Tri> triangles = std::vector<Tri>();
-
-	std::string custom_func = "-y";
-
     Camera *c = new Camera();
+	Mesh *m = NULL;
 
     enum RENDER_MODE{
         WIRE, FILL
     };
 
-    void draw(){
-		int num_tri = triangles.size();
-		
-		glBegin(GL_TRIANGLES);
-		for (int i = 0; i < num_tri; i++){
-
-			for (int j = 0; j < 3; j++){
-				glVertex3f(triangles[i][j][0], triangles[i][j][1], triangles[i][j][2]);
-			}
-			glNormal3f(triangles[i].norm[0], triangles[i].norm[1], triangles[i].norm[2]);
-
-		}
-		glEnd();
-    }
-
-	void display_function(){
-		glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glLoadIdentity();
-		gluPerspective(view_angle, (float)w_width / (float)w_height, 0.1, 30);
-
-
-        draw();
-		glutSwapBuffers();
+	void setMesh(Mesh* new_m){
+		m = new_m;
 	}
 
 	void reshape_function(int x, int y){
@@ -85,28 +62,11 @@ namespace Renderer{
 		glutInitWindowPosition(100, 100);
 		glutInitWindowSize(w_width, w_height);
 		window = glutCreateWindow("Procedural Terrain Generation - Zachary Grumbles");
-		glutDisplayFunc(display_function);
 		glutReshapeFunc(reshape_function);
+		glutIdleFunc(idle);
 		glShadeModel(GL_SMOOTH);
 		glEnable(GL_DEPTH_TEST);
 		glPolygonOffset(1, 1);
-
-		GLUI* g = GLUI_Master.create_glui("Control Panel");
-		GLUI_Panel *controls = g->add_panel("Movement");
-		(new GLUI_StaticText(controls, "W - Forward"));
-		(new GLUI_StaticText(controls, "A - Left"));
-		(new GLUI_StaticText(controls, "S - Back"));
-		(new GLUI_StaticText(controls, "D - Right"));
-		g->add_column_to_panel(controls, true);
-		(new GLUI_StaticText(controls, "Q - Up"));
-		(new GLUI_StaticText(controls, "E - Down"));
-		
-		GLUI_EditText *func = g->add_edittext("Custom Density Function d=", custom_func);
-		func->set_w(300);
-		func->set_h(20);
-		g->add_button("Update");
-		g->set_main_gfx_window(window);
-		GLUI_Master.set_glutIdleFunc(idle);
 
         c->SetScreenSize(window_w, window_h);
 
@@ -122,11 +82,6 @@ namespace Renderer{
             glutDisplayFunc(dFunc);
         }
     }
-
-	void setTriangles(std::vector<Tri> t){
-		triangles.clear();
-		triangles.insert(triangles.end(), t.begin(), t.end());
-	}
 
     void updateCamOrient(Point3f eye, Vec3f look, Vec3f up){
         c->Orient(eye, look, up);
@@ -170,4 +125,50 @@ namespace Renderer{
     Vec3f getCamRightVector(){
         return c->GetRightVector();
     }
+
+	void moveForward(){
+		float dist = 0.1f;
+		Vec3f l = c->GetLookVector();
+		scale_vec(l, dist);
+
+		c->Translate(l);
+	}
+
+	void moveBackward(){
+		float dist = 0.1f;
+		Vec3f l = c->GetLookVector();
+		scale_vec(l, -dist);
+
+		c->Translate(l);
+	}
+
+	void moveRight(){
+		float dist = 0.1f;
+		Vec3f r = makeCross(c->GetLookVector(), c->GetUpVector());
+		scale_vec(r, dist);
+		c->Translate(r);
+	}
+
+	void moveLeft(){
+		float dist = 0.1f;
+		Vec3f l = makeCross(c->GetLookVector(), c->GetUpVector());
+		scale_vec(l, -dist);
+		c->Translate(l);
+	}
+
+	void moveUp(){
+		float dist = 0.1f;
+		Vec3f u = c->GetUpVector();
+		scale_vec(u, dist);
+		c->Translate(u);
+	}
+
+	void moveDown(){
+		float dist = 0.1f;
+		Vec3f d = c->GetUpVector();
+		scale_vec(d, -dist);
+		c->Translate(d);
+	}
+
+
 }

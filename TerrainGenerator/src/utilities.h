@@ -1,3 +1,6 @@
+#ifndef UTILITIES_H
+#define UTILITIES_H
+
 #include <gmtl/Matrix.h>
 #include <gmtl/MatrixOps.h>
 
@@ -105,3 +108,4 @@ inline void swap_pointers(T *p1, T *p2){
 	p2 = temp;
 	temp = NULL;
 }
+#endif

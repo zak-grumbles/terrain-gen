@@ -54,6 +54,8 @@ public:
 	Vec3f GetRightVector();
 	Vec3f GetLeftVector();
 
+	void Translate(Vec3f);
+
 private:
 	Matrix44f model_view;
 	Matrix44f inv_model_view;

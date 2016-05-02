@@ -5,6 +5,7 @@
 #include <GL/glui.h>
 #include <gmtl/VecOps.h>
 #include <gmtl/Generate.h>
+#include "Mesh.h"
 
 int monitor_width;
 int monitor_height;
@@ -13,8 +14,8 @@ int window_height = 480;
 float v_angle = 45.0f;
 
 float eye_x = 0;
-float eye_y = 1;
-float eye_z = 5;
+float eye_y = 0;
+float eye_z = 10;
 float look_x = 0;
 float look_y = 0;
 float look_z = -1;
@@ -32,11 +33,8 @@ void displayFunction(){
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-    updateViewAngle(v_angle);
     applyProjection();
-
 	updateCamOrient(Point3f(eye_x, eye_y, eye_z), Vec3f(look_x, look_y, look_z), Vec3f(0, 1, 0));
-    updateCamRot(rot_u, rot_v, rot_w);
 
     applyModelView();
 
@@ -48,53 +46,35 @@ void displayFunction(){
 	}
 
 	glColor3f(0.8f, 0.8f, 0.8f);
+	tg->draw();
 
-	setTriangles(tg->getTriangles());
-
-    draw();
     glutSwapBuffers();
 }
 
 
 void keyboardFunc(unsigned char k, int x, int y){
-
-	Point3f e = Point3f(eye_x, eye_y, eye_z);
-	Vec3f l = Vec3f(look_x, look_y, look_z);
-    Vec3f u = getCamUpVector();
-	normalize(u);
-	normalize(l);
-
-	Vec3f r;
-	Vec3f left;
-
 	switch (k){
 	case 'w':
-		scale_vec(l, 0.05f);
-		e = add_point_vec(e, l);
+		moveForward();
 		break;
 	case 'a':
+		moveLeft();
 		break;
 	case 'd':
-        r = getCamRightVector();
-		scale_vec(r, 0.05f);
-		e = add_point_vec(e, r);
+		moveRight();
 		break;
 	case 's':
-		scale_vec(l, -0.05f);
-		e = add_point_vec(e, l);
+		moveBackward();
 		break;
 	case 'q':
-		scale_vec(u, 0.05f);
-		e = add_point_vec(e, u);
+		moveDown();
 		break;
 	case 'e':
-		scale_vec(u, -0.05f);
-		e = add_point_vec(e, u);
+		moveUp();
 		break;
 	}
-	eye_x = e[0];
-	eye_y = e[1];
-	eye_z = e[2];
+	Point3f e = c->GetEyePoint();
+	eye_x = e[0]; eye_y = e[1]; eye_z = e[2];
 }
 
 int main(int argc, char* argv[]){
@@ -102,9 +82,8 @@ int main(int argc, char* argv[]){
 	glutKeyboardFunc(keyboardFunc);
 	
 
-    tg = new TerrainGenerator(100, 100, 100, 0.1f);
-    Renderer::setDisplayFunction(displayFunction);
-
+    tg = new TerrainGenerator(10, 10, 10, 0.2f);
+    Renderer::setDisplayFunction(displayFunction);;
     Renderer::start();
 	return 0;
 }

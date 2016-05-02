@@ -172,3 +172,8 @@ Vec3f Camera::GetLeftVector(){
 
 	return l;
 }
+
+void Camera::Translate(Vec3f v){
+	inv_model_view = inv_model_view * trans_mat(v[0], v[1], v[2]);
+	model_view = inv_trans_mat(v[0], v[1], v[2]) * model_view;
+}
