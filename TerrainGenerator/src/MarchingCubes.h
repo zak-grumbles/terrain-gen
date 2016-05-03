@@ -1,9 +1,12 @@
+#include <GL/glew.h>
 #include <GL/glut.h>
 #include <math.h>
 #include <noise/noise.h>
+#include <SOIL/SOIL.h>
 #include "noiseutils.h"
 #include "tables.h"
 #include "utilities.h"
+#include "ShaderManager.h"
 
 using namespace noise;
 
@@ -17,11 +20,17 @@ struct GLPoint{
 	GLfloat x;
 	GLfloat y;
 	GLfloat z;
+	GLfloat r;
+	GLfloat g;
+	GLfloat b;
 
 	GLPoint(){
 		x = y = z = 0.0;
+		r = g = b = 0.0;
 	}
 };
+
+
 
 static const GLfloat a2fVertexOffset[8][3] =
 {
@@ -43,6 +52,8 @@ static const GLfloat a2fEdgeDirection[12][3] =
 	{ 0.0, 0.0, 1.0 }, { 0.0, 0.0, 1.0 }, { 0.0, 0.0, 1.0 }, { 0.0, 0.0, 1.0 }
 };
 
+static GLfloat height_map[256][256];
+
 static const GLfloat afAmbientWhite[] = { 0.25, 0.25, 0.25, 1.00 };
 static const GLfloat afAmbientRed[] = { 0.25, 0.00, 0.00, 1.00 };
 static const GLfloat afAmbientGreen[] = { 0.00, 0.25, 0.00, 1.00 };
@@ -56,9 +67,9 @@ static const GLfloat afSpecularRed[] = { 1.00, 0.25, 0.25, 1.00 };
 static const GLfloat afSpecularGreen[] = { 0.25, 1.00, 0.25, 1.00 };
 static const GLfloat afSpecularBlue[] = { 0.25, 0.25, 1.00, 1.00 };
 
-GLint size = 16;
-GLfloat step_size = 2.0 / size;
-GLfloat target = 48.0;
+GLint size = 512;
+GLfloat step_size = 512 / size;
+GLfloat target = 0.0;
 
 void idle();
 void draw();
@@ -68,16 +79,26 @@ void keyboard(unsigned char k, int x, int y);
 GLfloat sample_1(GLfloat, GLfloat, GLfloat);
 GLfloat sample_sin_cos(GLfloat, GLfloat, GLfloat);
 GLfloat sample_height_map(GLfloat, GLfloat, GLfloat);
-GLfloat(*sample)(GLfloat, GLfloat, GLfloat) = sample_1;
+GLfloat(*sample)(GLfloat, GLfloat, GLfloat) = sample_height_map;
+void setResolution(float);
 
 GLvoid MarchingCubes();
 GLvoid march_cube(GLPoint, GLfloat);
 void init_height_map(GLPoint);
 GLPoint start;
+GLfloat s0, s1, s2, s3;
 
 utils::NoiseMap map;
+utils::Image image;
 
 std::vector<GLPoint> verts = std::vector<GLPoint>();
+
+GLuint grass[2];
+unsigned char* grass_tex;
+unsigned char* grass_bmp;
+GLint grass_shader;
+
+Vec3 lightPos;
 
 void idle(){
 	glutPostRedisplay();
@@ -85,9 +106,21 @@ void idle(){
 
 void draw(){
 	glBegin(GL_TRIANGLES);
-	glColor3f(0.8, 0.8, 0.8);
+
 	for (int i = 0; i < verts.size(); i++){
-		glVertex3f(verts[i].x, verts[i].y, verts[i].z);
+		float y = verts[i].y *10.0;
+
+		if (y < 0.5f)
+			glColor3f(0.871f, 0.878f, 0.706f);
+		else if (y > 0.5f && y <= 5.0f)
+			glColor3f(0.114f, 0.420f, 0.153f);
+		else if (y > 5.0f && y <= 7.0f){
+			glColor3f(0.710f, 0.710f, 0.710f);
+		}
+		else if (y > 7.0f)
+			glColor3f(0.969f, 1.0f, 0.980f);
+
+		glVertex3f(verts[i].x, verts[i].y*10.0, verts[i].z);
 		
 	}
 	glEnd();
@@ -124,12 +157,7 @@ GLfloat sample_sin_cos(GLfloat x, GLfloat y, GLfloat z){
 }
 
 GLfloat sample_height_map(GLfloat x, GLfloat y, GLfloat z){
-	float new_x = normalize_coordinate(x, 1, 0);
-	float new_z = normalize_coordinate(z, 1, 0);
-
-	target = map.GetValue(new_x, new_z);
-
-	return y;
+	return (map.GetValue(x, z)) - y;
 }
 
 void march_cube(GLPoint p, GLfloat scale){
@@ -152,7 +180,7 @@ void march_cube(GLPoint p, GLfloat scale){
 
 	GLint index = 0;
 	for (int vert_test = 0; vert_test < 8; vert_test++){
-		if (cube_value[vert_test] <= target){
+		if (cube_value[vert_test] > target){
 			index |= 1 << vert_test;
 		}
 	}
@@ -172,6 +200,11 @@ void march_cube(GLPoint p, GLfloat scale){
 			edge_vertex[edge].x = p.x + (a2fVertexOffset[a2iEdgeConnection[edge][0]][0] + offset * a2fEdgeDirection[edge][0]) * scale;
 			edge_vertex[edge].y = p.y + (a2fVertexOffset[a2iEdgeConnection[edge][0]][1] + offset * a2fEdgeDirection[edge][1]) * scale;
 			edge_vertex[edge].z = p.z + (a2fVertexOffset[a2iEdgeConnection[edge][0]][2] + offset * a2fEdgeDirection[edge][2]) * scale;
+			
+			utils::Color c = image.GetValue(p.x, p.z);
+			edge_vertex[edge].r = c.red;
+			edge_vertex[edge].g = c.green;
+			edge_vertex[edge].b = c.blue;
 		}
 	}
 
@@ -184,14 +217,22 @@ void march_cube(GLPoint p, GLfloat scale){
 
 			//glVertex3f(edge_vertex[vertex].x, edge_vertex[vertex].y, edge_vertex[vertex].z);
 			verts.push_back(edge_vertex[vertex]);
-			printf("\tVertex at (%f, %f, %f)\n", edge_vertex[vertex].x, edge_vertex[vertex].y, edge_vertex[vertex].z);
+			//printf("\tVertex at (%f, %f, %f)\n", edge_vertex[vertex].x, edge_vertex[vertex].y, edge_vertex[vertex].z);
 		}
 	}
 }
 
 void MarchingCubes(){
+	verts.clear();
 	printf("Hang on, I'm playing God...\n");
+	printf("Size is %i\n", size);
 	for (int x = 0; x < size; x++){
+		if (x % 100 == 0){
+			printf("%i ", x);
+		}
+		if (x % 500 == 0 & x != 0){
+			printf("\n");
+		}
 		for (int y = 0; y < size; y++){
 			for (int z = 0; z < size; z++){
 				GLPoint p;
@@ -203,66 +244,104 @@ void MarchingCubes(){
 			}
 		}
 	}
-	printf("Alright, it is finished.\n");
+	printf("Alright, it is finished.\nRendered %i vertices.\n", verts.size());
 }
 
 void init(){
-	start.x = (float)size * step_size / 2.0f;
+	start.x = 0;
 	start.y = start.x;
 	start.z = start.x;
 
-	start.x *= -1;
-	start.y *= -1;
-	start.z *= -1;
-
 	init_height_map(start);
 	MarchingCubes();
+
+	ShaderManager m = ShaderManager();
+	grass_shader = m.initShader("shaders/vert.glsl", "shaders/terrain_frag.glsl");
+
+	glGenTextures(2, grass);
+
+	int w, h;
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, grass[0]);
+	grass_tex = SOIL_load_image("textures/grass.jpg", &w, &h, 0, SOIL_LOAD_RGB);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, grass_tex);
+	SOIL_free_image_data(grass_tex);
+	glUniform1i(glGetUniformLocation(grass_shader, "grass"), 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, grass[1]);
+	grass_bmp = SOIL_load_image("textures/grass_n.png", &w, &h, 0, SOIL_LOAD_RGB);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, grass_bmp);
+	SOIL_free_image_data(grass_bmp);
+	glUniform1i(glGetUniformLocation(grass_shader, "grass_bmp"), 1);
+
+	lightPos.x = 2;
+	lightPos.y = 2;
+	lightPos.z = 22;
+
+	glUniform3f(glGetUniformLocation(grass_shader, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+	//glUseProgram(grass_shader);
 }
 
 void init_height_map(GLPoint p){
-	module::RidgedMulti mountains;
-	module::Billow base;
-	base.SetFrequency(2.0);
-
-	module::ScaleBias flat;
-	flat.SetSourceModule(0, base);
-	flat.SetScale(0.125);
-	flat.SetBias(-0.75);
-
-	module::Perlin type;
-	type.SetFrequency(0.6);
-	type.SetPersistence(0.25);
-
-	module::Select f;
-	f.SetSourceModule(0, flat);
-	f.SetSourceModule(1, mountains); 
-	f.SetControlModule(type);
-	f.SetBounds(0.0, 1000.0);
-	f.SetEdgeFalloff(0.125);
+	module::Perlin mod;
 	
 	utils::NoiseMapBuilderPlane builder;
-	builder.SetSourceModule(f);
+	builder.SetSourceModule(mod);
 	builder.SetDestNoiseMap(map);
-	builder.SetDestSize(256, 256);
-	builder.SetBounds(0, 2, 0, 2);
+	builder.SetDestSize(size, size);
+	builder.SetBounds(s0, s1, s2, s3);
 	builder.Build();
 
-	utils::RendererImage r;
-	utils::Image i;
-	r.SetSourceNoiseMap(map);
-	r.SetDestImage(i);
-	r.ClearGradient();
-	r.AddGradientPoint(-1.00, utils::Color(32, 160, 0, 255)); // grass
-	r.AddGradientPoint(-0.25, utils::Color(224, 224, 0, 255)); // dirt
-	r.AddGradientPoint(0.25, utils::Color(128, 128, 128, 255)); // rock
-	r.AddGradientPoint(1.00, utils::Color(255, 255, 255, 255)); // snow
-	r.EnableLight();
-	r.SetLightContrast(3.0);
-	r.SetLightBrightness(2.0);
-	r.Render();
+	utils::RendererImage renderer;
 
-	utils::WriterBMP writer;
-	writer.SetSourceImage(i);
-	writer.SetDestFilename("h_map.bmp");
-	writer.WriteDestFile();
+	renderer.SetSourceNoiseMap(map);
+	renderer.SetDestImage(image);
+	renderer.ClearGradient();
+	renderer.AddGradientPoint(-1.0000, utils::Color(0, 0, 128, 255)); // deeps
+	renderer.AddGradientPoint(-0.2500, utils::Color(0, 0, 255, 255)); // shallow
+	renderer.AddGradientPoint(0.0000, utils::Color(0, 128, 255, 255)); // shore
+	renderer.AddGradientPoint(0.0625, utils::Color(240, 240, 64, 255)); // sand
+	renderer.AddGradientPoint(0.1250, utils::Color(32, 160, 0, 255)); // grass
+	renderer.AddGradientPoint(0.3750, utils::Color(224, 224, 0, 255)); // dirt
+	renderer.AddGradientPoint(0.7500, utils::Color(128, 128, 128, 255)); // rock
+	renderer.AddGradientPoint(1.0000, utils::Color(255, 255, 255, 255)); // snow
+	renderer.Render();
+
+	utils::WriterBMP w;
+	w.SetSourceImage(image);
+	w.SetDestFilename("h_map.bmp");
+	w.WriteDestFile();
+}
+
+void setResolution(float r){
+	if (r > 0.0f){
+		step_size = r / size;
+	}
+}
+
+int getVertexCount(){
+	return verts.size();
+}
+
+void setSeed(float a, float b, float c, float d){
+	if (a < b){
+		s0 = a;
+		s1 = b;
+	}
+	else{
+		s0 = b;
+		s1 = a;
+	}
+
+	if (c < d){
+		s2 = c;
+		s3 = d;
+	}
+	else{
+		s2 = d;
+		s3 = c;
+	}
+
+	init_height_map(start);
 }

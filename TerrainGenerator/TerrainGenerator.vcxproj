@@ -68,19 +68,23 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>freeglut.lib;opengl32.lib;libnoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freeglut.lib;opengl32.lib;libnoise.lib;glew32.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\noiseutils.cpp" />
+    <ClCompile Include="src\ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Algebra.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\MarchingCubes.h" />
     <ClInclude Include="src\noiseutils.h" />
-    <ClInclude Include="src\SampleFunctions.h" />
+    <ClInclude Include="src\ShaderManager.h" />
     <ClInclude Include="src\tables.h" />
     <ClInclude Include="src\utilities.h" />
   </ItemGroup>

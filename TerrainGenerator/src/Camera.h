@@ -1,72 +1,61 @@
+
+
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <gmtl/Point.h>
-#include <gmtl/Vec.h>
-#include <gmtl/VecOps.h>
-#include <gmtl/Matrix.h>
-#include <gmtl/MatrixOps.h>
+#include "Algebra.h"
 
-#define DEFAULT_FOCAL_LENGTH 1
+#define DEFAULT_FOCUS_LENGTH 1
 #define NEAR_PLANE 0.001
-#define FAR_PLANE 100
+#define FAR_PLANE 512
 #define VIEW_ANGLE 60.0
 
-using namespace gmtl;
+class Camera {
+	public:
+		Camera();
+		~Camera();
+		void Reset();
+		void Orient(Point& eye, Point& focus, Vector& up);
+		void Orient(Point& eye, Vector& look, Vector& up);
+		void SetViewAngle (double viewAngle);
+		void SetNearPlane (double nearPlane);
+		void SetFarPlane (double farPlane);
+		void SetScreenSize (int screenWidth, int screenHeight);
+		void SetLookDistance (double lookDistance);
 
-class Camera{
-public:
-	Camera();
-	~Camera();
+		Matrix GetModelViewMatrix();
+		//Matrix GetInvModelViewMatrix();
+		Matrix GetProjectionMatrix();
 
-	void Reset();
-	void Orient(Point3f&, Point3f&, Vec3f&);
-	void Orient(Point3f&, Vec3f&, Vec3f&);
+		void RotateV(double angle);
+		void RotateU(double angle);
+		void RotateW(double angle);
 
-	void SetViewAngle(float);
-	void SetNear(float);
-	void SetFar(float);
-	void SetScreenSize(int, int);
-	
-	Matrix44f GetModelView();
-	Matrix44f GetProjection();
-	Matrix44f GetScaleMat();
+		void Translate(const Vector &v);
+		void Rotate(Point p, Vector axis, double degree);
 
-	void RotateV(float);
-	void RotateU(float);
-	void RotateW(float);
+		Point GetEyePoint();
+		Vector GetLookVector();
+		Vector GetUpVector();
+		double GetViewAngle();
+		double GetNearPlane();
+		double GetFarPlane();
+		int GetScreenWidth();
+		int GetScreenHeight();
 
-	void Rotate(Point3f, Vec3f, float);
+		double GetFilmPlanDepth();
+		double GetScreenWidthRatio();
 
-	Point3f GetEyePoint();
-	Vec3f GetLookVector();
-	float GetViewAngle();
-	float GetNear();
-	float GetFar();
+	private:
+		Matrix m_worldToCamera; //World to camera matrix
+		Matrix m_cameraToWorld; //camera to world matrix
+		//Matrix m_projection; //Projection matrix onto film plane.
+		Vector m_n, m_u, m_v;  //n u v of the camera
 
-	int GetScreenWidth();
-	int GetScreenHeight();
-
-	float GetRatio();
-	float GetFilmPlaneDepth();
-
-	Vec3f GetUpVector();
-	Vec3f GetRightVector();
-	Vec3f GetLeftVector();
-
-	void Translate(Vec3f);
-
-	Matrix44f getWorld2Cam();
-private:
-	Matrix44f model_view;
-	Matrix44f inv_model_view;
-	Matrix44f cam_2_world;
-	
-	Vec3f u, v, w;
-
-	float view_angle, near_p, far_p, film_plane_depth;
-	int width, height;
-	float ratio;
+		double m_viewAngle, m_filmPlanDepth;
+		double m_nearPlane, m_farPlane;
+		int m_screenWidth, m_screenHeight;
+		double m_screenWidthRatio; // m_screenHeightRatio;
 };
+#endif
 
-#endif /*CAMERA_H*/

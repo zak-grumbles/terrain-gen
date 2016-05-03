@@ -1,35 +1,60 @@
+#include <GL/glew.h>
 #include <GL/glut.h>
 #include <GL/glui.h>
-#include <gmtl/Generate.h>
 #include "MarchingCubes.h"
 #include "Camera.h"
-#include "SampleFunctions.h"
 #include "utilities.h"
 
 int monitor_width;
 int monitor_height;
 int window_width = 640;
 int window_height = 480;
-float v_angle = 45.0f;
+float v_angle = 60.0f;
 int window;
 
-float eye_x = 0;
-float eye_y = 1;
-float eye_z = 20;
+float eye_x = 254.4;
+float eye_y = 436.6;
+float eye_z = 258.9;
 float look_x = 0;
 float look_y = 0;
 float look_z = -1;
-float rot_u = 0.0f;
-float rot_v = 0;
-float rot_w = 0;
+float rot_u = -90.0f;
+float rot_v = -90.001f;
+float rot_w = 0.0;
 
 int wire = 0;
 
-Camera *c;
+float resolution = 1024.0f;
+
+float seed_0 = 0;
+float seed_1 = 5;
+float seed_2 = 0;
+float seed_3 = 5;
+
+Camera *c = new Camera();
+
+enum preset{
+	DEFAULT = 0,
+	MINECRAFTISH,
+	NONE
+};
+
+int current = DEFAULT;
 
 void displayFunction(){
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixd(c->GetProjectionMatrix().unpack());
+	c->Orient(Point(eye_x, eye_y, eye_z), Vector(look_x, look_y, look_z), Vector(0, 1, 0));
+	c->RotateV(rot_v);
+	c->RotateU(rot_u);
+	c->RotateW(rot_w);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixd(c->GetModelViewMatrix().unpack());
+	
 
 	if (wire){
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -38,95 +63,131 @@ void displayFunction(){
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	//glLoadIdentity();
-	//glTranslatef(0.0f, 0.0, -5.0f);
 	draw();
+
+	glColor3f(0.376f, 0.690f, 0.902f);
+	glTranslatef(0.0, -0.6f, 0.0f);
+	glScalef(1024.0f, 0.0f, 1024.0f);
+	glutSolidCube(1.0f);
+
+	c->RotateV(-rot_v);
+	c->RotateU(-rot_u);
+	c->RotateW(-rot_w);
 
     glutSwapBuffers();
 }
 
+void reshape(int x, int y){
+	float aspect;
+	aspect = (float)x / (float)y;
+	c->SetScreenSize(x, y);
+	glutPostRedisplay();
+}
 
-void keyboardFunc(unsigned char k, int x, int y){
-	Vec3f v;
-	
-	switch (k){
-	case 'w':
-		v = c->GetLookVector();
-		scale_vec(v, 0.1f);
-		c->Translate(v);
+void updateLandscape(int id){
+	switch (current){
+	case DEFAULT:
+		eye_x = 254.4;
+		eye_y = 436.6;
+		eye_z = 258.9;
+		look_x = 0;
+		look_y = 0;
+		look_z = -1;
+		rot_u = -90.0f;
+		rot_v = -90.001f;
+		rot_w = 0.0;
+		resolution = 1024;
+		seed_0 = 0;
+		seed_1 = 5;
+		seed_2 = 0;
+		seed_3 = 5;
 		break;
-	case 'a':
-		v = makeCross(c->GetLookVector(), c->GetUpVector());
-		scale_vec(v, -0.1f);
-		c->Translate(v);
+	case MINECRAFTISH:
+		eye_x = 40.2598;
+		eye_y = 15.7042;
+		eye_z = 25.975;
+		look_x = 0;
+		look_y = 0;
+		look_z = -1;
+		rot_u = -11.8;
+		rot_v = 150.366;
+		rot_w = 0.0;
+		resolution = 100;
+		seed_0 = 0;
+		seed_1 = 10;
+		seed_2 = 0;
+		seed_3 = 10;
 		break;
-	case 's':
-		v = c->GetLookVector();
-		scale_vec(v, -0.1f);
-		c->Translate(v);
+	case NONE:
 		break;
-	case 'd':
-		v = makeCross(c->GetLookVector(), c->GetUpVector());
-		//scale_vec(v, 0.1f);
-		c->Translate(v);
-		break;
-	case 'q':
-		v = c->GetUpVector();
-		//scale_vec(v, -0.1f);
-		v = v * -1.0f;
-		v = v * 0.1f;
-		c->Translate(v);
-	case 'e':
-		v = c->GetUpVector();
-		scale_vec(v, 0.1f);
-		c->Translate(v);
 	}
-	Point3f e = c->GetEyePoint();
-	e = c->getWorld2Cam() * e;
-	eye_x = e[0];
-	eye_y = e[1];
-	eye_z = e[2];
 
+	setResolution(resolution);
+	setSeed(seed_0, seed_1, seed_2, seed_3);
+	MarchingCubes();
 }
 
 int main(int argc, char* argv[]){
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(500, 500);
+	glutInitWindowSize(750, 750);
 	window = glutCreateWindow("Procedural Terrain Generation - Zachary Grumbles");
 
 	glutDisplayFunc(displayFunction);
-	glutKeyboardFunc(keyboardFunc);
-	glutIdleFunc(idle);
+	glutReshapeFunc(reshape);
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_DEPTH_TEST);
 	
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	glEnable(GL_COLOR_MATERIAL);
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
+
+	static float one[] = { 1, 1, 1, 1 };
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, one);
+
+	c->Reset();
+
+	GLUI* glui = GLUI_Master.create_glui("Controls");
+
+	GLUI_Panel *cam_panel = glui->add_panel("Camera");
+	(new GLUI_Spinner(cam_panel, "RotateV:", &rot_v))->set_int_limits(-179, 179);
+	(new GLUI_Spinner(cam_panel, "RotateU:", &rot_u))->set_int_limits(-179, 179);
+	(new GLUI_Spinner(cam_panel, "RotateW:", &rot_w))->set_int_limits(-179, 179);
 	
-	GLfloat afPropertiesAmbient[] = { 0.50, 0.50, 0.50, 1.00 };
-	GLfloat afPropertiesDiffuse[] = { 0.75, 0.75, 0.75, 1.00 };
-	GLfloat afPropertiesSpecular[] = { 1.00, 1.00, 1.00, 1.00 };
+	glui->add_column_to_panel(cam_panel, true);
 
-	glEnable(GL_LIGHTING);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, afPropertiesAmbient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, afPropertiesDiffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, afPropertiesSpecular);
-	glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1.0);
+	GLUI_Spinner* eyeX = glui->add_spinner_to_panel(cam_panel, "EyeX:", GLUI_SPINNER_FLOAT, &eye_x);
+	GLUI_Spinner* eyeY = glui->add_spinner_to_panel(cam_panel, "EyeY:", GLUI_SPINNER_FLOAT, &eye_y);
+	GLUI_Spinner* eyeZ = glui->add_spinner_to_panel(cam_panel, "EyeZ:", GLUI_SPINNER_FLOAT, &eye_z);
 
-	glEnable(GL_LIGHT0);
+	GLUI_Spinner* lookX = glui->add_spinner_to_panel(cam_panel, "LookX:", GLUI_SPINNER_FLOAT, &look_x);
+	GLUI_Spinner* lookY = glui->add_spinner_to_panel(cam_panel, "LookY:", GLUI_SPINNER_FLOAT, &look_y);
+	GLUI_Spinner* lookZ = glui->add_spinner_to_panel(cam_panel, "LookZ:", GLUI_SPINNER_FLOAT, &look_z);
+	glui->add_column(true);
 
-	glMaterialfv(GL_BACK, GL_AMBIENT, afAmbientGreen);
-	glMaterialfv(GL_BACK, GL_DIFFUSE, afDiffuseGreen);
-	glMaterialfv(GL_FRONT, GL_AMBIENT, afAmbientBlue);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, afDiffuseBlue);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, afSpecularWhite);
-	glMaterialf(GL_FRONT, GL_SHININESS, 25.0);
+	GLUI_Panel *terrain = glui->add_panel("Terrain");
+	(new GLUI_Spinner(terrain, "Resolution (BETA):", &resolution));
+	(new GLUI_Spinner(terrain, "Seed 1:", &seed_0));
+	(new GLUI_Spinner(terrain, "Seed 2:", &seed_1));
+	(new GLUI_Spinner(terrain, "Seed 3:", &seed_2));
+	(new GLUI_Spinner(terrain, "Seed 4:", &seed_3));
+	GLUI_RadioGroup* presets = new GLUI_RadioGroup(terrain, &current);
+	(new GLUI_RadioButton(presets, "Default"));
+	(new GLUI_RadioButton(presets, "Minecraft(ish)"));
+	(new GLUI_RadioButton(presets, "None"));
+	glui->add_button_to_panel(terrain, "Update Terrain", 0, updateLandscape);
+
+	glui->add_column_to_panel(terrain, true);
 	
-	c = new Camera();
-	c->Orient(Point3f(eye_x, eye_y, eye_z), Vec3f(look_x, look_y, look_z),
-		Vec3f(0, 1, 0));
 
+	glui->set_main_gfx_window(window);
+	GLUI_Master.set_glutIdleFunc(idle);
+
+	setResolution(resolution);
+	setSeed(seed_0, seed_1, seed_2, seed_3);
 	init();
+	
 
 	glutMainLoop();
 	return 0;
