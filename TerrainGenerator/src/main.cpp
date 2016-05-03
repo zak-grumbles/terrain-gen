@@ -22,7 +22,7 @@ float rot_u = -90.0f;
 float rot_v = -90.001f;
 float rot_w = 0.0;
 
-int wire = 0;
+int wire = 1;
 
 float resolution = 1024.0f;
 
@@ -32,14 +32,17 @@ float seed_2 = 0;
 float seed_3 = 5;
 
 Camera *c = new Camera();
+GLUI* glui;
 
 enum preset{
-	DEFAULT = 0,
+	NONE = 0,
+	DEFAULT,
 	MINECRAFTISH,
-	NONE
+	SPIRES
+	
 };
 
-int current = DEFAULT;
+int current = NONE;
 
 void displayFunction(){
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -118,10 +121,25 @@ void updateLandscape(int id){
 		seed_2 = 0;
 		seed_3 = 10;
 		break;
+	case SPIRES:
+		eye_x = 0.0;
+		eye_y = 19.2;
+		eye_z = 0.0;
+		look_x = 1.0;
+		look_y = 0;
+		look_z = 1.0;
+		rot_u = -14.5;
+		rot_v = 0.0;
+		rot_w = 0.0;
+		resolution = 100;
+		seed_0 = 0;
+		seed_1 = 50;
+		seed_2 = 0;
+		seed_3 = 50;
 	case NONE:
 		break;
 	}
-
+	glui->sync_live();
 	setResolution(resolution);
 	setSeed(seed_0, seed_1, seed_2, seed_3);
 	MarchingCubes();
@@ -148,7 +166,7 @@ int main(int argc, char* argv[]){
 
 	c->Reset();
 
-	GLUI* glui = GLUI_Master.create_glui("Controls");
+	glui = GLUI_Master.create_glui("Controls");
 
 	GLUI_Panel *cam_panel = glui->add_panel("Camera");
 	(new GLUI_Spinner(cam_panel, "RotateV:", &rot_v))->set_int_limits(-179, 179);
@@ -167,15 +185,17 @@ int main(int argc, char* argv[]){
 	glui->add_column(true);
 
 	GLUI_Panel *terrain = glui->add_panel("Terrain");
+	(new GLUI_Checkbox(terrain, "Wireframe:", &wire));
 	(new GLUI_Spinner(terrain, "Resolution (BETA):", &resolution));
 	(new GLUI_Spinner(terrain, "Seed 1:", &seed_0));
 	(new GLUI_Spinner(terrain, "Seed 2:", &seed_1));
 	(new GLUI_Spinner(terrain, "Seed 3:", &seed_2));
 	(new GLUI_Spinner(terrain, "Seed 4:", &seed_3));
 	GLUI_RadioGroup* presets = new GLUI_RadioGroup(terrain, &current);
+	(new GLUI_RadioButton(presets, "None"));
 	(new GLUI_RadioButton(presets, "Default"));
 	(new GLUI_RadioButton(presets, "Minecraft(ish)"));
-	(new GLUI_RadioButton(presets, "None"));
+	(new GLUI_RadioButton(presets, "Spires"));
 	glui->add_button_to_panel(terrain, "Update Terrain", 0, updateLandscape);
 
 	glui->add_column_to_panel(terrain, true);
