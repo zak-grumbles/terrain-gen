@@ -177,3 +177,7 @@ void Camera::Translate(Vec3f v){
 	inv_model_view = inv_model_view * trans_mat(v[0], v[1], v[2]);
 	model_view = inv_trans_mat(v[0], v[1], v[2]) * model_view;
 }
+
+Matrix44f Camera::getWorld2Cam(){
+	return inv_model_view;
+}

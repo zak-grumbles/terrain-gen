@@ -56,6 +56,7 @@ public:
 
 	void Translate(Vec3f);
 
+	Matrix44f getWorld2Cam();
 private:
 	Matrix44f model_view;
 	Matrix44f inv_model_view;

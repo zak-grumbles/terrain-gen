@@ -74,19 +74,14 @@
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\noiseutils.cpp" />
-    <ClCompile Include="src\TerrainGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
-    <ClInclude Include="src\Interpreter.h" />
-    <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\MarchingCubes.h" />
     <ClInclude Include="src\noiseutils.h" />
-    <ClInclude Include="src\Renderer.h" />
+    <ClInclude Include="src\SampleFunctions.h" />
     <ClInclude Include="src\tables.h" />
-    <ClInclude Include="src\TerrainGenerator.h" />
-    <ClInclude Include="src\Tri.h" />
     <ClInclude Include="src\utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
