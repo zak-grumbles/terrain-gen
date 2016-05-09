@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <GL/glui.h>
-#include "MarchingCubes.h"
+#include "TerrainGenerator.h"
 #include "Camera.h"
 #include "utilities.h"
 
@@ -33,6 +33,8 @@ float seed_3 = 5;
 
 Camera *c = new Camera();
 GLUI* glui;
+
+TerrainGenerator *tg;
 
 enum preset{
 	NONE = 0,
@@ -66,7 +68,7 @@ void displayFunction(){
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	draw();
+	tg->draw();
 
 	glColor3f(0.376f, 0.690f, 0.902f);
 	glTranslatef(0.0, -0.6f, 0.0f);
@@ -99,7 +101,7 @@ void updateLandscape(int id){
 		rot_u = -90.0f;
 		rot_v = -90.001f;
 		rot_w = 0.0;
-		resolution = 1024;
+		resolution = 1024.0f;
 		seed_0 = 0;
 		seed_1 = 5;
 		seed_2 = 0;
@@ -115,7 +117,7 @@ void updateLandscape(int id){
 		rot_u = -11.8;
 		rot_v = 150.366;
 		rot_w = 0.0;
-		resolution = 100;
+		resolution = 100.0f;
 		seed_0 = 0;
 		seed_1 = 10;
 		seed_2 = 0;
@@ -131,7 +133,7 @@ void updateLandscape(int id){
 		rot_u = -14.5;
 		rot_v = 0.0;
 		rot_w = 0.0;
-		resolution = 100;
+		resolution = 100.0f;
 		seed_0 = 0;
 		seed_1 = 50;
 		seed_2 = 0;
@@ -140,9 +142,13 @@ void updateLandscape(int id){
 		break;
 	}
 	glui->sync_live();
-	setResolution(resolution);
-	setSeed(seed_0, seed_1, seed_2, seed_3);
-	MarchingCubes();
+	tg->setSeed(seed_0, seed_1, seed_2, seed_3);
+	tg->setResolution(resolution);
+	tg->MarchingCubes();
+}
+
+void idle(){
+	glutPostRedisplay();
 }
 
 int main(int argc, char* argv[]){
@@ -186,7 +192,7 @@ int main(int argc, char* argv[]){
 
 	GLUI_Panel *terrain = glui->add_panel("Terrain");
 	(new GLUI_Checkbox(terrain, "Wireframe:", &wire));
-	(new GLUI_Spinner(terrain, "Resolution (BETA):", &resolution));
+	(new GLUI_Spinner(terrain, "Resolution(BETA):", &resolution));
 	(new GLUI_Spinner(terrain, "Seed 1:", &seed_0));
 	(new GLUI_Spinner(terrain, "Seed 2:", &seed_1));
 	(new GLUI_Spinner(terrain, "Seed 3:", &seed_2));
@@ -204,9 +210,10 @@ int main(int argc, char* argv[]){
 	glui->set_main_gfx_window(window);
 	GLUI_Master.set_glutIdleFunc(idle);
 
-	setResolution(resolution);
-	setSeed(seed_0, seed_1, seed_2, seed_3);
-	init();
+	tg = new TerrainGenerator(512, resolution);
+	tg->setResolution(resolution);
+	tg->setSeed(seed_0, seed_1, seed_2, seed_3);
+	tg->init();
 	
 
 	glutMainLoop();

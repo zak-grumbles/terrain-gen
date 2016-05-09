@@ -24,6 +24,9 @@
     <ClCompile Include="src\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\TerrainGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\tables.h">
@@ -35,13 +38,13 @@
     <ClInclude Include="src\noiseutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MarchingCubes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Algebra.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TerrainGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
