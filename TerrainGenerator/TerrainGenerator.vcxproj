@@ -77,14 +77,12 @@
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\noiseutils.cpp" />
-    <ClCompile Include="src\ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Algebra.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\MarchingCubes.h" />
     <ClInclude Include="src\noiseutils.h" />
-    <ClInclude Include="src\ShaderManager.h" />
     <ClInclude Include="src\tables.h" />
     <ClInclude Include="src\utilities.h" />
   </ItemGroup>

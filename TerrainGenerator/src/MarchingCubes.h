@@ -6,7 +6,6 @@
 #include "noiseutils.h"
 #include "tables.h"
 #include "utilities.h"
-#include "ShaderManager.h"
 
 using namespace noise;
 
@@ -92,13 +91,6 @@ utils::NoiseMap map;
 utils::Image image;
 
 std::vector<GLPoint> verts = std::vector<GLPoint>();
-
-GLuint grass[2];
-unsigned char* grass_tex;
-unsigned char* grass_bmp;
-GLint grass_shader;
-
-Vec3 lightPos;
 
 void idle(){
 	glutPostRedisplay();
@@ -254,33 +246,6 @@ void init(){
 
 	init_height_map(start);
 	MarchingCubes();
-
-	ShaderManager m = ShaderManager();
-	grass_shader = m.initShader("shaders/vert.glsl", "shaders/terrain_frag.glsl");
-
-	glGenTextures(2, grass);
-
-	int w, h;
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, grass[0]);
-	grass_tex = SOIL_load_image("textures/grass.jpg", &w, &h, 0, SOIL_LOAD_RGB);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, grass_tex);
-	SOIL_free_image_data(grass_tex);
-	glUniform1i(glGetUniformLocation(grass_shader, "grass"), 0);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, grass[1]);
-	grass_bmp = SOIL_load_image("textures/grass_n.png", &w, &h, 0, SOIL_LOAD_RGB);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, grass_bmp);
-	SOIL_free_image_data(grass_bmp);
-	glUniform1i(glGetUniformLocation(grass_shader, "grass_bmp"), 1);
-
-	lightPos.x = 2;
-	lightPos.y = 2;
-	lightPos.z = 22;
-
-	glUniform3f(glGetUniformLocation(grass_shader, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-	//glUseProgram(grass_shader);
 }
 
 void init_height_map(GLPoint p){
