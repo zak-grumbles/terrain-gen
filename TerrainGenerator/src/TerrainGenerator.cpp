@@ -34,6 +34,7 @@ void TerrainGenerator::draw(){
 	for (int i = 0; i < verts.size(); i++){
 		float y = verts[i][1] *10.0;
 
+		//Set vertex color based on height. (This sucks. I need textures)
 		if (y < 0.5f)
 			glColor3f(0.871f, 0.878f, 0.706f);
 		else if (y > 0.5f && y <= 5.0f)
@@ -58,14 +59,15 @@ void TerrainGenerator::init(){
 	start[1] = start[0];
 	start[2] = start[0];
 
-	init_height_map(start);
+	//generate noise map and run algorithm
+	init_noise_map(start);
 	MarchingCubes();
 }
 
 /*
 	Sets the cell size. Bad name, I know.
 */
-void TerrainGenerator::setResolution(float s){
+void TerrainGenerator::setCellSize(float s){
 	if (cell_size != s)
 		cell_size = s;
 }
@@ -76,7 +78,9 @@ void TerrainGenerator::setResolution(float s){
 void TerrainGenerator::MarchingCubes(){
 
 	verts.clear();
-	printf("Hang on a moment, I'm playing God. . .\n");
+
+	//iterate over the grid, running algorithm on each cube.
+	printf("Rendering 512x512x512 cubes. . .\n");
 	for (int x = 0; x < num_cells; x++){
 		if (x % 128 == 0){
 			printf("%i ", x);
@@ -95,13 +99,14 @@ void TerrainGenerator::MarchingCubes(){
 			}
 		}
 	}
-	printf("Alright, it is finished.\nRendered %i vertices.\n", verts.size());
+	printf("All done. Check it out.\n", verts.size());
 }
 
 /*
 	Sets the seed values.
 */
 void TerrainGenerator::setSeed(float a, float b, float c, float d){
+	//set x sample ranges
 	if (a < b){
 		seeds[0] = a;
 		seeds[1] = b;
@@ -111,6 +116,7 @@ void TerrainGenerator::setSeed(float a, float b, float c, float d){
 		seeds[1] = a;
 	}
 
+	//set y sample ranges
 	if (c < d){
 		seeds[2] = c;
 		seeds[3] = d;
@@ -125,6 +131,7 @@ void TerrainGenerator::setSeed(float a, float b, float c, float d){
 	Sample the noise map at a given point.
 */
 float TerrainGenerator::sample(Point p){
+	//get height at the given point
 	return (map.GetValue(p[0], p[2])) - p[1];
 }
 
@@ -135,16 +142,23 @@ void TerrainGenerator::march_cube(Point p){
 	float cube_value[8];
 	Point edge_vertex[12];
 
+	//get value at corners of cube.
 	for (int vertex = 0; vertex < 8; vertex++){
+
+		//temp represents the current corner. 
+		//it takes the value of the starting point, p, plus the current
+		//offset as given by the offsets table in tables.h
 		Point temp = Point(
 			p[0] + offsets[vertex][0] * cell_size,
 			p[1] + offsets[vertex][1] * cell_size,
 			p[2] + offsets[vertex][2] * cell_size
 		);
 
+		//sample
 		cube_value[vertex] = sample(temp);
 	}
 
+	//determine edge table index based on values at corners
 	int index = 0;
 	for (int test = 0; test < 8; test++){
 		if (cube_value[test] > target){
@@ -153,9 +167,13 @@ void TerrainGenerator::march_cube(Point p){
 	}
 
 	int edgeFlags = edge_table[index];
+	
+	//if edgeFlags is 0, there are no faces in this cube
 	if (edgeFlags == 0)
 		return;
 
+	//this loop determines if a given edge of the cube should contain a vertex and,
+	//if so, the position of that vertex.
 	float offset = 0;
 	for (int edge = 0; edge < 12; edge++){
 		if (edgeFlags & (1 << edge)){
@@ -171,10 +189,18 @@ void TerrainGenerator::march_cube(Point p){
 		}
 	}
 
+	//Based on the triangle table in tables.h, determine which of our
+	//place our generated vertices in the vertex vector in the proper order.
+	//iterating up to 5 because there will only ever be a maximum of 5
+	//triangles in a given cube.
 	for (int tri = 0; tri < 5; tri++){
+
+		//if we reach a negative number, we have already found all
+		//of our triangles.
 		if (triTable[index][3 * tri] < 0)
 			break;
 
+		//add the 3 vertices of the triangle.
 		for (int corner = 0; corner < 3; corner++){
 			int vert = triTable[index][3 * tri + corner];
 
@@ -185,14 +211,27 @@ void TerrainGenerator::march_cube(Point p){
 
 /*
 	Generate the noise map.
+
+	For more info on the functions/objects used here, check the
+	libnoise documentation. They've got some cool stuff over there.
 */
-void TerrainGenerator::init_height_map(Point p){
+void TerrainGenerator::init_noise_map(Point p){
+	//create a perlin module and a noise map builder.
 	module::Perlin mod;
 	utils::NoiseMapBuilderPlane builder;
+
+	//set the builder's source and destination
 	builder.SetSourceModule(mod);
 	builder.SetDestNoiseMap(map);
+
+	//the noise map should be the same dimensions (x and z) as our
+	//grid.
 	builder.SetDestSize(num_cells, num_cells);
+
+	//set sampling ranges
 	builder.SetBounds(seeds[0], seeds[1], seeds[2], seeds[3]);
+
+	//generate that stuff, boi.
 	builder.Build();
 }
 
@@ -201,6 +240,9 @@ void TerrainGenerator::init_height_map(Point p){
 */
 float TerrainGenerator::get_offset(float a, float b){
 	double d = b - a;
+
+	//are these points the same?
+	//if so, return 0.5
 	if (d == 0.0)
 		return 0.5;
 

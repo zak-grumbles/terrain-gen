@@ -1,3 +1,9 @@
+/*
+	This code was not written by me. It was written by my graphics professor
+	and given to us for our assignments. Comments were written by me.
+
+	Author: Dr. Gregory Michael Poor
+*/
 
 
 #ifndef CAMERA_H

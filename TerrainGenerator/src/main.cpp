@@ -28,7 +28,7 @@ float rot_w = 0.0;
 int wire = 1;
 
 /*Terrain variables*/
-float resolution = 2.0f;
+float cube_size = 2.0f;
 
 float seed_0 = 0;
 float seed_1 = 5;
@@ -46,7 +46,6 @@ enum preset{
 	DEFAULT,
 	MINECRAFTISH,
 	SPIRES
-	
 };
 
 //current preset
@@ -59,6 +58,7 @@ void displayFunction(){
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	//apply modelview projection matrix
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixd(c->GetProjectionMatrix().unpack());
 	c->Orient(Point(eye_x, eye_y, eye_z), Vector(look_x, look_y, look_z), Vector(0, 1, 0));
@@ -69,7 +69,7 @@ void displayFunction(){
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixd(c->GetModelViewMatrix().unpack());
 	
-
+	//set wireframe/filled render mode
 	if (wire){
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
@@ -77,17 +77,21 @@ void displayFunction(){
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
+	//render terrain
 	tg->draw();
 
+	//render "water"
 	glColor3f(0.376f, 0.690f, 0.902f);
 	glTranslatef(0.0, -0.6f, 0.0f);
 	glScalef(1024.0f, 0.0f, 1024.0f);
 	glutSolidCube(1.0f);
 
+	//undo camera rotation
 	c->RotateV(-rot_v);
 	c->RotateU(-rot_u);
 	c->RotateW(-rot_w);
 
+	//swap dem buffers
     glutSwapBuffers();
 }
 
@@ -105,6 +109,8 @@ void reshape(int x, int y){
 	Updates variables based on preset & other input and recalculates terrain
 */
 void updateLandscape(int id){
+
+	//if preset selected, set variables accordingly
 	switch (current){
 	case DEFAULT:
 		eye_x = 254.4;
@@ -116,7 +122,7 @@ void updateLandscape(int id){
 		rot_u = -90.0f;
 		rot_v = -90.001f;
 		rot_w = 0.0;
-		resolution = 1024.0f / 512.0f;
+		cube_size = 1024.0f / 512.0f;
 		seed_0 = 0;
 		seed_1 = 5;
 		seed_2 = 0;
@@ -132,7 +138,7 @@ void updateLandscape(int id){
 		rot_u = -11.8;
 		rot_v = 150.366;
 		rot_w = 0.0;
-		resolution = 100.0f / 512.0f;
+		cube_size = 100.0f / 512.0f;
 		seed_0 = 0;
 		seed_1 = 10;
 		seed_2 = 0;
@@ -148,7 +154,7 @@ void updateLandscape(int id){
 		rot_u = -14.5;
 		rot_v = 0.0;
 		rot_w = 0.0;
-		resolution = 100.0f / 512.0f;
+		cube_size = 100.0f / 512.0f;
 		seed_0 = 0;
 		seed_1 = 50;
 		seed_2 = 0;
@@ -156,9 +162,12 @@ void updateLandscape(int id){
 	case NONE:
 		break;
 	}
+
+	//sync live variables, set terrain generator's variables, and
+	//re run algorithm.
 	glui->sync_live();
 	tg->setSeed(seed_0, seed_1, seed_2, seed_3);
-	tg->setResolution(resolution);
+	tg->setCellSize(cube_size);
 	tg->init();
 }
 
@@ -213,7 +222,7 @@ int main(int argc, char* argv[]){
 
 	GLUI_Panel *terrain = glui->add_panel("Terrain");
 	(new GLUI_Checkbox(terrain, "Wireframe:", &wire));
-	(new GLUI_Spinner(terrain, "Cell Size:", &resolution));
+	(new GLUI_Spinner(terrain, "Cell Size:", &cube_size));
 	(new GLUI_Spinner(terrain, "Sample from X=", &seed_0));
 	(new GLUI_Spinner(terrain, "to X=", &seed_1));
 	(new GLUI_Spinner(terrain, "Sample from Y=", &seed_2));
@@ -226,16 +235,14 @@ int main(int argc, char* argv[]){
 	glui->add_button_to_panel(terrain, "Update Terrain", 0, updateLandscape);
 
 	glui->add_column_to_panel(terrain, true);
-	
 
 	glui->set_main_gfx_window(window);
 	GLUI_Master.set_glutIdleFunc(idle);
 
-	tg = new TerrainGenerator(512, resolution);
-	tg->setResolution(resolution);
+	tg = new TerrainGenerator(512, cube_size);
+	tg->setCellSize(cube_size);
 	tg->setSeed(seed_0, seed_1, seed_2, seed_3);
 	tg->init();
-	
 
 	glutMainLoop();
 	return 0;

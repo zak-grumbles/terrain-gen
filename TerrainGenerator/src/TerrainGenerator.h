@@ -23,7 +23,7 @@ public:
 	void draw();
 
 	//set cell size
-	void setResolution(float);
+	void setCellSize(float);
 
 	//execute algorithm
 	void MarchingCubes();
@@ -48,7 +48,13 @@ private:
 	//origin point of terrain
 	Point start;
 
-	//seed values
+	/*
+		Seed values.
+		These are actually the ranges that the noise function will be sampled
+		across. 
+		seeds[0] = minX, seeds[1] = maxX,
+		seeds[2] = minZ, seeds[3] = maxZ
+	*/
 	float seeds[4];
 
 	//noise map
@@ -64,7 +70,7 @@ private:
 	void march_cube(Point);
 
 	//initialize noise map
-	void init_height_map(Point);
+	void init_noise_map(Point);
 
 	//get offset between two values
 	float get_offset(float, float);

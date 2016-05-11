@@ -1,3 +1,15 @@
+/*
+	Lookup tables used in the algorithm. Not written by me. 
+	
+	Can be found at the bottom of the page at the link below.
+	Source: http://paulbourke.net/geometry/polygonise/marchingsource.cpp
+
+	Tables have been renamed by me.
+*/
+
+/*
+	Used to determine which edges of the cube have a vertex on them.
+*/
 int edge_table[256] =
 {
 	0x000, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
@@ -18,6 +30,9 @@ int edge_table[256] =
 	0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c, 0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x000
 };
 
+/*
+	Determines which triangles make up the face inside the cube.
+*/
 int triTable[256][16] =
 {
 	{ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
@@ -278,12 +293,18 @@ int triTable[256][16] =
 	{ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }
 };
 
+/*
+	Used to calculate the current corner when iterating over the cubes.
+*/
 static const float offsets[8][3] =
 {
 	{ 0.0, 0.0, 0.0 }, { 1.0, 0.0, 0.0 }, { 1.0, 1.0, 0.0 }, { 0.0, 1.0, 0.0 },
 	{ 0.0, 0.0, 1.0 }, { 1.0, 0.0, 1.0 }, { 1.0, 1.0, 1.0 }, { 0.0, 1.0, 1.0 }
 };
 
+/*
+	Determines which two vertices each edge connects.
+*/
 static const int edge_connection[12][2] =
 {
 	{ 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 },
@@ -291,6 +312,9 @@ static const int edge_connection[12][2] =
 	{ 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 }
 };
 
+/*
+	Vectors specifying each edges direction.
+*/
 static const float edge_direction[12][3] =
 {
 	{ 1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { -1.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 },

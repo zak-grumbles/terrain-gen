@@ -32,9 +32,6 @@
     <ClInclude Include="src\tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\utilities.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\noiseutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
