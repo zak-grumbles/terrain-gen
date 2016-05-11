@@ -205,20 +205,16 @@ int main(int argc, char* argv[]){
 	glui = GLUI_Master.create_glui("Controls");
 
 	GLUI_Panel *cam_panel = glui->add_panel("Camera");
-	(new GLUI_Spinner(cam_panel, "RotateV:", &rot_v))->set_int_limits(-179, 179);
-	(new GLUI_Spinner(cam_panel, "RotateU:", &rot_u))->set_int_limits(-179, 179);
-	(new GLUI_Spinner(cam_panel, "RotateW:", &rot_w))->set_int_limits(-179, 179);
+	(new GLUI_Spinner(cam_panel, "Yaw:", &rot_v))->set_int_limits(-179, 179);
+	(new GLUI_Spinner(cam_panel, "Pitch:", &rot_u))->set_int_limits(-179, 179);
+	(new GLUI_Spinner(cam_panel, "Roll:", &rot_w))->set_int_limits(-179, 179);
 	
 	glui->add_column_to_panel(cam_panel, true);
 
 	GLUI_Spinner* eyeX = glui->add_spinner_to_panel(cam_panel, "EyeX:", GLUI_SPINNER_FLOAT, &eye_x);
 	GLUI_Spinner* eyeY = glui->add_spinner_to_panel(cam_panel, "EyeY:", GLUI_SPINNER_FLOAT, &eye_y);
 	GLUI_Spinner* eyeZ = glui->add_spinner_to_panel(cam_panel, "EyeZ:", GLUI_SPINNER_FLOAT, &eye_z);
-
-	GLUI_Spinner* lookX = glui->add_spinner_to_panel(cam_panel, "LookX:", GLUI_SPINNER_FLOAT, &look_x);
-	GLUI_Spinner* lookY = glui->add_spinner_to_panel(cam_panel, "LookY:", GLUI_SPINNER_FLOAT, &look_y);
-	GLUI_Spinner* lookZ = glui->add_spinner_to_panel(cam_panel, "LookZ:", GLUI_SPINNER_FLOAT, &look_z);
-	glui->add_column(true);
+	glui->add_separator();
 
 	GLUI_Panel *terrain = glui->add_panel("Terrain");
 	(new GLUI_Checkbox(terrain, "Wireframe:", &wire));
@@ -227,6 +223,8 @@ int main(int argc, char* argv[]){
 	(new GLUI_Spinner(terrain, "to X=", &seed_1));
 	(new GLUI_Spinner(terrain, "Sample from Y=", &seed_2));
 	(new GLUI_Spinner(terrain, "to Y=", &seed_3));
+	glui->add_column_to_panel(terrain);
+	(new GLUI_StaticText(terrain, "Presets"));
 	GLUI_RadioGroup* presets = new GLUI_RadioGroup(terrain, &current);
 	(new GLUI_RadioButton(presets, "None"));
 	(new GLUI_RadioButton(presets, "Default"));

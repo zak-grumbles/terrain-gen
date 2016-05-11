@@ -80,12 +80,12 @@ void TerrainGenerator::MarchingCubes(){
 	verts.clear();
 
 	//iterate over the grid, running algorithm on each cube.
-	printf("Rendering 512x512x512 cubes. . .\n");
+	printf("Rendering %ix%ix%i cubes. . .\n", num_cells, num_cells, num_cells);
 	for (int x = 0; x < num_cells; x++){
 		if (x % 128 == 0){
 			printf("%i ", x);
 		}
-		if (x % 512 == 0 & x != 0){
+		if (x % 1024 == 0 & x != 0){
 			printf("\n");
 		}
 		for (int y = 0; y < num_cells; y++){
@@ -99,7 +99,8 @@ void TerrainGenerator::MarchingCubes(){
 			}
 		}
 	}
-	printf("All done. Check it out.\n", verts.size());
+	printf("\nTriangles Rendered: %i\nVertices Rendered: %i\n", verts.size() / 3, verts.size());
+	printf("==============================\n");
 }
 
 /*
