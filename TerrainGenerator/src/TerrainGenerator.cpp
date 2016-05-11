@@ -1,20 +1,33 @@
+/*
+	Zachary Grumbles
+
+	Class definition for TerrainGenerator class.
+*/
+
 #include "TerrainGenerator.h"
 #include "tables.h"
 #include <GL/glut.h>
 
+/*
+	Constructor. Set variables.
+*/
 TerrainGenerator::TerrainGenerator(int num, float res){
 	num_cells = num;
-	cell_size = res / num;
+	cell_size = res;
 	target = 0.0f;
 	verts = std::vector<Point>();
-
-	update = true;
 }
 
+/*
+	Destructor. Clear vertices.
+*/
 TerrainGenerator::~TerrainGenerator(){
 	verts.clear();
 }
 
+/*
+	Renders terrain.
+*/
 void TerrainGenerator::draw(){
 	glBegin(GL_TRIANGLES);
 
@@ -37,6 +50,9 @@ void TerrainGenerator::draw(){
 	glEnd();
 }
 
+/*
+	Initializes other variables and the noise map, then runs algorithm.
+*/
 void TerrainGenerator::init(){
 	start[0] = 0;
 	start[1] = start[0];
@@ -46,25 +62,26 @@ void TerrainGenerator::init(){
 	MarchingCubes();
 }
 
+/*
+	Sets the cell size. Bad name, I know.
+*/
 void TerrainGenerator::setResolution(float s){
-	float n = s / num_cells;
-	if (n != cell_size){
-		cell_size = n;
-		update = true;
-	}
+	if (cell_size != s)
+		cell_size = s;
 }
 
+/*
+	Runs the algorithm over the entire cell grid.
+*/
 void TerrainGenerator::MarchingCubes(){
-	if (!update)
-		return;
 
 	verts.clear();
 	printf("Hang on a moment, I'm playing God. . .\n");
 	for (int x = 0; x < num_cells; x++){
-		if (x % 100 == 0){
+		if (x % 128 == 0){
 			printf("%i ", x);
 		}
-		if (x % 500 == 0 & x != 0){
+		if (x % 512 == 0 & x != 0){
 			printf("\n");
 		}
 		for (int y = 0; y < num_cells; y++){
@@ -79,21 +96,41 @@ void TerrainGenerator::MarchingCubes(){
 		}
 	}
 	printf("Alright, it is finished.\nRendered %i vertices.\n", verts.size());
-	update = false;
 }
 
+/*
+	Sets the seed values.
+*/
 void TerrainGenerator::setSeed(float a, float b, float c, float d){
-	seeds[0] = a;
-	seeds[1] = b;
-	seeds[2] = c;
-	seeds[3] = d;
-	update = true;
+	if (a < b){
+		seeds[0] = a;
+		seeds[1] = b;
+	}
+	else{
+		seeds[0] = b;
+		seeds[1] = a;
+	}
+
+	if (c < d){
+		seeds[2] = c;
+		seeds[3] = d;
+	}
+	else{
+		seeds[2] = d;
+		seeds[3] = c;
+	}
 }
 
+/*
+	Sample the noise map at a given point.
+*/
 float TerrainGenerator::sample(Point p){
 	return (map.GetValue(p[0], p[2])) - p[1];
 }
 
+/*
+	Run the algorithm for a given cube with the bottom, front, left vertex at p.
+*/
 void TerrainGenerator::march_cube(Point p){
 	float cube_value[8];
 	Point edge_vertex[12];
@@ -146,6 +183,9 @@ void TerrainGenerator::march_cube(Point p){
 	}
 }
 
+/*
+	Generate the noise map.
+*/
 void TerrainGenerator::init_height_map(Point p){
 	module::Perlin mod;
 	utils::NoiseMapBuilderPlane builder;
@@ -156,6 +196,9 @@ void TerrainGenerator::init_height_map(Point p){
 	builder.Build();
 }
 
+/*
+	Get the offset between two values.
+*/
 float TerrainGenerator::get_offset(float a, float b){
 	double d = b - a;
 	if (d == 0.0)

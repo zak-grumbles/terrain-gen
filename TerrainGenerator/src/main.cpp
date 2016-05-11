@@ -1,10 +1,13 @@
-#include <GL/glew.h>
+/*
+	Zachary Grumbles
+*/
+
 #include <GL/glut.h>
 #include <GL/glui.h>
 #include "TerrainGenerator.h"
 #include "Camera.h"
-#include "utilities.h"
 
+//glui & camera variables
 int monitor_width;
 int monitor_height;
 int window_width = 640;
@@ -24,7 +27,8 @@ float rot_w = 0.0;
 
 int wire = 1;
 
-float resolution = 1024.0f;
+/*Terrain variables*/
+float resolution = 2.0f;
 
 float seed_0 = 0;
 float seed_1 = 5;
@@ -36,6 +40,7 @@ GLUI* glui;
 
 TerrainGenerator *tg;
 
+//represents available presets
 enum preset{
 	NONE = 0,
 	DEFAULT,
@@ -44,8 +49,12 @@ enum preset{
 	
 };
 
+//current preset
 int current = NONE;
 
+/*
+	Display function. Render terrain and water.
+*/
 void displayFunction(){
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -82,6 +91,9 @@ void displayFunction(){
     glutSwapBuffers();
 }
 
+/*
+	Reshape function.
+*/
 void reshape(int x, int y){
 	float aspect;
 	aspect = (float)x / (float)y;
@@ -89,6 +101,9 @@ void reshape(int x, int y){
 	glutPostRedisplay();
 }
 
+/*
+	Updates variables based on preset & other input and recalculates terrain
+*/
 void updateLandscape(int id){
 	switch (current){
 	case DEFAULT:
@@ -101,7 +116,7 @@ void updateLandscape(int id){
 		rot_u = -90.0f;
 		rot_v = -90.001f;
 		rot_w = 0.0;
-		resolution = 1024.0f;
+		resolution = 1024.0f / 512.0f;
 		seed_0 = 0;
 		seed_1 = 5;
 		seed_2 = 0;
@@ -117,7 +132,7 @@ void updateLandscape(int id){
 		rot_u = -11.8;
 		rot_v = 150.366;
 		rot_w = 0.0;
-		resolution = 100.0f;
+		resolution = 100.0f / 512.0f;
 		seed_0 = 0;
 		seed_1 = 10;
 		seed_2 = 0;
@@ -133,7 +148,7 @@ void updateLandscape(int id){
 		rot_u = -14.5;
 		rot_v = 0.0;
 		rot_w = 0.0;
-		resolution = 100.0f;
+		resolution = 100.0f / 512.0f;
 		seed_0 = 0;
 		seed_1 = 50;
 		seed_2 = 0;
@@ -144,13 +159,19 @@ void updateLandscape(int id){
 	glui->sync_live();
 	tg->setSeed(seed_0, seed_1, seed_2, seed_3);
 	tg->setResolution(resolution);
-	tg->MarchingCubes();
+	tg->init();
 }
 
+/*
+	Idle function
+*/
 void idle(){
 	glutPostRedisplay();
 }
 
+/*
+	Main. Set up window and objects.
+*/
 int main(int argc, char* argv[]){
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -192,11 +213,11 @@ int main(int argc, char* argv[]){
 
 	GLUI_Panel *terrain = glui->add_panel("Terrain");
 	(new GLUI_Checkbox(terrain, "Wireframe:", &wire));
-	(new GLUI_Spinner(terrain, "Resolution(BETA):", &resolution));
-	(new GLUI_Spinner(terrain, "Seed 1:", &seed_0));
-	(new GLUI_Spinner(terrain, "Seed 2:", &seed_1));
-	(new GLUI_Spinner(terrain, "Seed 3:", &seed_2));
-	(new GLUI_Spinner(terrain, "Seed 4:", &seed_3));
+	(new GLUI_Spinner(terrain, "Cell Size:", &resolution));
+	(new GLUI_Spinner(terrain, "Sample from X=", &seed_0));
+	(new GLUI_Spinner(terrain, "to X=", &seed_1));
+	(new GLUI_Spinner(terrain, "Sample from Y=", &seed_2));
+	(new GLUI_Spinner(terrain, "to Y=", &seed_3));
 	GLUI_RadioGroup* presets = new GLUI_RadioGroup(terrain, &current);
 	(new GLUI_RadioButton(presets, "None"));
 	(new GLUI_RadioButton(presets, "Default"));
