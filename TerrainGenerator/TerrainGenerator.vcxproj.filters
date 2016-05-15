@@ -35,13 +35,13 @@
     <ClInclude Include="src\noiseutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Algebra.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\TerrainGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TGMathUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

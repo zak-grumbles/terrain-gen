@@ -6,7 +6,7 @@
 
 #include <noise/noise.h>
 #include <vector>
-#include "Algebra.h"
+#include <gmtl/Point.h>
 #include "noiseutils.h"
 
 using namespace noise;
@@ -46,7 +46,7 @@ private:
 	float target;
 
 	//origin point of terrain
-	Point start;
+	gmtl::Point3f start;
 
 	/*
 		Seed values.
@@ -61,16 +61,16 @@ private:
 	utils::NoiseMap map;
 
 	//vertices that represent terrain
-	std::vector<Point> verts;
+	std::vector<gmtl::Point3f> verts;
 
 	//sample noise map at point
-	float sample(Point);
+	float sample(gmtl::Point3f);
 
 	//perform algorithm on given cube
-	void march_cube(Point);
+	void march_cube(gmtl::Point3f);
 
 	//initialize noise map
-	void init_noise_map(Point);
+	void init_noise_map(gmtl::Point3f);
 
 	//get offset between two values
 	float get_offset(float, float);

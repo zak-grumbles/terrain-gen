@@ -9,40 +9,44 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "Algebra.h"
+#include <gmtl/Point.h>
+#include <gmtl/Vec.h>
+#include <gmtl/Matrix.h>
 
 #define DEFAULT_FOCUS_LENGTH 1
 #define NEAR_PLANE 0.001
 #define FAR_PLANE 512
 #define VIEW_ANGLE 60.0
 
+using namespace gmtl;
+
 class Camera {
 	public:
 		Camera();
 		~Camera();
 		void Reset();
-		void Orient(Point& eye, Point& focus, Vector& up);
-		void Orient(Point& eye, Vector& look, Vector& up);
+		void Orient(Point3f& eye, Point3f& focus, Vec3f& up);
+		void Orient(Point3f& eye, Vec3f& look, Vec3f& up);
 		void SetViewAngle (double viewAngle);
 		void SetNearPlane (double nearPlane);
 		void SetFarPlane (double farPlane);
 		void SetScreenSize (int screenWidth, int screenHeight);
 		void SetLookDistance (double lookDistance);
 
-		Matrix GetModelViewMatrix();
-		//Matrix GetInvModelViewMatrix();
-		Matrix GetProjectionMatrix();
+		Matrix44f GetModelViewMatrix();
+		//Matrix44f GetInvModelViewMatrix44f();
+		Matrix44f GetProjectionMatrix();
 
 		void RotateV(double angle);
 		void RotateU(double angle);
 		void RotateW(double angle);
 
-		void Translate(const Vector &v);
-		void Rotate(Point p, Vector axis, double degree);
+		void Translate(const Vec3f &v);
+		void Rotate(Point3f p, Vec3f axis, double degree);
 
-		Point GetEyePoint();
-		Vector GetLookVector();
-		Vector GetUpVector();
+		Point3f GetEyePoint3f();
+		Vec3f GetLookVec3f();
+		Vec3f GetUpVec3f();
 		double GetViewAngle();
 		double GetNearPlane();
 		double GetFarPlane();
@@ -53,10 +57,10 @@ class Camera {
 		double GetScreenWidthRatio();
 
 	private:
-		Matrix m_worldToCamera; //World to camera matrix
-		Matrix m_cameraToWorld; //camera to world matrix
-		//Matrix m_projection; //Projection matrix onto film plane.
-		Vector m_n, m_u, m_v;  //n u v of the camera
+		Matrix44f m_worldToCamera; //World to camera Matrix44f
+		Matrix44f m_cameraToWorld; //camera to world Matrix44f
+		//Matrix44f m_projection; //Projection Matrix44f onto film plane.
+		Vec3f m_n, m_u, m_v;  //n u v of the camera
 
 		double m_viewAngle, m_filmPlanDepth;
 		double m_nearPlane, m_farPlane;

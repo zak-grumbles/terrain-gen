@@ -60,14 +60,14 @@ void displayFunction(){
 
 	//apply modelview projection matrix
 	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixd(c->GetProjectionMatrix().unpack());
-	c->Orient(Point(eye_x, eye_y, eye_z), Vector(look_x, look_y, look_z), Vector(0, 1, 0));
+	glLoadMatrixf(c->GetProjectionMatrix().getData());
+	c->Orient(Point3f(eye_x, eye_y, eye_z), Vec3f(look_x, look_y, look_z), Vec3f(0, 1, 0));
 	c->RotateV(rot_v);
 	c->RotateU(rot_u);
 	c->RotateW(rot_w);
 
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixd(c->GetModelViewMatrix().unpack());
+	glLoadMatrixf(c->GetModelViewMatrix().getData());
 	
 	//set wireframe/filled render mode
 	if (wire){
