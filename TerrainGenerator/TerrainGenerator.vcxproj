@@ -84,7 +84,6 @@
     <ClInclude Include="src\noiseutils.h" />
     <ClInclude Include="src\tables.h" />
     <ClInclude Include="src\TerrainGenerator.h" />
-    <ClInclude Include="src\TGMathUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

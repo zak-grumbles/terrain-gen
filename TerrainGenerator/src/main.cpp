@@ -4,8 +4,8 @@
 
 #include <GL/glut.h>
 #include <GL/glui.h>
-#include <gmtl/VecOps.h>
-#include <gmtl/MatrixOps.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "TerrainGenerator.h"
 #include "Camera.h"
 
@@ -62,14 +62,10 @@ void displayFunction(){
 
 	//apply modelview projection matrix
 	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(c->GetProjectionMatrix().getData());
-	c->Orient(Point3f(eye_x, eye_y, eye_z), Vec3f(look_x, look_y, look_z), Vec3f(0, 1, 0));
-	c->RotateV(rot_v);
-	c->RotateU(rot_u);
-	c->RotateW(rot_w);
+    glLoadMatrixf(glm::value_ptr(c->getProjection()));
 
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(c->GetModelViewMatrix().getData());
+    glLoadMatrixf(glm::value_ptr(c->getModelview()));
 	
 	//set wireframe/filled render mode
 	if (wire){
@@ -88,11 +84,6 @@ void displayFunction(){
 	glScalef(1024.0f, 0.0f, 1024.0f);
 	glutSolidCube(1.0f);
 
-	//undo camera rotation
-	c->RotateV(-rot_v);
-	c->RotateU(-rot_u);
-	c->RotateW(-rot_w);
-
 	//swap dem buffers
     glutSwapBuffers();
 }
@@ -103,7 +94,7 @@ void displayFunction(){
 void reshape(int x, int y){
 	float aspect;
 	aspect = (float)x / (float)y;
-	c->SetScreenSize(x, y);
+	//c->SetScreenSize(x, y);
 	glutPostRedisplay();
 }
 
@@ -113,22 +104,22 @@ void reshape(int x, int y){
 void keyboard(unsigned char k, int x, int y){
     switch (k){
     case 'w':
-        c->Forward();
+        c->forward();
         break;
     case 'a':
-        c->Left();
+        c->left();
         break;
     case 's':
-        c->Back();
+        c->back();
         break;
     case 'd':
-        c->Right();
+        c->right();
         break;
     case 'q':
-        c->Down();
+        c->down();
         break;
     case 'e':
-        c->Up();
+        c->up();
         break;
     }
 }
@@ -229,7 +220,8 @@ int main(int argc, char* argv[]){
 	static float one[] = { 1, 1, 1, 1 };
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, one);
 
-	c->Reset();
+    c->setup(window_width, window_height, 0.01f, 100.0f,
+        0.0f, 0.0f, 60.0f, glm::vec3(10, 5, 0));
 
 	glui = GLUI_Master.create_glui("Controls");
 

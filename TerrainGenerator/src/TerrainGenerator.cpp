@@ -8,7 +8,7 @@
 #include "tables.h"
 #include <GL/glut.h>
 
-using namespace gmtl;
+using namespace glm;
 
 /*
 	Constructor. Set variables.
@@ -17,7 +17,7 @@ TerrainGenerator::TerrainGenerator(int num, float res){
 	num_cells = num;
 	cell_size = res;
 	target = 0.0f;
-	verts = std::vector<Point3f>();
+	verts = std::vector<vec3>();
 }
 
 /*
@@ -92,7 +92,7 @@ void TerrainGenerator::MarchingCubes(){
 		}
 		for (int y = 0; y < num_cells; y++){
 			for (int z = 0; z < num_cells; z++){
-				Point3f p;
+				vec3 p;
 				p[0] = start[0] + x * cell_size;
 				p[1] = start[1] + y * cell_size;
 				p[2] = start[2] + z * cell_size;
@@ -133,7 +133,7 @@ void TerrainGenerator::setSeed(float a, float b, float c, float d){
 /*
 	Sample the noise map at a given point.
 */
-float TerrainGenerator::sample(Point3f p){
+float TerrainGenerator::sample(vec3 p){
 	//get height at the given point
 	return (map.GetValue(p[0], p[2])) - p[1];
 }
@@ -141,9 +141,9 @@ float TerrainGenerator::sample(Point3f p){
 /*
 	Run the algorithm for a given cube with the bottom, front, left vertex at p.
 */
-void TerrainGenerator::march_cube(Point3f p){
+void TerrainGenerator::march_cube(vec3 p){
 	float cube_value[8];
-	Point3f edge_vertex[12];
+	vec3 edge_vertex[12];
 
 	//get value at corners of cube.
 	for (int vertex = 0; vertex < 8; vertex++){
@@ -151,7 +151,7 @@ void TerrainGenerator::march_cube(Point3f p){
 		//temp represents the current corner. 
 		//it takes the value of the starting point, p, plus the current
 		//offset as given by the offsets table in tables.h
-		Point3f temp = Point3f(
+		vec3 temp = vec3(
 			p[0] + offsets[vertex][0] * cell_size,
 			p[1] + offsets[vertex][1] * cell_size,
 			p[2] + offsets[vertex][2] * cell_size
@@ -218,7 +218,7 @@ void TerrainGenerator::march_cube(Point3f p){
 	For more info on the functions/objects used here, check the
 	libnoise documentation. They've got some cool stuff over there.
 */
-void TerrainGenerator::init_noise_map(Point3f p){
+void TerrainGenerator::init_noise_map(vec3 p){
 	//create a perlin module and a noise map builder.
 	module::Perlin mod;
 	utils::NoiseMapBuilderPlane builder;
