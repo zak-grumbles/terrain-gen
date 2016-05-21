@@ -1,8 +1,10 @@
 /*
-	This code was not written by me. It was written by my graphics professor
-	and given to us for our assignments. Comments were written by me.
+	Most of these methods are taken from a Camera implementation given
+    to me by my graphics professor. I have changed the class to use the
+    GMTL library for vectors, points, and matrices and added additional
+    movement functions.
 
-	Author: Dr. Gregory Michael Poor
+	Authors: Dr. Gregory Michael Poor, Not a Dr. Zachary Grumbles
 */
 
 
@@ -17,6 +19,7 @@
 #define NEAR_PLANE 0.001
 #define FAR_PLANE 512
 #define VIEW_ANGLE 60.0
+#define DEFAULT_SPEED 0.2f
 
 using namespace gmtl;
 
@@ -34,9 +37,9 @@ class Camera {
 		void SetLookDistance (double lookDistance);
 
 		Matrix44f GetModelViewMatrix();
-		//Matrix44f GetInvModelViewMatrix44f();
-		Matrix44f GetProjectionMatrix();
-
+        Matrix44f GetInvModelViewMatrix();
+        Matrix44f GetProjectionMatrix();
+        
 		void RotateV(double angle);
 		void RotateU(double angle);
 		void RotateW(double angle);
@@ -44,9 +47,9 @@ class Camera {
 		void Translate(const Vec3f &v);
 		void Rotate(Point3f p, Vec3f axis, double degree);
 
-		Point3f GetEyePoint3f();
-		Vec3f GetLookVec3f();
-		Vec3f GetUpVec3f();
+		Point3f GetEyePoint();
+		Vec3f GetLookVector();
+		Vec3f GetUpVector();
 		double GetViewAngle();
 		double GetNearPlane();
 		double GetFarPlane();
@@ -56,10 +59,19 @@ class Camera {
 		double GetFilmPlanDepth();
 		double GetScreenWidthRatio();
 
+        /*
+            Movement functions
+        */
+        void Forward();
+        void Back();
+        void Left();
+        void Right();
+        void Up();
+        void Down();
+
 	private:
 		Matrix44f m_worldToCamera; //World to camera Matrix44f
 		Matrix44f m_cameraToWorld; //camera to world Matrix44f
-		//Matrix44f m_projection; //Projection Matrix44f onto film plane.
 		Vec3f m_n, m_u, m_v;  //n u v of the camera
 
 		double m_viewAngle, m_filmPlanDepth;

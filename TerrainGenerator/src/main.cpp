@@ -4,6 +4,8 @@
 
 #include <GL/glut.h>
 #include <GL/glui.h>
+#include <gmtl/VecOps.h>
+#include <gmtl/MatrixOps.h>
 #include "TerrainGenerator.h"
 #include "Camera.h"
 
@@ -49,7 +51,7 @@ enum preset{
 };
 
 //current preset
-int current = NONE;
+int current = MINECRAFTISH;
 
 /*
 	Display function. Render terrain and water.
@@ -103,6 +105,32 @@ void reshape(int x, int y){
 	aspect = (float)x / (float)y;
 	c->SetScreenSize(x, y);
 	glutPostRedisplay();
+}
+
+/*
+    Keyboard function
+*/
+void keyboard(unsigned char k, int x, int y){
+    switch (k){
+    case 'w':
+        c->Forward();
+        break;
+    case 'a':
+        c->Left();
+        break;
+    case 's':
+        c->Back();
+        break;
+    case 'd':
+        c->Right();
+        break;
+    case 'q':
+        c->Down();
+        break;
+    case 'e':
+        c->Up();
+        break;
+    }
 }
 
 /*
@@ -190,6 +218,7 @@ int main(int argc, char* argv[]){
 
 	glutDisplayFunc(displayFunction);
 	glutReshapeFunc(reshape);
+    glutKeyboardFunc(keyboard);
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_DEPTH_TEST);
 	
@@ -210,10 +239,6 @@ int main(int argc, char* argv[]){
 	(new GLUI_Spinner(cam_panel, "Roll:", &rot_w))->set_int_limits(-179, 179);
 	
 	glui->add_column_to_panel(cam_panel, true);
-
-	GLUI_Spinner* eyeX = glui->add_spinner_to_panel(cam_panel, "EyeX:", GLUI_SPINNER_FLOAT, &eye_x);
-	GLUI_Spinner* eyeY = glui->add_spinner_to_panel(cam_panel, "EyeY:", GLUI_SPINNER_FLOAT, &eye_y);
-	GLUI_Spinner* eyeZ = glui->add_spinner_to_panel(cam_panel, "EyeZ:", GLUI_SPINNER_FLOAT, &eye_z);
 	glui->add_separator();
 
 	GLUI_Panel *terrain = glui->add_panel("Terrain");

@@ -92,27 +92,26 @@ void Camera::SetScreenSize (int screenWidth, int screenHeight) {
 	m_screenWidth = screenWidth;
 	m_screenHeight = screenHeight;
 	m_screenWidthRatio = (double)m_screenWidth/(double)m_screenHeight;
-	//m_screenHeightRatio = (double)m_screenHeight/(double)m_screenHeight;
 }
 
 Matrix44f Camera::GetModelViewMatrix() {
     return m_worldToCamera;
 }
 
-//Matrix44f Camera::GetInvModelViewMatrix44f() {
-//	return m_cameraToWorld;
-//}
+Matrix44f Camera::GetInvModelViewMatrix(){
+    return m_cameraToWorld;
+}
 
 void Camera::RotateV(double angle) {
-	Rotate(GetEyePoint3f(), GetUpVec3f(), angle);
+	Rotate(GetEyePoint(), GetUpVector(), angle);
 }
 
 void Camera::RotateU(double angle) {
-	Rotate(GetEyePoint3f(), makeCross(GetLookVec3f(), GetUpVec3f()), angle);
+	Rotate(GetEyePoint(), makeCross(GetLookVector(), GetUpVector()), angle);
 }
 
 void Camera::RotateW(double angle) {
-	Rotate(GetEyePoint3f(), GetLookVec3f(), angle);
+	Rotate(GetEyePoint(), GetLookVector(), angle);
 }
 
 void Camera::Translate(const Vec3f &v) {
@@ -128,15 +127,15 @@ void Camera::Rotate(Point3f p, Vec3f axis, double degrees) {
 }
 
 
-Point3f Camera::GetEyePoint3f() {
+Point3f Camera::GetEyePoint() {
    return Point3f(m_cameraToWorld(0,3), m_cameraToWorld(1,3), m_cameraToWorld(2, 3)); 
 }
 
-Vec3f Camera::GetLookVec3f() {
+Vec3f Camera::GetLookVector() {
 	return Vec3f(-m_cameraToWorld(0,2), -m_cameraToWorld(1,2), -m_cameraToWorld(2, 2));
 }
 
-Vec3f Camera::GetUpVec3f() {
+Vec3f Camera::GetUpVector() {
 	return Vec3f(m_cameraToWorld(0, 1), m_cameraToWorld(1, 1), m_cameraToWorld(2, 1));
 }
 
@@ -166,4 +165,49 @@ double Camera::GetFilmPlanDepth() {
 
 double Camera::GetScreenWidthRatio() {
    return m_screenWidthRatio;
+}
+
+/*
+    Movement functions. Names are (hopefully) self explanatory.
+*/
+void Camera::Forward(){
+    Vec3f l = GetLookVector();
+    l = l * DEFAULT_SPEED;
+    Translate(l);
+    Orient(GetEyePoint(), GetLookVector(), Vec3f(0, 1, 0));
+}
+
+void Camera::Back(){
+    Vec3f b = -GetLookVector();
+    b = b * DEFAULT_SPEED;
+    Translate(b);
+    Orient(GetEyePoint(), GetLookVector(), Vec3f(0, 1, 0));
+}
+
+void Camera::Left(){
+    Vec3f l = -makeCross(GetLookVector(), GetUpVector());
+    l = l * DEFAULT_SPEED;
+    Translate(l);
+    Orient(GetEyePoint(), GetLookVector(), Vec3f(0, 1, 0));
+}
+
+void Camera::Right(){
+    Vec3f r = makeCross(GetLookVector(), GetUpVector());
+    r = r * DEFAULT_SPEED;
+    Translate(r);
+    Orient(GetEyePoint(), GetLookVector(), Vec3f(0, 1, 0));
+}
+
+void Camera::Up(){
+    Vec3f up = Vec3f(0, 1, 0);
+    up = up * DEFAULT_SPEED;
+    Translate(up);
+    Orient(GetEyePoint(), GetLookVector(), Vec3f(0, 1, 0));
+}
+
+void Camera::Down(){
+    Vec3f down = Vec3f(0, -1, 0);
+    down = down * DEFAULT_SPEED;
+    Translate(down);
+    Orient(GetEyePoint(), GetLookVector(), Vec3f(0, 1, 0));
 }
