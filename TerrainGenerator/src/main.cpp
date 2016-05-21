@@ -57,6 +57,7 @@ int current = MINECRAFTISH;
 	Display function. Render terrain and water.
 */
 void displayFunction(){
+    c->updateTime();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -94,8 +95,12 @@ void displayFunction(){
 void reshape(int x, int y){
 	float aspect;
 	aspect = (float)x / (float)y;
-	//c->SetScreenSize(x, y);
+    c->setDimensions(x, y);
 	glutPostRedisplay();
+}
+
+void clickAndDrag(int x, int y){
+    c->rotate(x, y);
 }
 
 /*
@@ -210,7 +215,8 @@ int main(int argc, char* argv[]){
 	glutDisplayFunc(displayFunction);
 	glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
-	glShadeModel(GL_SMOOTH);
+    glutMotionFunc(clickAndDrag);
+    glShadeModel(GL_SMOOTH);
 	glEnable(GL_DEPTH_TEST);
 	
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -224,14 +230,6 @@ int main(int argc, char* argv[]){
         0.0f, 0.0f, 60.0f, glm::vec3(10, 5, 0));
 
 	glui = GLUI_Master.create_glui("Controls");
-
-	GLUI_Panel *cam_panel = glui->add_panel("Camera");
-	(new GLUI_Spinner(cam_panel, "Yaw:", &rot_v))->set_int_limits(-179, 179);
-	(new GLUI_Spinner(cam_panel, "Pitch:", &rot_u))->set_int_limits(-179, 179);
-	(new GLUI_Spinner(cam_panel, "Roll:", &rot_w))->set_int_limits(-179, 179);
-	
-	glui->add_column_to_panel(cam_panel, true);
-	glui->add_separator();
 
 	GLUI_Panel *terrain = glui->add_panel("Terrain");
 	(new GLUI_Checkbox(terrain, "Wireframe:", &wire));
