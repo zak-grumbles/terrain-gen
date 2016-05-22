@@ -211,6 +211,7 @@ int main(int argc, char* argv[]){
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(750, 750);
 	window = glutCreateWindow("Procedural Terrain Generation - Zachary Grumbles");
+    
 
 	glutDisplayFunc(displayFunction);
 	glutReshapeFunc(reshape);

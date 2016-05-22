@@ -19,7 +19,7 @@ Camera::Camera(){
     setup(500, 500, 0.01f, 100.0f, 0.0f, 0.0f, 60.0f, vec3(0, 0, 1));
     _old_time = glutGet(GLUT_ELAPSED_TIME);
     _move_speed = 0.2f;
-    _turn_speed = 0.0001f;
+    _turn_speed = 0.00001f;
     _last_click = vec2(0.0, 0.0);
 }
 
@@ -76,11 +76,10 @@ void Camera::down(){
 }
 
 void Camera::rotate(int x, int y){
-    float dx = x - _last_click.x;
-    float dy = y - _last_click.y;
+    float deltaTime = _getDeltaTime();
 
-    _width_angle += _turn_speed * _getDeltaTime() * dx;
-    _height_angle += _turn_speed * _getDeltaTime() * dy;
+    _width_angle += _turn_speed * deltaTime * float(_width / 2.0f - x);
+    _height_angle += _turn_speed * deltaTime * float(_height / 2.0f - y);
 
     _update_attributes();
 }
