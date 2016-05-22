@@ -1,12 +1,13 @@
 # Control Panel
 
-#### Camera Panel
-* Yaw (side-to-side) - Adjusts the yaw of the camera. Value is given in degrees.
-* Pitch (up-down) - Adjusts the pitch of the camera. Value given in degrees.
-* Roll (do a barrel roll!) - Adjusts the roll of the camera. Value given in degrees.
-* EyeX - Controls the X coordinate of the camera.
-* EyeY - Controls the Y coordinate of the camera.
-* EyeZ - Controls the Z coordinate of the camera.
+#### Camera Controls
+* W - move forward
+* A - move left
+* S - move backward
+* D - move right
+* Q - move down
+* E - move up
+* To rotate the camera, click and drag using the mouse.
 
 #### Terrain Panel
 * Wireframe - If checked, terrain will be rendered as a wireframe. This looks much better, trust me. When unchecked, it will render filled.
