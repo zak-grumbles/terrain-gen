@@ -4,6 +4,12 @@ Procedural Terrain Generation using the Marching Cubes Algorithm, OpenGL, and C+
 ## About
 Very simple procedural terrain generator
 
+## Screenshots
+
+![Top-Down](screenshots/top.PNG "Top Down View")
+
+![Close-Up](screenshots/close.PNG "Close Up View")
+
 ## Releases
 * [v1.0](https://github.com/zak-grumbles/terrain-gen/releases/tag/v1.0) - Barebones Terrain Generation
 
