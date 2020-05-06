@@ -1,0 +1,1 @@
+#cmakedefine TG_SHADER_DIR "${TG_SHADER_DIR}"

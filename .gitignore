@@ -238,3 +238,6 @@ _Pvt_Extensions
 # ignore issue related files as well as generated heightmaps
 issues/
 *.bmp
+
+# Ignore build dir
+build/
