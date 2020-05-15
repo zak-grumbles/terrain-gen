@@ -105,7 +105,7 @@ public:
 
 private:
 
-	void initialize_vulkan();
+	void initialize_vulkan(const wxSize& size);
 
 	void create_instance(
 		const std::vector<const char*>& exts,
@@ -136,12 +136,26 @@ private:
 	QueueFamilies get_queue_families(vk::PhysicalDevice device) const noexcept;
 	bool device_supports_extensions(vk::PhysicalDevice device) const noexcept;
 
-	SwapchainSupport get_swapchain_support(vk::PhysicalDevice device) const noexcept;
-	vk::SurfaceFormatKHR select_swap_surface_format(std::vector<vk::SurfaceFormatKHR> formats) const noexcept;
-	vk::PresentModeKHR select_swap_present_mode(std::vector<vk::PresentModeKHR> modes) const noexcept;
-	vk::Extent2D select_swap_extent(vk::SurfaceCapabilitiesKHR capabilities) const noexcept;
+	SwapchainSupport get_swapchain_support(
+		vk::PhysicalDevice device
+	) const noexcept;
 
-	vk::ShaderModule create_shader_module(std::vector<char> code);
+	vk::SurfaceFormatKHR select_swap_surface_format(
+		const std::vector<vk::SurfaceFormatKHR>& formats
+	) const noexcept;
+
+	vk::PresentModeKHR select_swap_present_mode(
+		const std::vector<vk::PresentModeKHR>& modes
+	) const noexcept;
+
+	vk::Extent2D select_swap_extent(
+		const vk::SurfaceCapabilitiesKHR& capabilities,
+		const wxSize& size
+	) const noexcept;
+
+	vk::ImageView view_from_image(const vk::Image& image);
+
+	vk::ShaderModule create_shader_module(std::vector<uint32_t> code);
 
 	void cleanup_swapchain();
 	void recreate_swapchain();

@@ -8,6 +8,10 @@ find_package(wxWidgets COMPONENTS core base REQUIRED)
 # Find Vulkan
 find_package(Vulkan REQUIRED FATAL_ERROR)
 
+# Find shaderc
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
+find_package(shaderc REQUIRED FATAL_ERROR)
+
 # Configure
 set(TG_SHADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/TGConfig.h.in" ${CMAKE_CURRENT_SOURCE_DIR}/src/TGConfig.h)
@@ -17,7 +21,10 @@ set(TG_SRC
 	src/main.cpp
 	src/TerrainGenApp.h
 	src/TerrainGenApp.cpp
+	src/TGConfig.h
 	src/TGEvents.h
+	src/TGUtils.h
+	src/TGUtils.cpp
 	src/TGVulkanCanvas.h
 	src/TGVulkanCanvas.cpp
 	src/TGWindow.h
@@ -37,6 +44,9 @@ target_link_libraries(terrain-gen PUBLIC ${wxWidgets_LIBRARIES})
 
 target_include_directories(terrain-gen PUBLIC ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(terrain-gen PUBLIC ${Vulkan_LIBRARIES})
+
+target_include_directories(terrain-gen PUBLIC ${shaderc_INCLUDE_DIRS})
+target_link_libraries(terrain-gen PRIVATE ${shaderc_LIBRARIES})
 
 # GLM (header only)
 target_include_directories(terrain-gen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glm)
