@@ -10,6 +10,7 @@ class TGUtils {
 public:
 	static std::string read_file(const std::string& filepath);
 
+	static std::vector<char> read_bytes(const std::string& filepath);
 };
 
 #endif

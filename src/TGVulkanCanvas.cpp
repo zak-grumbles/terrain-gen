@@ -63,10 +63,10 @@ std::array<vk::VertexInputAttributeDescription, 2> Vertex::attribute_description
 	descriptions[0].offset = offsetof(Vertex, pos);
 
 	// inColor 
-	descriptions[0].binding = 0;
-	descriptions[0].location = 1;
-	descriptions[0].format = vk::Format::eR32G32B32Sfloat;
-	descriptions[0].offset = offsetof(Vertex, color);
+	descriptions[1].binding = 0;
+	descriptions[1].location = 1;
+	descriptions[1].format = vk::Format::eR32G32B32Sfloat;
+	descriptions[1].offset = offsetof(Vertex, color);
 
 	return descriptions;
 }
@@ -175,6 +175,7 @@ void TGVulkanCanvas::initialize_vulkan(const wxSize& size) {
 	create_swapchain(size);
 	create_image_views();
 	create_render_pass();
+	create_descriptor_set_layout();
 	create_graphics_pipeline();
 	create_framebuffers();
 	create_command_pool();
@@ -182,6 +183,7 @@ void TGVulkanCanvas::initialize_vulkan(const wxSize& size) {
 	create_index_buffers();
 	create_uniform_buffers();
 	create_descriptor_pool();
+	allocate_descriptor_sets();
 	create_command_buffers();
 	create_sync_objects();
 }
@@ -196,7 +198,7 @@ void TGVulkanCanvas::create_instance(
 		VK_MAKE_VERSION(2, 0, 0),
 		"TerrainGenEngine",
 		VK_MAKE_VERSION(1, 0, 0),
-		VK_API_VERSION_1_0
+		VK_API_VERSION_1_2
 	);
 
 	vk::InstanceCreateInfo info(
@@ -610,43 +612,10 @@ void TGVulkanCanvas::create_descriptor_set_layout() {
 
 void TGVulkanCanvas::create_graphics_pipeline() {
 
-	shaderc::Compiler compiler;
-	shaderc::CompileOptions opts;
-
-	opts.SetTargetEnvironment(shaderc_target_env_vulkan, 0);
-	opts.SetTargetSpirv(shaderc_spirv_version_1_0);
-
 	std::string shader_dir = std::string(TG_SHADER_DIR) + "/";
+	std::vector<char> vert_code = TGUtils::read_bytes(shader_dir + "vert.spv");
+	std::vector<char> frag_code = TGUtils::read_bytes(shader_dir + "frag.spv");
 
-	std::string vert_file = "shader.vert";
-	auto vert_src = TGUtils::read_file(shader_dir + vert_file);
-
-	shaderc::SpvCompilationResult vert_result = compiler.CompileGlslToSpv(
-		vert_src,
-		shaderc_glsl_vertex_shader,
-		vert_file.c_str(),
-		opts
-	);
-
-	if (vert_result.GetCompilationStatus() != shaderc_compilation_status_success) {
-		throw std::runtime_error("Failed to compile vertex shader");
-	}
-
-	std::string frag_file = "shader.frag";
-	auto frag_src = TGUtils::read_file(shader_dir + frag_file);
-
-	shaderc::SpvCompilationResult frag_result = compiler.CompileGlslToSpv(
-		frag_src,
-		shaderc_shader_kind::shaderc_glsl_fragment_shader,
-		frag_file.c_str(),
-		opts
-	);
-
-	if (frag_result.GetCompilationStatus() != shaderc_compilation_status_success) {
-		throw std::runtime_error("Failed to compile fragment shader");
-	}
-
-	std::vector<uint32_t> vert_code(vert_result.begin(), vert_result.end());
 	vk::ShaderModule vert_module = create_shader_module(vert_code);
 	vk::PipelineShaderStageCreateInfo vert_stage(
 		{},
@@ -655,7 +624,6 @@ void TGVulkanCanvas::create_graphics_pipeline() {
 		"main"
 	);
 
-	std::vector<uint32_t> frag_code(frag_result.begin(), frag_result.end());
 	vk::ShaderModule frag_module = create_shader_module(frag_code);
 	vk::PipelineShaderStageCreateInfo frag_stage(
 		{},
@@ -785,13 +753,21 @@ vk::ShaderModule TGVulkanCanvas::create_shader_module(std::vector<uint32_t> code
 	);
 	
 	vk::ShaderModule module;
-	try {
-		module = device_.createShaderModule(info);
-	}
-	catch (...) {
-		auto e = std::current_exception();
-		bool test = false;
-	}
+	module = device_.createShaderModule(info);
+
+	return module;
+}
+
+vk::ShaderModule TGVulkanCanvas::create_shader_module(std::vector<char> code) {
+
+	vk::ShaderModuleCreateInfo info(
+		{},
+		code.size(),
+		reinterpret_cast<const uint32_t*>(code.data())
+	);
+	
+	vk::ShaderModule module;
+	module = device_.createShaderModule(info);
 
 	return module;
 }
@@ -991,7 +967,8 @@ void TGVulkanCanvas::copy_buffer(
 ) {
 	vk::CommandBufferAllocateInfo alloc_info(
 		copy_pool_,
-		vk::CommandBufferLevel::ePrimary
+		vk::CommandBufferLevel::ePrimary,
+		1
 	);
 
 	vk::CommandBuffer cmd_buffer;

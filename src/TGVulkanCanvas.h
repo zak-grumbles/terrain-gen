@@ -154,6 +154,7 @@ private:
 	vk::ImageView view_from_image(const vk::Image& image);
 
 	vk::ShaderModule create_shader_module(std::vector<uint32_t> code);
+	vk::ShaderModule create_shader_module(std::vector<char> code);
 
 	vk::Framebuffer framebuffer_from_image_view(const vk::ImageView& img_view);
 

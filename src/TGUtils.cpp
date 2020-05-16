@@ -23,3 +23,21 @@ std::string TGUtils::read_file(const std::string& filepath) {
 
 	return buf;
 }
+
+std::vector<char> TGUtils::read_bytes(const std::string& filepath) {
+	std::ifstream file(filepath, std::ios::ate | std::ios::binary);
+
+	if (!file.is_open()) {
+		std::string err = "Unable to open file '" + filepath + "'";
+		throw std::runtime_error(err);
+	}
+
+	size_t size = (size_t)file.tellg();
+	std::vector<char> buf(size);
+
+	file.seekg(0);
+	file.read(buf.data(), size);
+	file.close();
+
+	return buf;
+}
