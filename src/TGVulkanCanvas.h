@@ -130,8 +130,6 @@ private:
 	void create_command_buffers();
 	void create_sync_objects();
 
-	std::vector<const char*> get_required_extensions() const noexcept;
-
 	bool is_device_suitable(vk::PhysicalDevice device) const noexcept;
 	QueueFamilies get_queue_families(vk::PhysicalDevice device) const noexcept;
 	bool device_supports_extensions(vk::PhysicalDevice device) const noexcept;
@@ -156,6 +154,8 @@ private:
 	vk::ImageView view_from_image(const vk::Image& image);
 
 	vk::ShaderModule create_shader_module(std::vector<uint32_t> code);
+
+	vk::Framebuffer framebuffer_from_image_view(const vk::ImageView& img_view);
 
 	void cleanup_swapchain();
 	void recreate_swapchain();

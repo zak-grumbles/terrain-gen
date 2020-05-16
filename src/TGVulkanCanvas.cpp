@@ -1,11 +1,16 @@
 #define NOMINMAX
 
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "TGConfig.h"
 #include "TGUtils.h"
 #include "TGVulkanCanvas.h"
 
 #include <vulkan/vulkan.hpp>
 
+#include <chrono>
 #include <functional>
 #include <set>
 #include <shaderc/shaderc.hpp>
@@ -17,6 +22,19 @@ const std::vector<const char*> kValidationLayers = {
 const std::vector<const char*> kDeviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
+
+const std::vector<Vertex> kVertices = {
+	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+	{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+	{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+	{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+};
+
+const std::vector<uint16_t> kIndices = {
+	0, 1, 2, 2, 3, 0
+};
+
+const int kMaxFramesInFlight = 2;
 
 #ifdef _DEBUG
 const bool kEnableValidationLayers = true;
@@ -67,7 +85,7 @@ TGVulkanCanvas::TGVulkanCanvas(
 	render_pass_(nullptr), pipeline_layout_(nullptr),
 	graphics_pipeline_(nullptr), cmd_pool_(nullptr)
 {
-	//Bind(wxEVT_PAINT, &TGVulkanCanvas::on_paint, this);
+	Bind(wxEVT_PAINT, &TGVulkanCanvas::on_paint, this);
 	//Bind(wxEVT_SIZE, &TGVulkanCanvas::on_resize, this);
 
 	initialize_vulkan(size);
@@ -75,6 +93,33 @@ TGVulkanCanvas::TGVulkanCanvas(
 
 TGVulkanCanvas::~TGVulkanCanvas() {
 
+	cleanup_swapchain();
+
+	device_.destroyDescriptorSetLayout(descriptor_set_layout_);
+
+	device_.destroyBuffer(index_buffer_);
+	device_.freeMemory(index_buffer_memory_);
+	device_.destroyBuffer(vertex_buffer_);
+	device_.freeMemory(vertex_buffer_memory_);
+
+	device_.destroyCommandPool(copy_pool_);
+	device_.destroyCommandPool(cmd_pool_);
+
+	device_.destroy();
+
+	instance_.destroySurfaceKHR(surface_);
+	instance_.destroy();
+}
+
+void TGVulkanCanvas::cleanup_swapchain() {
+
+	for (size_t i = 0; i < swap_framebuffers_.size(); i++) {
+		device_.destroyFramebuffer(swap_framebuffers_[i]);
+	}
+	swap_framebuffers_.resize(0);
+
+	device_.freeCommandBuffers(cmd_pool_, cmd_buffers_);
+	
 	device_.destroyPipeline(graphics_pipeline_);
 	device_.destroyPipelineLayout(pipeline_layout_);
 	device_.destroyRenderPass(render_pass_);
@@ -86,8 +131,29 @@ TGVulkanCanvas::~TGVulkanCanvas() {
 
 	device_.destroySwapchainKHR(swapchain_);
 
-	instance_.destroySurfaceKHR(surface_);
-	instance_.destroy();
+	for (size_t i = 0; i < uniform_buffers_.size(); i++) {
+		device_.destroyBuffer(uniform_buffers_[i]);
+		device_.freeMemory(uniform_buffers_memory_[i]);
+	}
+
+	device_.destroyDescriptorPool(descriptor_pool_);
+}
+
+void TGVulkanCanvas::recreate_swapchain() {
+	device_.waitIdle();
+
+	cleanup_swapchain();
+
+	wxSize size = GetSize();
+	create_swapchain(size);
+	create_image_views();
+	create_render_pass();
+	create_graphics_pipeline();
+	create_framebuffers();
+	create_uniform_buffers();
+	create_descriptor_pool();
+	allocate_descriptor_sets();
+	create_command_buffers();
 }
 
 void TGVulkanCanvas::initialize_vulkan(const wxSize& size) {
@@ -110,6 +176,14 @@ void TGVulkanCanvas::initialize_vulkan(const wxSize& size) {
 	create_image_views();
 	create_render_pass();
 	create_graphics_pipeline();
+	create_framebuffers();
+	create_command_pool();
+	create_vertex_buffers();
+	create_index_buffers();
+	create_uniform_buffers();
+	create_descriptor_pool();
+	create_command_buffers();
+	create_sync_objects();
 }
 
 void TGVulkanCanvas::create_instance(
@@ -539,6 +613,9 @@ void TGVulkanCanvas::create_graphics_pipeline() {
 	shaderc::Compiler compiler;
 	shaderc::CompileOptions opts;
 
+	opts.SetTargetEnvironment(shaderc_target_env_vulkan, 0);
+	opts.SetTargetSpirv(shaderc_spirv_version_1_0);
+
 	std::string shader_dir = std::string(TG_SHADER_DIR) + "/";
 
 	std::string vert_file = "shader.vert";
@@ -546,7 +623,7 @@ void TGVulkanCanvas::create_graphics_pipeline() {
 
 	shaderc::SpvCompilationResult vert_result = compiler.CompileGlslToSpv(
 		vert_src,
-		shaderc_shader_kind::shaderc_glsl_vertex_shader,
+		shaderc_glsl_vertex_shader,
 		vert_file.c_str(),
 		opts
 	);
@@ -706,8 +783,488 @@ vk::ShaderModule TGVulkanCanvas::create_shader_module(std::vector<uint32_t> code
 		code.size(),
 		code.data()
 	);
-
-	vk::ShaderModule module = device_.createShaderModule(info);
+	
+	vk::ShaderModule module;
+	try {
+		module = device_.createShaderModule(info);
+	}
+	catch (...) {
+		auto e = std::current_exception();
+		bool test = false;
+	}
 
 	return module;
+}
+
+void TGVulkanCanvas::create_framebuffers() {
+	swap_framebuffers_.reserve(swapchain_image_views_.size());
+
+	std::transform(
+		swapchain_image_views_.begin(),
+		swapchain_image_views_.end(),
+		std::back_inserter(swap_framebuffers_),
+		std::bind(
+			std::mem_fn(&TGVulkanCanvas::framebuffer_from_image_view),
+			this,
+			std::placeholders::_1
+		)
+	);
+}
+
+vk::Framebuffer TGVulkanCanvas::framebuffer_from_image_view(
+	const vk::ImageView& img_view
+) {
+	vk::ImageView attachments[] = {
+		img_view
+	};
+
+	vk::FramebufferCreateInfo framebuf_info(
+		{},
+		render_pass_,
+		1,
+		attachments,
+		swap_extent_.width,
+		swap_extent_.height,
+		1
+	);
+
+	return device_.createFramebuffer(framebuf_info);
+}
+
+void TGVulkanCanvas::create_command_pool() {
+
+	vk::CommandPoolCreateInfo pool_info(
+		{},
+		queue_family_indices_.graphics_family.value()
+	);
+
+	cmd_pool_ = device_.createCommandPool(pool_info);
+
+	// Transient pool for mem copy operations
+	// & other short-lived cmd buffers
+	vk::CommandPoolCreateInfo copy_info(
+		vk::CommandPoolCreateFlagBits::eTransient,
+		queue_family_indices_.graphics_family.value()
+	);
+	copy_pool_ = device_.createCommandPool(copy_info);
+}
+
+void TGVulkanCanvas::create_vertex_buffers() {
+
+	vk::DeviceSize buf_size = sizeof(kVertices[0]) * kVertices.size();
+
+	// Staging buffer
+	vk::Buffer staging_buf;
+	vk::DeviceMemory staging_memory;
+
+	create_buffer(
+		buf_size,
+		vk::BufferUsageFlagBits::eTransferSrc,
+		vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+		staging_buf,
+		staging_memory
+	);
+
+	void* data = device_.mapMemory(staging_memory, 0, buf_size);
+	memcpy(data, kVertices.data(), (size_t)buf_size);
+	device_.unmapMemory(staging_memory);
+
+	create_buffer(
+		buf_size,
+		vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
+		vk::MemoryPropertyFlagBits::eDeviceLocal,
+		vertex_buffer_,
+		vertex_buffer_memory_
+	);
+
+	copy_buffer(staging_buf, vertex_buffer_, buf_size);
+
+	device_.destroyBuffer(staging_buf);
+	device_.freeMemory(staging_memory);
+}
+
+void TGVulkanCanvas::create_index_buffers() {
+	vk::DeviceSize buf_size = sizeof(kIndices[0]) * kIndices.size();
+
+	vk::Buffer staging_buf;
+	vk::DeviceMemory staging_memory;
+
+	create_buffer(
+		buf_size,
+		vk::BufferUsageFlagBits::eTransferSrc,
+		vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+		staging_buf,
+		staging_memory
+	);
+
+	void* data = device_.mapMemory(staging_memory, 0, buf_size);
+	memcpy(data, kIndices.data(), buf_size);
+	device_.unmapMemory(staging_memory);
+
+	create_buffer(
+		buf_size,
+		vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
+		vk::MemoryPropertyFlagBits::eDeviceLocal,
+		index_buffer_,
+		index_buffer_memory_
+	);
+
+	copy_buffer(staging_buf, index_buffer_, buf_size);
+
+	device_.destroyBuffer(staging_buf);
+	device_.freeMemory(staging_memory);
+}
+
+void TGVulkanCanvas::create_uniform_buffers() {
+	vk::DeviceSize buf_size = sizeof(UniformBufferObject);
+
+	uniform_buffers_.resize(swapchain_images_.size());
+	uniform_buffers_memory_.resize(swapchain_images_.size());
+
+	for (size_t i = 0; i < uniform_buffers_.size(); i++) {
+		create_buffer(
+			buf_size,
+			vk::BufferUsageFlagBits::eUniformBuffer,
+			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+			uniform_buffers_[i],
+			uniform_buffers_memory_[i]
+		);
+	}
+}
+
+void TGVulkanCanvas::create_buffer(
+	vk::DeviceSize size,
+	vk::BufferUsageFlags usage,
+	vk::MemoryPropertyFlags props,
+	vk::Buffer& buffer,
+	vk::DeviceMemory& buffer_memory
+) {
+	vk::BufferCreateInfo buf_info(
+		{},
+		size,
+		usage,
+		vk::SharingMode::eExclusive
+	);
+
+	buffer = device_.createBuffer(buf_info);
+
+	vk::MemoryRequirements mem_reqs = device_.getBufferMemoryRequirements(buffer);
+
+	uint32_t mem_type_index = find_memory_type(
+		mem_reqs.memoryTypeBits,
+		props
+	);
+
+	vk::MemoryAllocateInfo alloc_info(
+		mem_reqs.size,
+		mem_type_index
+	);
+
+	buffer_memory = device_.allocateMemory(alloc_info);
+
+	device_.bindBufferMemory(buffer, buffer_memory, 0);
+}
+
+uint32_t TGVulkanCanvas::find_memory_type(
+	uint32_t type_filter,
+	vk::MemoryPropertyFlags props
+) {
+	
+	vk::PhysicalDeviceMemoryProperties mem_props =
+		physical_device_.getMemoryProperties();
+
+	for (uint32_t i = 0; i < mem_props.memoryTypeCount; i++) {
+		bool props_met = (mem_props.memoryTypes[i].propertyFlags & props) == props;
+
+		if (type_filter & (1 << i) && props_met) {
+			return i;
+		}
+	}
+
+	throw std::runtime_error("Failed to find suitable memory type");
+}
+
+void TGVulkanCanvas::copy_buffer(
+	vk::Buffer src,
+	vk::Buffer dest,
+	vk::DeviceSize size
+) {
+	vk::CommandBufferAllocateInfo alloc_info(
+		copy_pool_,
+		vk::CommandBufferLevel::ePrimary
+	);
+
+	vk::CommandBuffer cmd_buffer;
+	if (device_.allocateCommandBuffers(&alloc_info, &cmd_buffer) != vk::Result::eSuccess) {
+		throw std::runtime_error("Unable to create cmd buffer for copy");
+	}
+
+	vk::CommandBufferBeginInfo beg_info(
+		vk::CommandBufferUsageFlagBits::eOneTimeSubmit
+	);
+
+	cmd_buffer.begin(beg_info);
+	vk::BufferCopy copy_region(
+		0,
+		0,
+		size
+	);
+
+	std::array<vk::BufferCopy, 1> regions = { copy_region };
+	cmd_buffer.copyBuffer(src, dest, regions);
+	cmd_buffer.end();
+
+	vk::SubmitInfo sub_info;
+	sub_info.commandBufferCount = 1;
+	sub_info.pCommandBuffers = &cmd_buffer;
+
+	graphics_queue_.submit(1, &sub_info, vk::Fence(nullptr));
+	graphics_queue_.waitIdle();
+
+	device_.freeCommandBuffers(copy_pool_, 1, &cmd_buffer);
+}
+
+void TGVulkanCanvas::create_descriptor_pool() {
+	vk::DescriptorPoolSize pool_size(
+		vk::DescriptorType::eUniformBuffer,
+		static_cast<uint32_t>(uniform_buffers_.size())
+	);
+
+	vk::DescriptorPoolCreateInfo info(
+		{},
+		static_cast<uint32_t>(uniform_buffers_.size()),
+		1,
+		&pool_size
+	);
+
+	descriptor_pool_ = device_.createDescriptorPool(info);
+}
+
+void TGVulkanCanvas::allocate_descriptor_sets() {
+	std::vector<vk::DescriptorSetLayout> layouts(
+		uniform_buffers_.size(),
+		descriptor_set_layout_
+	);
+
+	vk::DescriptorSetAllocateInfo alloc_info(
+		descriptor_pool_,
+		static_cast<uint32_t>(uniform_buffers_.size()),
+		layouts.data()
+	);
+
+	descriptor_sets_.reserve(uniform_buffers_.size());
+	descriptor_sets_ = device_.allocateDescriptorSets(alloc_info);
+
+	for (size_t i = 0; i < descriptor_sets_.size(); i++) {
+		vk::DescriptorBufferInfo buf_info(
+			uniform_buffers_[i],
+			0,
+			sizeof(UniformBufferObject)
+		);
+
+		vk::WriteDescriptorSet write(
+			descriptor_sets_[i],
+			0,
+			0,
+			1,
+			vk::DescriptorType::eUniformBuffer,
+			nullptr,
+			&buf_info
+		);
+
+		device_.updateDescriptorSets(1, &write, 0, nullptr);
+	}
+}
+
+void TGVulkanCanvas::create_command_buffers() {
+	cmd_buffers_.reserve(swap_framebuffers_.size());
+
+    vk::CommandBufferAllocateInfo alloc_info(cmd_pool_, vk::CommandBufferLevel::ePrimary, swap_framebuffers_.size());
+    cmd_buffers_ = device_.allocateCommandBuffers(alloc_info);
+
+    for (size_t i = 0; i < cmd_buffers_.size(); i++) {
+        vk::CommandBufferBeginInfo beg_info; // default values fine
+
+        cmd_buffers_[i].begin(beg_info);
+
+        vk::Rect2D render_area;
+        render_area.offset.setX(0);
+        render_area.offset.setY(0);
+        render_area.extent = swap_extent_;
+
+        std::array<float, 4> color = { 0.0f, 0.0f, 0.0f, 1.0f };
+        vk::ClearValue clear_color(color);
+
+        vk::RenderPassBeginInfo pass_info(
+            render_pass_,
+            swap_framebuffers_[i],
+            render_area,
+            1,
+            &clear_color
+        );
+
+        cmd_buffers_[i].beginRenderPass(pass_info, vk::SubpassContents::eInline);
+        cmd_buffers_[i].bindPipeline(vk::PipelineBindPoint::eGraphics, graphics_pipeline_);
+
+        std::array<vk::Buffer, 1> vertex_buffers = { vertex_buffer_ };
+        std::array<vk::DeviceSize, 1> offset = { 0 };
+
+        cmd_buffers_[i].bindVertexBuffers(0, vertex_buffers, offset);
+        cmd_buffers_[i].bindIndexBuffer(index_buffer_, 0, vk::IndexType::eUint16);
+
+        cmd_buffers_[i].bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics,   // bind point
+            pipeline_layout_,                   // pipeline layout
+            0,                                  // first set index
+            1,                                  // # of sets
+            &descriptor_sets_[i],               // sets to bind
+            0,                                  // dynamic offset count
+            nullptr                             // dynamic offsets
+        );
+        uint32_t index_count = static_cast<uint32_t>(kIndices.size());
+        cmd_buffers_[i].drawIndexed(index_count, 1, 0, 0, 0);
+        cmd_buffers_[i].endRenderPass();
+
+        cmd_buffers_[i].end();
+    }
+}
+
+void TGVulkanCanvas::create_sync_objects() {
+	img_available_semaphores_.resize(kMaxFramesInFlight);
+	render_finished_semaphores_.resize(kMaxFramesInFlight);
+	in_flight_fences_.resize(kMaxFramesInFlight);
+	imgs_in_flight_.resize(kMaxFramesInFlight);
+
+	vk::SemaphoreCreateInfo sem_info;
+
+	vk::FenceCreateInfo fence_info(
+		vk::FenceCreateFlagBits::eSignaled
+	);
+
+	for (size_t i = 0; i < kMaxFramesInFlight; i++) {
+		img_available_semaphores_[i] = device_.createSemaphore(sem_info);
+		render_finished_semaphores_[i] = device_.createSemaphore(sem_info);
+		in_flight_fences_[i] = device_.createFence(fence_info);
+	}
+}
+
+void TGVulkanCanvas::update_uniform_buffer(uint32_t current_img) {
+	static auto start_time = std::chrono::high_resolution_clock::now();
+
+	auto current_time = std::chrono::high_resolution_clock::now();
+
+	float delta = std::chrono::duration<float, std::chrono::seconds::period>(
+		current_time - start_time).count();
+
+	UniformBufferObject ubo{};
+
+	ubo.model = glm::rotate(
+		glm::mat4(1.0f),
+		delta * glm::radians(90.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f)
+	);
+
+	ubo.view = glm::lookAt(
+		glm::vec3(2.0f, 2.0f, 2.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f)
+	);
+
+	ubo.proj = glm::perspective(
+		glm::radians(45.0f),
+		swap_extent_.width / (float)swap_extent_.height,
+		0.1f,
+		10.0f
+	);
+
+	ubo.proj[1][1] *= -1;
+
+	void* data = device_.mapMemory(uniform_buffers_memory_[current_img], 0, sizeof(ubo));
+	memcpy(data, &ubo, sizeof(ubo));
+	device_.unmapMemory(uniform_buffers_memory_[current_img]);
+}
+
+void TGVulkanCanvas::on_paint(wxPaintEvent& e) {
+
+	device_.waitForFences(in_flight_fences_[current_frame_], VK_TRUE, UINT64_MAX);
+
+    uint32_t img_index;
+    auto next_img = device_.acquireNextImageKHR(swapchain_, UINT64_MAX, img_available_semaphores_[current_frame_], {});
+
+    if (next_img.result == vk::Result::eErrorOutOfDateKHR) {
+        recreate_swapchain();
+        return;
+    }
+    else if (next_img.result == vk::Result::eSuccess || next_img.result == vk::Result::eSuboptimalKHR) {
+        img_index = next_img.value;
+    }
+    else {
+        throw std::runtime_error("Failed to acquire next swapchain image");
+    }
+
+    if ((VkFence)imgs_in_flight_[img_index] != VK_NULL_HANDLE) {
+        device_.waitForFences(imgs_in_flight_[img_index], VK_TRUE, UINT64_MAX);
+    }
+    imgs_in_flight_[img_index] = in_flight_fences_[current_frame_];
+
+    vk::Semaphore wait_sems[] = {
+        img_available_semaphores_[current_frame_]
+    };
+
+    vk::PipelineStageFlags wait_stages = {
+        vk::PipelineStageFlagBits::eColorAttachmentOutput
+    };
+
+    vk::Semaphore signal_sems[] = {
+        render_finished_semaphores_[current_frame_]
+    };
+
+    update_uniform_buffer(img_index);
+
+    vk::SubmitInfo submit(
+        1,
+        wait_sems,
+        &wait_stages,
+        1,
+        &cmd_buffers_[img_index],
+        1,
+        signal_sems
+    );
+
+    device_.resetFences(in_flight_fences_[current_frame_]);
+
+    graphics_queue_.submit(submit, in_flight_fences_[current_frame_]);
+
+    vk::SwapchainKHR chains[] = { swapchain_ };
+    vk::PresentInfoKHR present_info(
+        1,
+        signal_sems,
+        1,
+        chains,
+        &img_index
+    );
+
+    auto present_result = present_queue_.presentKHR(present_info);
+
+    if (present_result == vk::Result::eErrorOutOfDateKHR || present_result == vk::Result::eSuboptimalKHR) {
+        recreate_swapchain();
+    }
+    else if (present_result != vk::Result::eSuccess) {
+        throw std::runtime_error("Failed to present swapchain image");
+    }
+
+    current_frame_ = (current_frame_ + 1) % kMaxFramesInFlight;
+
+}
+
+void TGVulkanCanvas::on_resize(wxPaintEvent& e) {
+	wxSize size = GetSize();
+
+	if (size.GetWidth() == 0 || size.GetHeight() == 0) {
+		return;
+	}
+
+	recreate_swapchain();
+	wxRect refresh_rect(size);
+	RefreshRect(refresh_rect, false);
 }

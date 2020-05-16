@@ -17,6 +17,9 @@ TGWindow::TGWindow(
 	menuBar->Append(fileMenu, "&File");
 
 	SetMenuBar(menuBar);
+
+	canvas_ = new TGVulkanCanvas(this, wxID_ANY, wxDefaultPosition, { 800, 600 });
+	Fit();
 }
 
 void TGWindow::OnExit(wxCommandEvent& e)
