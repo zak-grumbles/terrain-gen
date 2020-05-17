@@ -93,6 +93,11 @@ TGVulkanCanvas::TGVulkanCanvas(
 
 TGVulkanCanvas::~TGVulkanCanvas() {
 
+}
+
+void TGVulkanCanvas::terminate() {
+	device_.waitIdle();
+
 	cleanup_swapchain();
 
 	device_.destroyDescriptorSetLayout(descriptor_set_layout_);
@@ -1161,8 +1166,7 @@ void TGVulkanCanvas::update_uniform_buffer(uint32_t current_img) {
 	device_.unmapMemory(uniform_buffers_memory_[current_img]);
 }
 
-void TGVulkanCanvas::on_paint(wxPaintEvent& e) {
-
+void TGVulkanCanvas::draw_frame() {
 	device_.waitForFences(in_flight_fences_[current_frame_], VK_TRUE, UINT64_MAX);
 
     uint32_t img_index;
@@ -1231,7 +1235,10 @@ void TGVulkanCanvas::on_paint(wxPaintEvent& e) {
     }
 
     current_frame_ = (current_frame_ + 1) % kMaxFramesInFlight;
+}
 
+void TGVulkanCanvas::on_paint(wxPaintEvent& e) {
+	start_render_loop();
 }
 
 void TGVulkanCanvas::on_resize(wxPaintEvent& e) {
@@ -1244,4 +1251,25 @@ void TGVulkanCanvas::on_resize(wxPaintEvent& e) {
 	recreate_swapchain();
 	wxRect refresh_rect(size);
 	RefreshRect(refresh_rect, false);
+}
+
+void TGVulkanCanvas::on_idle(wxIdleEvent& e) {
+	if (render_loop_on_) {
+		draw_frame();
+		e.RequestMore();
+	}
+}
+
+void TGVulkanCanvas::start_render_loop() {
+	if (!render_loop_on_) {
+		Connect(wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(TGVulkanCanvas::on_idle));
+		render_loop_on_ = true;
+	}
+}
+
+void TGVulkanCanvas::stop_render_loop() {
+	if (render_loop_on_) {
+		Disconnect(wxEVT_IDLE, wxIdleEventHandler(TGVulkanCanvas::on_idle));
+		render_loop_on_ = false;
+	}
 }

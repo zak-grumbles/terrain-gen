@@ -14,8 +14,9 @@ public:
 	TGWindow( const wxString& title, const wxPoint& point, const wxSize& size );
 
 private:
-	void OnResize(wxSizeEvent& e);
-	void OnExit(wxCommandEvent& e);
+	void on_resize(wxSizeEvent& e);
+	void on_exit(wxCommandEvent& e);
+	void on_close(wxCloseEvent& e);
 
 	wxDECLARE_EVENT_TABLE();
 };

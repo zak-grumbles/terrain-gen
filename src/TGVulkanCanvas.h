@@ -91,6 +91,7 @@ private:
 
 	bool framebuffer_resized_ = false;
 	bool vulkan_initialized_;
+	bool render_loop_on_ = false;
 public:
 	TGVulkanCanvas(
 		wxWindow* parent,
@@ -102,6 +103,11 @@ public:
 	);
 
 	virtual ~TGVulkanCanvas() noexcept;
+
+	void terminate();
+
+	void start_render_loop();
+	void stop_render_loop();
 
 private:
 
@@ -178,8 +184,12 @@ private:
 
 	void update_uniform_buffer(uint32_t current_img);
 
+	void draw_frame();
+
 	virtual void on_paint(wxPaintEvent& e);
 	virtual void on_resize(wxPaintEvent& e);
+
+	void on_idle(wxIdleEvent& e);
 };
 
 #endif
