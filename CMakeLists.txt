@@ -22,6 +22,8 @@ set(TG_SRC
 	src/TerrainGenApp.h
 	src/TerrainGenApp.cpp
 	src/TGConfig.h
+	src/TGGenerator.h
+	src/TGGenerator.cpp
 	src/TGEvents.h
 	src/TGUtils.h
 	src/TGUtils.cpp
@@ -31,12 +33,17 @@ set(TG_SRC
 	src/TGWindow.cpp
 )
 
+set(TG_FASTNOISE_SRC
+	src/FastNoise/FastNoise.h
+	src/FastNoise/FastNoise.cpp
+)
+
 # Executable
 if(WIN32)
 	set(TG_EXE_TYPE "WIN32")
 endif()
 
-add_executable(terrain-gen ${TG_EXE_TYPE} ${TG_SRC})
+add_executable(terrain-gen ${TG_EXE_TYPE} ${TG_SRC} ${TG_FASTNOISE_SRC})
 
 # Link libs
 include(${wxWidgets_USE_FILE})
