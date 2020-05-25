@@ -7,22 +7,12 @@
 #include <vulkan/vulkan.hpp>
 
 #include <glm/glm.hpp>
+#include "TGCamera.h"
+#include "TGGenerator.h"
+#include "TGTypes.h"
 
 #include <optional>
 
-struct Vertex {
-	glm::vec2 pos;
-	glm::vec3 color;
-
-	static vk::VertexInputBindingDescription binding_description();
-	static std::array<vk::VertexInputAttributeDescription, 2> attribute_descriptions();
-};
-
-struct UniformBufferObject {
-	alignas(16)glm::mat4 model;
-	alignas(16)glm::mat4 view;
-	alignas(16)glm::mat4 proj;
-};
 
 struct QueueFamilies {
 	std::optional<uint32_t> graphics_family;
@@ -72,8 +62,6 @@ private:
 
 	vk::Buffer vertex_buffer_;
 	vk::DeviceMemory vertex_buffer_memory_;
-	vk::Buffer index_buffer_;
-	vk::DeviceMemory index_buffer_memory_;
 
 	std::vector<vk::Buffer> uniform_buffers_;
 	std::vector<vk::DeviceMemory> uniform_buffers_memory_;
@@ -92,6 +80,10 @@ private:
 	bool framebuffer_resized_ = false;
 	bool vulkan_initialized_;
 	bool render_loop_on_ = false;
+
+	std::unique_ptr<TGGenerator> generator_;
+
+	TGCamera camera_;
 public:
 	TGVulkanCanvas(
 		wxWindow* parent,
@@ -129,7 +121,6 @@ private:
 	void create_framebuffers();
 	void create_command_pool();
 	void create_vertex_buffers();
-	void create_index_buffers();
 	void create_uniform_buffers();
 	void create_descriptor_pool();
 	void allocate_descriptor_sets();
@@ -190,6 +181,8 @@ private:
 	virtual void on_resize(wxPaintEvent& e);
 
 	void on_idle(wxIdleEvent& e);
+
+	void on_key(wxKeyEvent& e);
 };
 
 #endif

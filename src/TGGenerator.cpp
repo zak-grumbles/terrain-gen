@@ -6,7 +6,7 @@ TGGenerator::TGGenerator(int num_cells, float cell_size) {
 	num_cells_ = num_cells;
 	cell_size_ = cell_size;
 	target_ = 0.0f;
-	vertices_ = std::vector<glm::vec3>();
+	vertices_ = std::vector<Vertex>();
 	noise_generator_.SetNoiseType(FastNoise::Perlin);
 }
 
@@ -14,7 +14,7 @@ TGGenerator::~TGGenerator() {
 	vertices_.clear();
 }
 
-const std::vector<glm::vec3>& TGGenerator::vertices() const noexcept {
+const std::vector<Vertex>& TGGenerator::vertices() const noexcept {
 	return vertices_;
 }
 
@@ -23,7 +23,16 @@ void TGGenerator::generate() {
 
 	origin_ = glm::vec3(0, 0, 0);
 
+	printf("Calculating %i x %i x %i cubes. . .\n",
+		num_cells_, num_cells_, num_cells_);
 	for (int x = 0; x < num_cells_; x++) {
+
+		if (x % 128 == 0) {
+			printf("%i ", x);
+		}
+		if (x % 1024 == 0) {
+			printf("\n");
+		}
 
 		for (int y = 0; y < num_cells_; y++) {
 
@@ -58,8 +67,8 @@ void TGGenerator::march_cube(glm::vec3 cube_origin) {
 			cube_origin.z + offsets[v][2] * cell_size_
 		);
 
-		cube_value[v] = noise_generator_.GetNoise(cube_origin.x, cube_origin.z) -
-			cube_origin.y;
+		cube_value[v] = (noise_generator_.GetNoise(temp.x, temp.z) * 20) -
+			temp.y;
 	}
 
 	// Determine edge table index based on corner values
@@ -113,8 +122,10 @@ void TGGenerator::march_cube(glm::vec3 cube_origin) {
 
 		for (int corner = 0; corner < 3; corner++) {
 			int vert = tri_table[index][3 * tri + corner];
-
-			vertices_.push_back(edge_vertex[vert]);
+			
+			glm::vec3 new_point = edge_vertex[vert];
+			new_point.y *= 10.0;
+			vertices_.push_back(Vertex(new_point));
 		}
 
 	}
@@ -123,9 +134,9 @@ void TGGenerator::march_cube(glm::vec3 cube_origin) {
 float TGGenerator::get_offset(float a, float b) {
 	double d = (double)b - (double)a;
 
-	if (d == 0.0)
+	double epsilon = 0.00000001;
+	if (d <= epsilon)
 		return 0.5;
 
-	double diff = (double)target_ - (double)a;
-	return diff / d;
+	return ((double)target_ - (double)a) / d;
 }

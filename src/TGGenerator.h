@@ -2,6 +2,7 @@
 #define TG_GENERATOR_H
 
 #include "FastNoise/FastNoise.h"
+#include "TGTypes.h"
 #include <glm/glm.hpp>
 
 #include <vector>
@@ -24,7 +25,7 @@ private:
 
 	TGGeneratorRange range_;
 
-	std::vector<glm::vec3> vertices_;
+	std::vector<Vertex> vertices_;
 
 	FastNoise noise_generator_;
 
@@ -32,7 +33,7 @@ public:
 	TGGenerator(int num_cells, float cell_size);
 	~TGGenerator();
 
-	const std::vector<glm::vec3>& vertices() const noexcept;
+	const std::vector<Vertex>& vertices() const noexcept;
 
 	void generate();
 

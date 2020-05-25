@@ -23,16 +23,6 @@ const std::vector<const char*> kDeviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-const std::vector<Vertex> kVertices = {
-	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-	{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-	{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-	{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
-};
-
-const std::vector<uint16_t> kIndices = {
-	0, 1, 2, 2, 3, 0
-};
 
 const int kMaxFramesInFlight = 2;
 
@@ -42,34 +32,6 @@ const bool kEnableValidationLayers = true;
 const bool kEnableValidationLayers = false;
 #endif
 
-vk::VertexInputBindingDescription Vertex::binding_description() {
-	vk::VertexInputBindingDescription desc(
-		0,
-		sizeof(Vertex),
-		vk::VertexInputRate::eVertex
-	);
-
-	return desc;
-}
-
-std::array<vk::VertexInputAttributeDescription, 2> Vertex::attribute_descriptions() {
-
-	std::array<vk::VertexInputAttributeDescription, 2> descriptions;
-
-	// inPosition
-	descriptions[0].binding = 0;
-	descriptions[0].location = 0;
-	descriptions[0].format = vk::Format::eR32G32Sfloat;
-	descriptions[0].offset = offsetof(Vertex, pos);
-
-	// inColor 
-	descriptions[1].binding = 0;
-	descriptions[1].location = 1;
-	descriptions[1].format = vk::Format::eR32G32B32Sfloat;
-	descriptions[1].offset = offsetof(Vertex, color);
-
-	return descriptions;
-}
 
 TGVulkanCanvas::TGVulkanCanvas(
 	wxWindow* parent,
@@ -87,6 +49,15 @@ TGVulkanCanvas::TGVulkanCanvas(
 {
 	Bind(wxEVT_PAINT, &TGVulkanCanvas::on_paint, this);
 	//Bind(wxEVT_SIZE, &TGVulkanCanvas::on_resize, this);
+	Bind(wxEVT_KEY_DOWN, &TGVulkanCanvas::on_key, this);
+
+	generator_ = std::make_unique<TGGenerator>(256, 1.0);
+	generator_->generate();
+
+	camera_ = TGCamera(
+		glm::vec3(10, 2, -5),
+		glm::vec3(10, 0.0, 5)
+	);
 
 	initialize_vulkan(size);
 }
@@ -102,8 +73,6 @@ void TGVulkanCanvas::terminate() {
 
 	device_.destroyDescriptorSetLayout(descriptor_set_layout_);
 
-	device_.destroyBuffer(index_buffer_);
-	device_.freeMemory(index_buffer_memory_);
 	device_.destroyBuffer(vertex_buffer_);
 	device_.freeMemory(vertex_buffer_memory_);
 
@@ -185,7 +154,6 @@ void TGVulkanCanvas::initialize_vulkan(const wxSize& size) {
 	create_framebuffers();
 	create_command_pool();
 	create_vertex_buffers();
-	create_index_buffers();
 	create_uniform_buffers();
 	create_descriptor_pool();
 	allocate_descriptor_sets();
@@ -686,9 +654,9 @@ void TGVulkanCanvas::create_graphics_pipeline() {
 		{},
 		VK_FALSE,
 		VK_FALSE,
-		vk::PolygonMode::eFill,
+		vk::PolygonMode::eLine,
 		vk::CullModeFlagBits::eBack,
-		vk::FrontFace::eCounterClockwise,
+		vk::FrontFace::eClockwise,
 		VK_FALSE
 	);
 	rasterizer.lineWidth = 1.0f;
@@ -831,8 +799,10 @@ void TGVulkanCanvas::create_command_pool() {
 }
 
 void TGVulkanCanvas::create_vertex_buffers() {
+	
+	auto verts = generator_->vertices();
 
-	vk::DeviceSize buf_size = sizeof(kVertices[0]) * kVertices.size();
+	vk::DeviceSize buf_size = sizeof(verts[0]) * verts.size();
 
 	// Staging buffer
 	vk::Buffer staging_buf;
@@ -847,7 +817,7 @@ void TGVulkanCanvas::create_vertex_buffers() {
 	);
 
 	void* data = device_.mapMemory(staging_memory, 0, buf_size);
-	memcpy(data, kVertices.data(), (size_t)buf_size);
+	memcpy(data, verts.data(), (size_t)buf_size);
 	device_.unmapMemory(staging_memory);
 
 	create_buffer(
@@ -859,38 +829,6 @@ void TGVulkanCanvas::create_vertex_buffers() {
 	);
 
 	copy_buffer(staging_buf, vertex_buffer_, buf_size);
-
-	device_.destroyBuffer(staging_buf);
-	device_.freeMemory(staging_memory);
-}
-
-void TGVulkanCanvas::create_index_buffers() {
-	vk::DeviceSize buf_size = sizeof(kIndices[0]) * kIndices.size();
-
-	vk::Buffer staging_buf;
-	vk::DeviceMemory staging_memory;
-
-	create_buffer(
-		buf_size,
-		vk::BufferUsageFlagBits::eTransferSrc,
-		vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-		staging_buf,
-		staging_memory
-	);
-
-	void* data = device_.mapMemory(staging_memory, 0, buf_size);
-	memcpy(data, kIndices.data(), buf_size);
-	device_.unmapMemory(staging_memory);
-
-	create_buffer(
-		buf_size,
-		vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
-		vk::MemoryPropertyFlagBits::eDeviceLocal,
-		index_buffer_,
-		index_buffer_memory_
-	);
-
-	copy_buffer(staging_buf, index_buffer_, buf_size);
 
 	device_.destroyBuffer(staging_buf);
 	device_.freeMemory(staging_memory);
@@ -1092,7 +1030,7 @@ void TGVulkanCanvas::create_command_buffers() {
         std::array<vk::DeviceSize, 1> offset = { 0 };
 
         cmd_buffers_[i].bindVertexBuffers(0, vertex_buffers, offset);
-        cmd_buffers_[i].bindIndexBuffer(index_buffer_, 0, vk::IndexType::eUint16);
+        //cmd_buffers_[i].bindIndexBuffer(index_buffer_, 0, vk::IndexType::eUint16);
 
         cmd_buffers_[i].bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,   // bind point
@@ -1103,8 +1041,9 @@ void TGVulkanCanvas::create_command_buffers() {
             0,                                  // dynamic offset count
             nullptr                             // dynamic offsets
         );
-        uint32_t index_count = static_cast<uint32_t>(kIndices.size());
-        cmd_buffers_[i].drawIndexed(index_count, 1, 0, 0, 0);
+        //uint32_t index_count = static_cast<uint32_t>(kIndices.size());
+        //cmd_buffers_[i].drawIndexed(index_count, 1, 0, 0, 0);
+		cmd_buffers_[i].draw(generator_->vertices().size(), 1, 0, 0);
         cmd_buffers_[i].endRenderPass();
 
         cmd_buffers_[i].end();
@@ -1140,23 +1079,15 @@ void TGVulkanCanvas::update_uniform_buffer(uint32_t current_img) {
 
 	UniformBufferObject ubo{};
 
-	ubo.model = glm::rotate(
-		glm::mat4(1.0f),
-		delta * glm::radians(90.0f),
-		glm::vec3(0.0f, 0.0f, 1.0f)
-	);
+	ubo.model = glm::mat4(1.0f);
 
-	ubo.view = glm::lookAt(
-		glm::vec3(2.0f, 2.0f, 2.0f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 1.0f)
-	);
+	ubo.view = camera_.view_matrix();
 
 	ubo.proj = glm::perspective(
 		glm::radians(45.0f),
 		swap_extent_.width / (float)swap_extent_.height,
 		0.1f,
-		10.0f
+		1000.0f
 	);
 
 	ubo.proj[1][1] *= -1;
@@ -1271,5 +1202,30 @@ void TGVulkanCanvas::stop_render_loop() {
 	if (render_loop_on_) {
 		Disconnect(wxEVT_IDLE, wxIdleEventHandler(TGVulkanCanvas::on_idle));
 		render_loop_on_ = false;
+	}
+}
+
+void TGVulkanCanvas::on_key(wxKeyEvent& e) {
+	wxChar key = e.GetUnicodeKey();
+
+	switch (key) {
+	case 'E':
+		camera_.move_up();
+		break;
+	case 'Q':
+		camera_.move_down();
+		break;
+	case 'A':
+		camera_.move_left();
+		break;
+	case 'D':
+		camera_.move_right();
+		break;
+	case 'W':
+		camera_.move_forward();
+		break;
+	case 'S':
+		camera_.move_backward();
+		break;
 	}
 }
