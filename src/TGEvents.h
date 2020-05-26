@@ -2,6 +2,8 @@
 #define TG_EVENTS_H
 
 enum TGEvents {
+	GENERATOR_PROGRESS_UPDATE,
+	GENERATOR_DONE
 };
 
 #endif

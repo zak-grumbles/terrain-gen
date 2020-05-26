@@ -2,25 +2,27 @@
 
 #include "TGTables.h"
 
-TGGenerator::TGGenerator(int num_cells, float cell_size) {
+wxDEFINE_EVENT(wxEVT_TG_GENERATOR_PROGRESS, wxCommandEvent);
+wxDEFINE_EVENT(wxEVT_TG_GENERATOR_DONE, wxCommandEvent);
+
+TGTerrainData::TGTerrainData(std::unique_ptr<std::vector<Vertex>> verts) {
+	vertices_ = std::move(verts);
+}
+
+std::unique_ptr<std::vector<Vertex>> TGTerrainData::take_vertices() noexcept {
+	return std::move(vertices_);
+}
+
+TGGenerator::TGGenerator(wxEvtHandler* parent, int num_cells, float cell_size)
+	: wxThread(), parent_(parent) {
 	num_cells_ = num_cells;
 	cell_size_ = cell_size;
 	target_ = 0.0f;
-	vertices_ = std::vector<Vertex>();
+	vertices_ = std::make_unique<std::vector<Vertex>>();
 	noise_generator_.SetNoiseType(FastNoise::Perlin);
 }
 
-TGGenerator::~TGGenerator() {
-	vertices_.clear();
-}
-
-const std::vector<Vertex>& TGGenerator::vertices() const noexcept {
-	return vertices_;
-}
-
-void TGGenerator::generate() {
-	vertices_.clear();
-
+wxThread::ExitCode TGGenerator::Entry() {
 	origin_ = glm::vec3(0, 0, 0);
 
 	printf("Calculating %i x %i x %i cubes. . .\n",
@@ -28,14 +30,15 @@ void TGGenerator::generate() {
 	for (int x = 0; x < num_cells_; x++) {
 
 		if (x % 128 == 0) {
-			printf("%i ", x);
-		}
-		if (x % 1024 == 0) {
-			printf("\n");
+			wxCommandEvent progress_event(
+				wxEVT_TG_GENERATOR_PROGRESS
+			);
+			
+			progress_event.SetInt(x);
+			parent_->AddPendingEvent(progress_event);
 		}
 
 		for (int y = 0; y < num_cells_; y++) {
-
 			for (int z = 0; z < num_cells_; z++) {
 
 				glm::vec3 p;
@@ -45,10 +48,19 @@ void TGGenerator::generate() {
 
 				march_cube(p);
 			}
-
 		}
-
 	}
+
+	TGTerrainData* data = new TGTerrainData(std::move(vertices_));
+
+	wxCommandEvent done_event(
+		wxEVT_TG_GENERATOR_DONE
+	);
+	done_event.SetClientObject(data);
+	parent_->AddPendingEvent(done_event);
+
+	data = nullptr;
+	return EXIT_SUCCESS;
 }
 
 void TGGenerator::march_cube(glm::vec3 cube_origin) {
@@ -125,7 +137,7 @@ void TGGenerator::march_cube(glm::vec3 cube_origin) {
 			
 			glm::vec3 new_point = edge_vertex[vert];
 			new_point.y *= 10.0;
-			vertices_.push_back(Vertex(new_point));
+			vertices_->push_back(Vertex(new_point));
 		}
 
 	}

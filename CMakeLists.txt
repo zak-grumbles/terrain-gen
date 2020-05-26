@@ -20,6 +20,7 @@ set(TG_SRC
 	src/TGCamera.h
 	src/TGCamera.cpp
 	src/TGConfig.h
+	src/TGEvents.h
 	src/TGGenerator.h
 	src/TGGenerator.cpp
 	src/TGTypes.h

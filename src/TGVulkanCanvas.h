@@ -84,6 +84,8 @@ private:
 	std::unique_ptr<TGGenerator> generator_;
 
 	TGCamera camera_;
+
+	std::unique_ptr<std::vector<Vertex>> vertices_;
 public:
 	TGVulkanCanvas(
 		wxWindow* parent,
@@ -174,15 +176,18 @@ private:
 	);
 
 	void update_uniform_buffer(uint32_t current_img);
+	void update_vertex_buffer();
 
 	void draw_frame();
 
-	virtual void on_paint(wxPaintEvent& e);
 	virtual void on_resize(wxPaintEvent& e);
 
 	void on_idle(wxIdleEvent& e);
 
 	void on_key(wxKeyEvent& e);
+
+	void on_generator_progress(wxCommandEvent& e);
+	void on_generator_done(wxCommandEvent& e);
 };
 
 #endif

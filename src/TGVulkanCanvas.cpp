@@ -15,6 +15,7 @@
 #include <set>
 #include <shaderc/shaderc.hpp>
 
+
 const std::vector<const char*> kValidationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"
 };
@@ -22,7 +23,6 @@ const std::vector<const char*> kValidationLayers = {
 const std::vector<const char*> kDeviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
-
 
 const int kMaxFramesInFlight = 2;
 
@@ -47,23 +47,27 @@ TGVulkanCanvas::TGVulkanCanvas(
 	render_pass_(nullptr), pipeline_layout_(nullptr),
 	graphics_pipeline_(nullptr), cmd_pool_(nullptr)
 {
-	Bind(wxEVT_PAINT, &TGVulkanCanvas::on_paint, this);
 	//Bind(wxEVT_SIZE, &TGVulkanCanvas::on_resize, this);
 	Bind(wxEVT_KEY_DOWN, &TGVulkanCanvas::on_key, this);
+	Bind(wxEVT_TG_GENERATOR_PROGRESS, &TGVulkanCanvas::on_generator_progress, this);
+	Bind(wxEVT_TG_GENERATOR_DONE, &TGVulkanCanvas::on_generator_done, this);
 
-	generator_ = std::make_unique<TGGenerator>(256, 1.0);
-	generator_->generate();
+	generator_ = std::make_unique<TGGenerator>(this, 256, 1.0);
+
+	if (generator_->Create() != wxTHREAD_NO_ERROR) {
+		wxMessageBox("Unable to create generator thread");
+	}
+	generator_->Run();
 
 	camera_ = TGCamera(
 		glm::vec3(10, 2, -5),
 		glm::vec3(10, 0.0, 5)
 	);
-
-	initialize_vulkan(size);
+	
+	vertices_ = std::make_unique<std::vector<Vertex>>();
 }
 
 TGVulkanCanvas::~TGVulkanCanvas() {
-
 }
 
 void TGVulkanCanvas::terminate() {
@@ -83,6 +87,9 @@ void TGVulkanCanvas::terminate() {
 
 	instance_.destroySurfaceKHR(surface_);
 	instance_.destroy();
+
+	vertices_.reset();
+	generator_.reset();
 }
 
 void TGVulkanCanvas::cleanup_swapchain() {
@@ -799,10 +806,7 @@ void TGVulkanCanvas::create_command_pool() {
 }
 
 void TGVulkanCanvas::create_vertex_buffers() {
-	
-	auto verts = generator_->vertices();
-
-	vk::DeviceSize buf_size = sizeof(verts[0]) * verts.size();
+	vk::DeviceSize buf_size = sizeof(Vertex) * vertices_->size();
 
 	// Staging buffer
 	vk::Buffer staging_buf;
@@ -817,7 +821,7 @@ void TGVulkanCanvas::create_vertex_buffers() {
 	);
 
 	void* data = device_.mapMemory(staging_memory, 0, buf_size);
-	memcpy(data, verts.data(), (size_t)buf_size);
+	memcpy(data, vertices_->data(), (size_t)buf_size);
 	device_.unmapMemory(staging_memory);
 
 	create_buffer(
@@ -1043,7 +1047,7 @@ void TGVulkanCanvas::create_command_buffers() {
         );
         //uint32_t index_count = static_cast<uint32_t>(kIndices.size());
         //cmd_buffers_[i].drawIndexed(index_count, 1, 0, 0, 0);
-		cmd_buffers_[i].draw(generator_->vertices().size(), 1, 0, 0);
+		cmd_buffers_[i].draw(vertices_->size(), 1, 0, 0);
         cmd_buffers_[i].endRenderPass();
 
         cmd_buffers_[i].end();
@@ -1168,10 +1172,6 @@ void TGVulkanCanvas::draw_frame() {
     current_frame_ = (current_frame_ + 1) % kMaxFramesInFlight;
 }
 
-void TGVulkanCanvas::on_paint(wxPaintEvent& e) {
-	start_render_loop();
-}
-
 void TGVulkanCanvas::on_resize(wxPaintEvent& e) {
 	wxSize size = GetSize();
 
@@ -1228,4 +1228,40 @@ void TGVulkanCanvas::on_key(wxKeyEvent& e) {
 		camera_.move_backward();
 		break;
 	}
+}
+
+void TGVulkanCanvas::on_generator_progress(wxCommandEvent& e) {
+	auto test = e.GetInt();
+}
+
+void TGVulkanCanvas::on_generator_done(wxCommandEvent& e) {
+
+	TGTerrainData* data = reinterpret_cast<TGTerrainData*>(e.GetClientObject());
+
+	auto verts = data->take_vertices();
+	if (verts != nullptr && verts->size() > 0) {
+
+		vertices_ = std::move(verts);
+
+		if (!vulkan_initialized_) {
+			initialize_vulkan(this->GetSize());
+			vulkan_initialized_ = true;
+			start_render_loop();
+		}
+		else {
+			update_vertex_buffer();
+		}
+
+	}
+
+	verts.reset();
+	delete data;
+}
+
+void TGVulkanCanvas::update_vertex_buffer() {
+	device_.waitIdle();
+
+	device_.destroyBuffer(vertex_buffer_);
+	device_.freeMemory(vertex_buffer_memory_);
+	create_vertex_buffers();
 }
