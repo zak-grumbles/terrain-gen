@@ -252,3 +252,6 @@ Makefile
 
 # Build
 build/
+
+# VSCode
+.vscode/

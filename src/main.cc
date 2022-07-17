@@ -1,6 +1,13 @@
 #include <iostream>
 
-int main(int argc, char** argv) {
-    std::cout << "Hello world" << std::endl;
+#include "terrain_gen_app.h"
+
+#include <OGRE/OgreRoot.h>
+
+int main(int argc, char* argv[]) {
+    TerrainGenApp app;
+    app.initApp();
+    app.getRoot()->startRendering();
+    app.closeApp();
     return 0;
 }
