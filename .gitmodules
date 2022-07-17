@@ -1,0 +1,3 @@
+[submodule "ogre"]
+	path = ogre
+	url = git@github.com:OGRECave/ogre
