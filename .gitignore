@@ -238,3 +238,14 @@ _Pvt_Extensions
 # ignore issue related files as well as generated heightmaps
 issues/
 *.bmp
+
+# executable
+TG
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# Make
+Makefile
