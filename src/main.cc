@@ -5,7 +5,7 @@
 #include <OGRE/OgreRoot.h>
 
 int main(int argc, char* argv[]) {
-    TerrainGenApp app;
+    TG::TerrainGenApp app;
     app.initApp();
     app.getRoot()->startRendering();
     app.closeApp();
