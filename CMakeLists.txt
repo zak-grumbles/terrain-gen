@@ -3,7 +3,6 @@ project(terrain_gen)
 
 # compiler options
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -v")
 
 set(TG_SRC
     src/main.cc
@@ -11,7 +10,11 @@ set(TG_SRC
     src/terrain_gen_app.cc
 )
 
-add_executable(TerrainGen ${TG_SRC})
+set(FastNoise_SRC
+    src/FastNoiseLite/FastNoiseLite.h
+)
+
+add_executable(TerrainGen ${TG_SRC} ${FastNoise_SRC})
 
 # Ogre
 find_package(OGRE REQUIRED COMPONENTS Bites CONFIG)
