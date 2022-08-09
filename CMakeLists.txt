@@ -5,9 +5,12 @@ project(terrain_gen)
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 set(TG_SRC
+    src/generator.h
+    src/generator.cc
     src/main.cc
     src/terrain_gen_app.h
     src/terrain_gen_app.cc
+    src/types.h
 )
 
 set(FastNoise_SRC
