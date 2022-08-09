@@ -1,7 +1,9 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
+#include "FastNoiseLite/FastNoiseLite.h"
 #include "types.h"
 
 namespace tg {
@@ -25,6 +27,26 @@ class Generator {
      */
     ~Generator();
 
+    /**
+     * @brief Set the \p noise_ object
+     * 
+     * @param noise New noise.
+     */
+    void SetNoise(FastNoiseLite noise);
+
+    /**
+     * @brief Executes the marching cubes algorithm for 
+     *        the grid of cubes to generate the terrain.
+     */
+    void MarchingCubes();
+
+    /**
+     * @brief Get the vertices that make up the terrain.
+     * 
+     * @return const std::vector<vec3>& Vector of vertices.
+     */
+    const std::vector<vec3>& GetTerrain() const { return verts_; }
+
    protected:
 
     /**
@@ -34,6 +56,15 @@ class Generator {
      * @param p Origin point of the cube to "march".
      */
     void MarchCube(vec3 p);
+
+    /**
+     * @brief Get the offset between two values.
+     * 
+     * @param a First value
+     * @param b Second value.
+     * @return float Offset between \p a and \p b.
+     */
+    float GetOffset(float a, float b);
 
     /**
      * @brief Number of cells in the grid.
@@ -58,7 +89,16 @@ class Generator {
      */
     vec3 origin_;
 
+    /**
+     * @brief Vertices representing the terrain.
+     */
     std::vector<vec3> verts_;
+
+    /**
+     * @brief Noise function that will be used to 
+     *        generate terrain.
+     */
+    FastNoiseLite noise_;
 };
 
 }  // namespace tg

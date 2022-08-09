@@ -11,6 +11,7 @@ set(TG_SRC
     src/terrain_gen_app.h
     src/terrain_gen_app.cc
     src/types.h
+    src/tables.h
 )
 
 set(FastNoise_SRC
