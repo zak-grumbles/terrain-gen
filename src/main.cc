@@ -1,5 +1,4 @@
 #include <OGRE/OgreRoot.h>
-
 #include <iostream>
 
 #include "terrain_gen_app.h"
