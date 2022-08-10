@@ -7,9 +7,13 @@ include(CMakePrintHelpers)
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 set(TG_SRC
+    src/generator.h
+    src/generator.cc
     src/main.cc
     src/terrain_gen_app.h
     src/terrain_gen_app.cc
+    src/types.h
+    src/tables.h
 )
 
 set(FastNoise_SRC
@@ -26,7 +30,7 @@ cmake_print_variables(OGRE_LIBRARY_DIRS)
 cmake_print_variables(OGRE_LIBRARIES)
 
 # Link
-target_link_libraries(TerrainGen ${OGRE_LIBRARIES})
+target_link_libraries(TerrainGen OgreBites)
 target_include_directories(TerrainGen PUBLIC ${OGRE_INCLUDE_DIRS}/..)
 
 if(WIN32)
