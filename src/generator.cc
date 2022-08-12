@@ -1,34 +1,48 @@
 #include "generator.h"
-
 #include "tables.h"
+
+#include <iostream>
 
 namespace tg {
 
-    Generator::Generator(int num_cells, float cell_size)
-        : num_cells_(num_cells), cell_size_(cell_size), target_val_(0.0f) {}
+Generator::Generator(int num_cells, float cell_size)
+    : num_cells_(num_cells),
+      cell_size_(cell_size),
+      target_val_(0.0f),
+      origin_(0.0f, 0.0f, 0.0f) {}
 
-    Generator::~Generator() {}
+Generator::~Generator() {
+    verts_.clear();
+}
 
-    void Generator::SetNoise(FastNoiseLite noise) { noise_ = noise; }
+void Generator::SetNoise(FastNoiseLite noise) { noise_ = noise; }
 
-    void Generator::MarchingCubes() {
-        verts_.clear();
+void Generator::Generate(std::function<void()> completion_callback) {
+    MarchingCubes();
+    std::cout << "\tDone marching" << std::endl;
+    completion_callback();
+}
 
-        for(int x = 0; x < num_cells_; x++) {
-            for(int x = 0; x < num_cells_; x++) {
-                for(int y = 0; y < num_cells_; y++) {
-                    for(int z = 0; z < num_cells_; z++) {
-                        vec3 p;
-                        p.x = origin_.x + x * cell_size_;
-                        p.y = origin_.y + y * cell_size_;
-                        p.z = origin_.z + z * cell_size_;
+void Generator::MarchingCubes() {
+    verts_.clear();
 
-                        MarchCube(p);
-                    }
-                }
+    std::cout << "Marching grid of size " << num_cells_ << std::endl;
+    for (int x = 0; x < num_cells_; x++) {
+        if( x % 16 == 0) {
+            std::cout << "\t" << x << std::endl;
+        }
+        for (int y = 0; y < num_cells_; y++) {
+            for (int z = 0; z < num_cells_; z++) {
+                vec3 p;
+                p.x = origin_.x + x * cell_size_;
+                p.y = origin_.y + y * cell_size_;
+                p.z = origin_.z + z * cell_size_;
+
+                MarchCube(p);
             }
         }
     }
+}
 
     void Generator::MarchCube(vec3 p) {
         std::vector<float> cube_values(8);

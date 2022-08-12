@@ -6,7 +6,8 @@
 int main(int argc, char* argv[]) {
     tg::TerrainGenApp app;
     app.initApp();
-    app.getRoot()->startRendering();
+    //app.getRoot()->startRendering();
+    app.Run();
     app.closeApp();
     return 0;
 }
