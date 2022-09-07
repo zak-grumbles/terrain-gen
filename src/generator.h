@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -34,11 +35,7 @@ class Generator {
      */
     void SetNoise(FastNoiseLite noise);
 
-    /**
-     * @brief Executes the marching cubes algorithm for 
-     *        the grid of cubes to generate the terrain.
-     */
-    void MarchingCubes();
+    void Generate(std::function<void()> completion_callback);
 
     /**
      * @brief Get the vertices that make up the terrain.
@@ -48,6 +45,11 @@ class Generator {
     const std::vector<vec3>& GetTerrain() const { return verts_; }
 
    protected:
+    /**
+     * @brief Executes the marching cubes algorithm for 
+     *        the grid of cubes to generate the terrain.
+     */
+    void MarchingCubes();
 
     /**
      * @brief Executes the marching cube algorithm for the
