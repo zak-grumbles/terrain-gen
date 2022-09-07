@@ -6,8 +6,8 @@
 #include <thread>
 
 namespace tg {
-    constexpr unsigned int DEFAULT_WINDOW_WIDTH = 1280;
-    constexpr unsigned int DEFAULT_WINDOW_HEIGHT = 960;
+    constexpr unsigned int kDefaultWindowWidth = 1280;
+    constexpr unsigned int kDefaultWindowHeight = 960;
 
     class TerrainGenApp : public OgreBites::ApplicationContext {
        public:
@@ -28,5 +28,8 @@ namespace tg {
 
         std::unique_ptr<Generator> generator_;
         std::unique_ptr<std::thread> gen_thread_;
+
+        static const std::string kAppName;
+        static const std::string kCamName;
     };
 }  // namespace tg

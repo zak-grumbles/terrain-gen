@@ -7,10 +7,14 @@
 #include <thread>
 
 namespace tg {
+
+    const std::string TerrainGenApp::kAppName = "TerrainGen";
+    const std::string TerrainGenApp::kCamName = "main_cam";
+
     TerrainGenApp::TerrainGenApp()
-        : OgreBites::ApplicationContext("TerrainGen"),
-          window_width_(DEFAULT_WINDOW_WIDTH),
-          window_height_(DEFAULT_WINDOW_HEIGHT) {}
+        : OgreBites::ApplicationContext(kAppName),
+          window_width_(kDefaultWindowWidth),
+          window_height_(kDefaultWindowHeight) {}
 
     TerrainGenApp::~TerrainGenApp() {}
 
@@ -27,7 +31,7 @@ namespace tg {
         cam_node->setPosition(0, 0, 15);
         cam_node->lookAt(Ogre::Vector3(0, 0, -1), Ogre::Node::TS_PARENT);
 
-        Ogre::Camera* cam = scene_mgr->createCamera("main_cam");
+        Ogre::Camera* cam = scene_mgr->createCamera(kCamName);
         cam->setNearClipDistance(0.1);
         cam->setAutoAspectRatio(true);
         cam_node->attachObject(cam);
