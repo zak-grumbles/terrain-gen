@@ -71,3 +71,9 @@ Thumbs.db
 *.dll
 *.exe
 
+# build directories from qt creator
+build-terrain-gen-*
+
+# user files
+CMakeLists.txt.user
+
