@@ -22,11 +22,11 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
-        perlingenerator.h
-        perlingenerator.cpp
-        tables.h
-        terrainviewwidget.h
-        terrainviewwidget.cpp
+        generators/perlingenerator.h
+        generators/perlingenerator.cpp
+        generators/tables.h
+        widgets/terrainviewwidget.h
+        widgets/terrainviewwidget.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
