@@ -1,39 +1,72 @@
-cmake_minimum_required(VERSION 3.22.2)
-project(terrain_gen)
+cmake_minimum_required(VERSION 3.5)
 
-include(CMakePrintHelpers)
+project(terrain-gen VERSION 0.1 LANGUAGES CXX)
 
-# compiler options
-set(CMAKE_VERBOSE_MAKEFILE TRUE)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(TG_SRC
-    src/generator.h
-    src/generator.cc
-    src/main.cc
-    src/terrain_gen_app.h
-    src/terrain_gen_app.cc
-    src/types.h
-    src/tables.h
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGLWidgets)
+
+find_package(OpenGL REQUIRED)
+
+set(PROJECT_SOURCES
+        FastNoiseLite/FastNoiseLite.h
+        main.cpp
+        mainwindow.cpp
+        mainwindow.h
+        mainwindow.ui
+        generators/perlingenerator.h
+        generators/perlingenerator.cpp
+        generators/tables.h
+        widgets/terrainviewwidget.h
+        widgets/terrainviewwidget.cpp
 )
 
-set(FastNoise_SRC
-    src/FastNoiseLite/FastNoiseLite.h
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(terrain-gen
+        MANUAL_FINALIZATION
+        ${PROJECT_SOURCES}
+    )
+# Define target properties for Android with Qt 6 as:
+#    set_property(TARGET terrain-gen APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+else()
+    if(ANDROID)
+        add_library(terrain-gen SHARED
+            ${PROJECT_SOURCES}
+        )
+# Define properties for Android with Qt 5 after find_package() calls as:
+#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    else()
+        add_executable(terrain-gen
+            ${PROJECT_SOURCES}
+        )
+    endif()
+endif()
+
+target_link_libraries(terrain-gen PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::OpenGLWidgets opengl32)
+target_include_directories(terrain-gen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}glm)
+
+set_target_properties(terrain-gen PROPERTIES
+    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
 )
 
-add_executable(TerrainGen ${TG_SRC} ${FastNoise_SRC})
+install(TARGETS terrain-gen
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-# Ogre
-find_package(OGRE REQUIRED COMPONENTS Bites CONFIG)
-
-# info
-cmake_print_variables(OGRE_LIBRARY_DIRS)
-cmake_print_variables(OGRE_LIBRARIES)
-
-# Link
-target_link_libraries(TerrainGen OgreBites)
-target_include_directories(TerrainGen PUBLIC ${OGRE_INCLUDE_DIRS}/..)
-
-if(WIN32)
-	add_custom_command(TARGET TerrainGen POST_BUILD 
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${OGRE_DIR}/../bin/ $<TARGET_FILE_DIR:TerrainGen>)
-endif(WIN32)
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(terrain-gen)
+endif()
