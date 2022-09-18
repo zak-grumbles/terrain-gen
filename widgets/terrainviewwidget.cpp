@@ -9,10 +9,10 @@ TerrainViewWidget::TerrainViewWidget(QWidget* parent) : QOpenGLWidget(parent),
     vbo(QOpenGLBuffer::VertexBuffer)
 {
     float aspect = (float)width() / (float)height();
-    cameraPosition = glm::vec3(5.0f, 15.0f, 10.0f);
+    cameraPosition = glm::vec3(5.0f, 30.0f, 10.0f);
 
     modelMatrix = glm::mat4(1.0f);
-    viewMatrix = glm::lookAt(cameraPosition, glm::vec3(5.0f, 0, -1), glm::vec3(0, 1, 0));
+    viewMatrix = glm::lookAt(cameraPosition, glm::vec3(5.0f, 0, -5), glm::vec3(0, 1, 0));
     projectionMatrix = glm::perspective(45.0f, aspect, 0.1f, 100.0f);
 }
 
@@ -92,7 +92,7 @@ void TerrainViewWidget::generate()
     FastNoiseLite noise;
     noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
 
-    PerlinGenerator* generator = new PerlinGenerator(64, 0.25f);
+    PerlinGenerator* generator = new PerlinGenerator(64, 1.0f);
     generator->setNoise(noise);
     generator->moveToThread(&generatorThread);
 
@@ -151,19 +151,37 @@ bool TerrainViewWidget::compileShaders()
 
     const char *vertexShaderSource = "#version 330 core\n"
         "layout (location = 0) in vec3 aPos;\n"
+        "out vec4 pos;\n"
         "uniform mat4 model;\n"
         "uniform mat4 view;\n"
         "uniform mat4 proj;\n"
         "void main()\n"
         "{\n"
-            "mat4 mvp = proj * view * model;"
-        "   gl_Position = mvp * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "	mat4 mvp = proj * view * model;"
+        "	pos = mvp * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "	gl_Position = pos;"
         "}\0";
     const char *fragmentShaderSource = "#version 330 core\n"
+        "in vec4 pos;\n"
         "out vec4 FragColor;\n"
         "void main()\n"
         "{\n"
-        "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "   if(pos.y <= 0.5f)\n"
+        "   {\n"
+        "		FragColor = vec4(0.871f, 0.878f, 0.706f, 1.0f);\n"
+        "	}\n"
+        "   else if(pos.y > 0.5f && pos.y <= 5.0f)\n"
+        "   {\n"
+        "		FragColor = vec4(0.114f, 0.420f, 0.153f, 1.0f);\n"
+        "	}\n"
+        "   else if(pos.y > 5.0f && pos.y <= 7.0f)\n"
+        "   {\n"
+        "		FragColor = vec4(0.710f, 0.710f, 0.710f, 1.0f);\n"
+        "	}\n"
+        "   else if(pos.y > 7.0f)\n"
+        "   {\n"
+        "		FragColor = vec4(0.969f, 1.0f, 0.980f, 1.0f);\n"
+        "	}\n"
         "}\n\0";
 
     unsigned int vert = glCreateShader(GL_VERTEX_SHADER);
