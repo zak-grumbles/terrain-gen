@@ -58,6 +58,88 @@
          <enum>QLayout::SetMinimumSize</enum>
         </property>
         <item>
+         <widget class="QFrame" name="gridSize">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetFixedSize</enum>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Grid Size</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBox">
+             <property name="value">
+              <number>64</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="cubeSize">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetFixedSize</enum>
+           </property>
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Cube Size</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="doubleSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="value">
+              <double>1.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
          <widget class="QCheckBox" name="checkBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -67,6 +149,9 @@
           </property>
           <property name="text">
            <string>Wireframe</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -92,7 +177,10 @@
            </sizepolicy>
           </property>
           <property name="value">
-           <number>24</number>
+           <number>0</number>
+          </property>
+          <property name="invertedAppearance">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -125,7 +213,11 @@
    <header>widgets/terrainviewwidget.h</header>
    <slots>
     <signal>statusUpdate(QString)</signal>
+    <signal>progressUpdate(int)</signal>
     <slot>generate()</slot>
+    <slot>setRenderWireframe(bool)</slot>
+    <slot>setCubeSize(double)</slot>
+    <slot>setGridSize(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -138,8 +230,8 @@
    <slot>generate()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>426</y>
+     <x>891</x>
+     <y>905</y>
     </hint>
     <hint type="destinationlabel">
      <x>197</x>
@@ -160,6 +252,70 @@
     <hint type="destinationlabel">
      <x>92</x>
      <y>77</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>openGLWidget</sender>
+   <signal>progressUpdate(int)</signal>
+   <receiver>progressBar</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1080</x>
+     <y>752</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1059</x>
+     <y>901</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>openGLWidget</receiver>
+   <slot>setRenderWireframe(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>686</x>
+     <y>891</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>566</x>
+     <y>745</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>openGLWidget</receiver>
+   <slot>setCubeSize(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>467</x>
+     <y>897</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>805</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>openGLWidget</receiver>
+   <slot>setGridSize(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>222</x>
+     <y>885</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>256</x>
+     <y>689</y>
     </hint>
    </hints>
   </connection>

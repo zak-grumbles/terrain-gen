@@ -26,8 +26,13 @@ public slots:
     void onTerrainGenerated(std::vector<glm::vec3>* verts);
     void onGenThreadFinished();
 
+    void setRenderWireframe(bool wireframe);
+    void setCubeSize(double newSize);
+    void setGridSize(int newSize);
+
 signals:
     void statusUpdate(const QString& msg);
+    void progressUpdate(int value);
 
 protected:
     // QOpenGLWidget overrides
@@ -50,6 +55,10 @@ protected:
     unsigned int shaderProg;
     QOpenGLVertexArrayObject vao;
     QOpenGLBuffer vbo;
+
+    float cubeSize = 1.0f;
+    int gridSize = 64;
+    bool renderWireframe = true;
 };
 
 #endif // TERRAINVIEWWIDGET_H

@@ -1,5 +1,7 @@
 #include "terrainviewwidget.h"
 
+#include <math.h>
+
 #include "generators/perlingenerator.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -50,7 +52,7 @@ void TerrainViewWidget::initializeGL()
     vbo.bind();
 
     vbo.setUsagePattern(QOpenGLBuffer::UsagePattern::StaticDraw);
-    vbo.allocate(terrainVerts->data(), sizeof(glm::vec3) * terrainVerts->size());
+    vbo.allocate(terrainVerts->data(), (int)(sizeof(glm::vec3) * terrainVerts->size()));
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -82,7 +84,14 @@ void TerrainViewWidget::paintGL()
     unsigned int projLoc = glGetUniformLocation(shaderProg, "proj");
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
-    glDrawArrays(GL_LINE_LOOP, 0, terrainVerts->size());
+    if(renderWireframe == true)
+    {
+        glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)terrainVerts->size());
+    }
+    else
+    {
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)terrainVerts->size());
+    }
 }
 
 void TerrainViewWidget::generate()
@@ -92,7 +101,7 @@ void TerrainViewWidget::generate()
     FastNoiseLite noise;
     noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
 
-    PerlinGenerator* generator = new PerlinGenerator(64, 1.0f);
+    PerlinGenerator* generator = new PerlinGenerator(gridSize, cubeSize);
     generator->setNoise(noise);
     generator->moveToThread(&generatorThread);
 
@@ -111,7 +120,7 @@ void TerrainViewWidget::generate()
 
 void TerrainViewWidget::onGenerationProgress(float percent)
 {
-    emit statusUpdate(QString("%1 percent generated").arg(percent * 100));
+    emit progressUpdate((int)floor(percent * 100));
 }
 
 void TerrainViewWidget::onTerrainGenerated(std::vector<glm::vec3>* verts)
@@ -127,7 +136,7 @@ void TerrainViewWidget::onTerrainGenerated(std::vector<glm::vec3>* verts)
     vbo.bind();
 
     vbo.setUsagePattern(QOpenGLBuffer::UsagePattern::StaticDraw);
-    vbo.allocate(terrainVerts->data(), sizeof(glm::vec3) * terrainVerts->size());
+    vbo.allocate(terrainVerts->data(), (int)(sizeof(glm::vec3) * terrainVerts->size()));
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -143,6 +152,36 @@ void TerrainViewWidget::onTerrainGenerated(std::vector<glm::vec3>* verts)
 void TerrainViewWidget::onGenThreadFinished()
 {
     // Nothing to do?
+}
+
+void TerrainViewWidget::setRenderWireframe(bool wireframe)
+{
+    renderWireframe = wireframe;
+    update();
+}
+
+void TerrainViewWidget::setCubeSize(double newSize)
+{
+    if(newSize > 0.0f)
+    {
+        cubeSize = (float)newSize;
+    }
+    else
+    {
+        emit statusUpdate("Cube size must be non-zero!");
+    }
+}
+
+void TerrainViewWidget::setGridSize(int newSize)
+{
+    if(newSize > 0)
+    {
+        gridSize = newSize;
+    }
+    else
+    {
+        emit statusUpdate("Grid size must be non-zero!");
+    }
 }
 
 bool TerrainViewWidget::compileShaders()

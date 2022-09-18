@@ -35,10 +35,8 @@ void PerlinGenerator::marchingCubes()
 {
     for(int x = 0; x < numCells; x++)
     {
-        if(x % 16 == 0)
-        {
+        if(x % 2 == 0)
             emit progressMade((float)x / (float)numCells);
-        }
         for(int y = 0; y < numCells; y++)
         {
             for(int z = 0; z < numCells; z++)
@@ -51,6 +49,7 @@ void PerlinGenerator::marchingCubes()
             }
         }
     }
+    emit progressMade(1.0f);
 }
 
 void PerlinGenerator::marchCube(glm::vec3 p) {
