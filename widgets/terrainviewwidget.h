@@ -58,7 +58,7 @@ protected:
 
     float cubeSize = 1.0f;
     int gridSize = 64;
-    bool renderWireframe = true;
+    bool renderWireframe = false;
 };
 
 #endif // TERRAINVIEWWIDGET_H
