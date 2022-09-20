@@ -197,7 +197,7 @@ bool TerrainViewWidget::compileShaders()
         "void main()\n"
         "{\n"
         "	mat4 mvp = proj * view * model;"
-        "	pos = mvp * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "	pos = mvp * vec4(aPos.x, aPos.y * 2.0, aPos.z, 1.0);\n"
         "	gl_Position = pos;"
         "}\0";
     const char *fragmentShaderSource = "#version 330 core\n"

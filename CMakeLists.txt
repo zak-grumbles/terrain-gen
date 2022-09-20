@@ -27,6 +27,8 @@ set(PROJECT_SOURCES
         generators/tables.h
         widgets/terrainviewwidget.h
         widgets/terrainviewwidget.cpp
+        camera.h
+        camera.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
