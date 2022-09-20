@@ -22,17 +22,17 @@ public:
 
 public slots:
     void generate();
-    void onGenerationProgress(float percent);
-    void onTerrainGenerated(std::vector<glm::vec3>* verts);
-    void onGenThreadFinished();
+    void on_generation_progress(float percent);
+    void on_terrain_generated(std::vector<glm::vec3>* verts);
+    void on_gen_thread_finished();
 
-    void setRenderWireframe(bool wireframe);
-    void setCubeSize(double newSize);
-    void setGridSize(int newSize);
+    void set_render_wireframe(bool wireframe);
+    void set_cube_size(double new_size);
+    void set_grid_size(int new_size);
 
 signals:
-    void statusUpdate(const QString& msg);
-    void progressUpdate(int value);
+    void status_update(const QString& msg);
+    void progress_update(int value);
 
 protected:
     // QOpenGLWidget overrides
@@ -41,24 +41,24 @@ protected:
     void paintGL() override;
 
     // Helper methods
-    bool compileShaders();
+    bool compile_shaders();
 
-    QThread generatorThread;
+    QThread generator_thread_;
 
-    std::unique_ptr<std::vector<glm::vec3>> terrainVerts;
+    std::unique_ptr<std::vector<glm::vec3>> terrain_verts_;
 
-    glm::vec3 cameraPosition;
-    glm::mat4 projectionMatrix;
-    glm::mat4 modelMatrix;
-    glm::mat4 viewMatrix;
+    glm::vec3 camera_position_;
+    glm::mat4 projection_matrix_;
+    glm::mat4 model_matrix_;
+    glm::mat4 view_matrix_;
 
-    unsigned int shaderProg;
-    QOpenGLVertexArrayObject vao;
-    QOpenGLBuffer vbo;
+    unsigned int shader_prog_;
+    QOpenGLVertexArrayObject vao_;
+    QOpenGLBuffer vbo_;
 
-    float cubeSize = 1.0f;
-    int gridSize = 64;
-    bool renderWireframe = false;
+    float cube_size_ = 1.0f;
+    int grid_size_ = 64;
+    bool render_wireframe_ = false;
 };
 
 #endif // TERRAINVIEWWIDGET_H

@@ -3,19 +3,19 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui_(new Ui::MainWindow)
 {
-    ui->setupUi(this);
-    ui->statusbar->showMessage("Staring up. . .");
+    ui_->setupUi(this);
+    ui_->statusbar->showMessage("Starting up. . .");
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+    delete ui_;
 }
 
-void MainWindow::setStatusMessage(const QString& msg)
+void MainWindow::set_status_message(const QString& msg)
 {
-    ui->statusbar->showMessage(msg);
+    ui_->statusbar->showMessage(msg);
 }
 

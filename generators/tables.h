@@ -10,7 +10,7 @@
 /*
 	Used to determine which edges of the cube have a vertex on them.
 */
-int edgeTable[256] =
+int edge_table[256] =
 {
 	0x000, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
 	0x190, 0x099, 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c, 0x99c, 0x895, 0xb9f, 0xa96, 0xd9a, 0xc93, 0xf99, 0xe90,
@@ -33,7 +33,7 @@ int edgeTable[256] =
 /*
 	Determines which triangles make up the face inside the cube.
 */
-int triTable[256][16] =
+int tri_table[256][16] =
 {
 	{ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
 	{ 0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
@@ -305,7 +305,7 @@ static const float offsets[8][3] =
 /*
 	Determines which two vertices each edge connects.
 */
-static const int edgeConnection[12][2] =
+static const int edge_connection[12][2] =
 {
 	{ 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 },
 	{ 4, 5 }, { 5, 6 }, { 6, 7 }, { 7, 4 },
@@ -315,7 +315,7 @@ static const int edgeConnection[12][2] =
 /*
 	Vectors specifying each edges direction.
 */
-static const float edgeDirection[12][3] =
+static const float edge_direction[12][3] =
 {
 	{ 1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { -1.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 },
 	{ 1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { -1.0, 0.0, 0.0 }, { 0.0, -1.0, 0.0 },

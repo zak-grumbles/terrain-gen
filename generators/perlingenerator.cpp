@@ -2,101 +2,100 @@
 
 #include "tables.h"
 
-PerlinGenerator::PerlinGenerator(int numCubes, float cubeSize)
-    : numCells(numCubes),
-      cellSize(cubeSize),
-      targetValue(0.0f),
-      origin(0.0f, 0.0f, 0.0f)
+PerlinGenerator::PerlinGenerator(int num_cubes, float cube_size)
+    : num_cells_(num_cubes),
+      cell_size_(cube_size),
+      target_value_(0.0f),
+      origin_(0.0f, 0.0f, 0.0f)
 {
-    this->verts = new std::vector<glm::vec3>();
+    this->verts_ = new std::vector<glm::vec3>();
 }
 
 PerlinGenerator::~PerlinGenerator()
 {
-    cleanUp();
+    clean_up();
 }
 
-void PerlinGenerator::cleanUp()
+void PerlinGenerator::clean_up()
 {
-    if(verts != nullptr)
+    if(verts_ != nullptr)
     {
-        verts = nullptr;
+        verts_ = nullptr;
     }
 }
 
 void PerlinGenerator::generate()
 {
-    marchingCubes();
-    emit doneGenerating(std::move(verts));
+    marching_cubes();
+    emit done_generating(std::move(verts_));
     emit done();
 }
 
-void PerlinGenerator::marchingCubes()
+void PerlinGenerator::marching_cubes()
 {
-    for(int x = 0; x < numCells; x++)
+    for(int x = 0; x < num_cells_; x++)
     {
         if(x % 2 == 0)
-            emit progressMade((float)x / (float)numCells);
-        for(int y = 0; y < numCells; y++)
+            emit progress_made((float)x / (float)num_cells_);
+        for(int y = 0; y < num_cells_; y++)
         {
-            for(int z = 0; z < numCells; z++)
+            for(int z = 0; z < num_cells_; z++)
             {
-                glm::vec3 p(origin.x + x * cellSize,
-                            origin.y + y * cellSize,
-                            origin.z + z * cellSize);
+                glm::vec3 p(origin_.x + x * cell_size_,
+                            origin_.y + y * cell_size_,
+                            origin_.z + z * cell_size_);
 
-                marchCube(p);
+                march_cube(p);
             }
         }
     }
-    emit progressMade(1.0f);
+    emit progress_made(1.0f);
 }
 
-void PerlinGenerator::marchCube(glm::vec3 p) {
-    std::vector<float> cubeValues(8);
+void PerlinGenerator::march_cube(glm::vec3 p) {
+    std::vector<float> cube_values(8);
 
     // get values at corners of the cube / cell
     for (int vert = 0; vert < 8; vert++) {
         // temp == current corner
         // it takes the value of the starting point p, plus the
         // current offset as given by the offsets in tables.h
-        glm::vec3 temp(p.x + offsets[vert][0] * cellSize,
-                p.y + offsets[vert][1] * cellSize,
-                p.z + offsets[vert][2] * cellSize);
+        glm::vec3 temp(p.x + offsets[vert][0] * cell_size_,
+                p.y + offsets[vert][1] * cell_size_,
+                p.z + offsets[vert][2] * cell_size_);
 
-        // TODO: sample at point
-        cubeValues[vert] = noise.GetNoise(temp.x, temp.y, temp.z);
+        cube_values[vert] = noise_.GetNoise(temp.x, temp.y, temp.z);
     }
 
     // edge table index is determined by values at corners
     int index = 0;
     for (int test = 0; test < 8; test++) {
-        if (cubeValues[test] > targetValue) {
+        if (cube_values[test] > target_value_) {
             index |= 1 << test;
         }
     }
 
-    int edgeFlags = edgeTable[index];
+    int edge_flags = edge_table[index];
 
-    std::vector<glm::vec3> edgeVertices(12);
+    std::vector<glm::vec3> edge_vertices(12);
     // if edge flags is 0, there are no faces in this cube.
-    if (edgeFlags != 0) {
+    if (edge_flags != 0) {
         // this loop determines if a given edge of the cube should
         // contain a vertex and, if so, the position of that vertex.
         float offset = 0;
         for (int edge = 0; edge < 12; edge++) {
-            if (edgeFlags & (1 << edge)) {
-                offset = getOffset(
-                            cubeValues[edgeConnection[edge][0]],
-                            cubeValues[edgeConnection[edge][1]]
+            if (edge_flags & (1 << edge)) {
+                offset = get_offset(
+                            cube_values[edge_connection[edge][0]],
+                            cube_values[edge_connection[edge][1]]
                         );
 
-                edgeVertices[edge].x = p.x + (offsets[edgeConnection[edge][0]][0]
-                        + offset * edgeDirection[edge][0]) * cellSize;
-                edgeVertices[edge].y = p.y + (offsets[edgeConnection[edge][0]][1]
-                        + offset * edgeDirection[edge][1]) * cellSize;
-                edgeVertices[edge].z = p.z + (offsets[edgeConnection[edge][0]][2]
-                        + offset * edgeDirection[edge][2]) * cellSize;
+                edge_vertices[edge].x = p.x + (offsets[edge_connection[edge][0]][0]
+                        + offset * edge_direction[edge][0]) * cell_size_;
+                edge_vertices[edge].y = p.y + (offsets[edge_connection[edge][0]][1]
+                        + offset * edge_direction[edge][1]) * cell_size_;
+                edge_vertices[edge].z = p.z + (offsets[edge_connection[edge][0]][2]
+                        + offset * edge_direction[edge][2]) * cell_size_;
             }
         }
     }
@@ -109,27 +108,27 @@ void PerlinGenerator::marchCube(glm::vec3 p) {
 
         // If we reach a negative number, we've already found all
         // triangles for this cube
-        if (triTable[index][3 * tri] < 0) {
+        if (tri_table[index][3 * tri] < 0) {
             break;
         }
         else {
 
             // add 3 verts of triangle
             for (int corner = 0; corner < 3; corner++) {
-                int vert = triTable[index][3 * tri + corner];
-                verts->push_back(edgeVertices[vert]);
+                int vert = tri_table[index][3 * tri + corner];
+                verts_->push_back(edge_vertices[vert]);
             }
         }
     }
 }
 
-float PerlinGenerator::getOffset(float a, float b)
+float PerlinGenerator::get_offset(float a, float b)
 {
     float offset = 0.5;
     float d = b - a;
     if (d != 0.0)
     {
-        offset = (targetValue - a) / d;
+        offset = (target_value_ - a) / d;
     }
     return offset;
 }
