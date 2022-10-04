@@ -17,6 +17,8 @@ Camera::Camera(glm::vec3 cam_position,
 }
 
 void Camera::LookAt(glm::vec3 target) {
+    look_ = glm::normalize(target - pos_);
+
     view_matrix_ = glm::lookAt(pos_, target, glm::vec3(0, 1, 0));
 }
 
@@ -25,6 +27,22 @@ void Camera::SetAspectRatio(float aspect_ratio) {
     BuildProjectionMatrix_();
 }
 
-void Camera::BuildProjectionMatrix_() {
+void Camera::Move(int directionFlags)
+{
+    if(directionFlags & CameraDirections::kForward)
+    {
+        pos_ += look_ * 0.25f;
+    }
+
+    BuildViewMatrix_();
+}
+
+void Camera::BuildProjectionMatrix_()
+{
     projection_matrix_ = glm::perspective(fov_, aspect_ratio_, near_, far_);
+}
+
+void Camera::BuildViewMatrix_()
+{
+    view_matrix_ = glm::lookAt(pos_, pos_ + look_, glm::vec3(0, 1, 0));
 }

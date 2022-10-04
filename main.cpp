@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
     QSurfaceFormat::setDefaultFormat(format);
 
     MainWindow w;
+    w.setFocusPolicy(Qt::FocusPolicy::ClickFocus);
     w.show();
     return a.exec();
 }

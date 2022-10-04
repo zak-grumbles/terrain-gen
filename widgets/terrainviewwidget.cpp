@@ -34,6 +34,17 @@ TerrainViewWidget::~TerrainViewWidget()
     camera_.reset();
 }
 
+void TerrainViewWidget::keyPressEvent(QKeyEvent* event)
+{
+    int direction = 0;
+    if(event->key() == Qt::Key_W)
+    {
+        direction |= CameraDirections::kForward;
+    }
+    camera_->Move(direction);
+    update();
+}
+
 void TerrainViewWidget::initializeGL()
 {
     initializeOpenGLFunctions();
