@@ -11,11 +11,14 @@ TerrainViewWidget::TerrainViewWidget(QWidget* parent) : QOpenGLWidget(parent),
     vbo_(QOpenGLBuffer::VertexBuffer)
 {
     float aspect = (float)width() / (float)height();
-    camera_position_ = glm::vec3(5.0f, 30.0f, 10.0f);
+    auto camera_position = glm::vec3(5.0f, 30.0f, 10.0f);
+
+    camera_ = std::make_unique<Camera>(camera_position,
+        45.0f, aspect, 0.1f, 100.0f);
+    camera_->LookAt(glm::vec3(5.0f, 0, -5));
+
 
     model_matrix_ = glm::mat4(1.0f);
-    view_matrix_ = glm::lookAt(camera_position_, glm::vec3(5.0f, 0, -5), glm::vec3(0, 1, 0));
-    projection_matrix_ = glm::perspective(45.0f, aspect, 0.1f, 100.0f);
 }
 
 TerrainViewWidget::~TerrainViewWidget()
@@ -64,7 +67,7 @@ void TerrainViewWidget::initializeGL()
 void TerrainViewWidget::resizeGL(int w, int h)
 {
     float aspect = (float)w / (float)h;
-    projection_matrix_ = glm::perspective(45.0f, aspect, 0.1f, 1000.0f);
+    camera_->SetAspectRatio(aspect);
 }
 
 void TerrainViewWidget::paintGL()
@@ -79,10 +82,10 @@ void TerrainViewWidget::paintGL()
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model_matrix_));
 
     unsigned int viewLoc = glGetUniformLocation(shader_prog_, "view");
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_matrix_));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera_->GetViewMatrixValuePtr());
 
     unsigned int projLoc = glGetUniformLocation(shader_prog_, "proj");
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix_));
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, camera_->GetProjectionMatrixValuePtr());
 
     if(render_wireframe_ == true)
     {

@@ -12,6 +12,8 @@
 #include <glm/matrix.hpp>
 #include <glm/vec3.hpp>
 
+#include "camera.h"
+
 class TerrainViewWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
@@ -47,10 +49,9 @@ protected:
 
     std::unique_ptr<std::vector<glm::vec3>> terrain_verts_;
 
-    glm::vec3 camera_position_;
-    glm::mat4 projection_matrix_;
+    std::unique_ptr<Camera> camera_;
+
     glm::mat4 model_matrix_;
-    glm::mat4 view_matrix_;
 
     unsigned int shader_prog_;
     QOpenGLVertexArrayObject vao_;
