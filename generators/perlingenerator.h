@@ -25,21 +25,21 @@ public:
     PerlinGenerator(int num_cubes, float cube_size);
     ~PerlinGenerator();
 
-    void set_noise(FastNoiseLite noise) { this->noise_ = noise; }
+    void SetNoise(FastNoiseLite noise) { this->noise_ = noise; }
 
 signals:
-    void progress_made(float percent_complete);
-    void done_generating(std::vector<glm::vec3>* verts);
-    void done();
+    void ProgressMade(float percent_complete);
+    void DoneGenerating(std::vector<glm::vec3>* verts);
+    void Done();
 
 public slots:
-    void generate();
-    void clean_up();
+    void Generate();
+    void CleanUp();
 
 protected:
-    void marching_cubes();
-    void march_cube(glm::vec3 p);
-    float get_offset(float a, float b);
+    void MarchingCubes_();
+    void MarchCube_(glm::vec3 p);
+    float GetOffset_(float a, float b);
 
     int num_cells_;
     float cell_size_;

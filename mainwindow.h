@@ -17,7 +17,7 @@ public:
 
 
 public slots:
-    void set_status_message(const QString& msg);
+    void SetStatusMessage(const QString& msg);
 
 private:
     Ui::MainWindow *ui_;

@@ -30,13 +30,15 @@ TerrainViewWidget::~TerrainViewWidget()
     vao_.destroy();
 
     doneCurrent();
+
+    camera_.reset();
 }
 
 void TerrainViewWidget::initializeGL()
 {
     initializeOpenGLFunctions();
 
-    compile_shaders();
+    CompileShaders_();
 
     std::vector<glm::vec3> verts = {
         glm::vec3(-0.5f, -0.5f, 0.0f),
@@ -97,38 +99,38 @@ void TerrainViewWidget::paintGL()
     }
 }
 
-void TerrainViewWidget::generate()
+void TerrainViewWidget::Generate()
 {
-    emit status_update("Starting generation...");
+    emit StatusUpdate("Starting generation...");
 
     FastNoiseLite noise;
     noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
 
     PerlinGenerator* generator = new PerlinGenerator(grid_size_, cube_size_);
-    generator->set_noise(noise);
+    generator->SetNoise(noise);
     generator->moveToThread(&generator_thread_);
 
     // thread signals/slots
-    connect(&generator_thread_, &QThread::started, generator, &PerlinGenerator::generate);
+    connect(&generator_thread_, &QThread::started, generator, &PerlinGenerator::Generate);
     connect(&generator_thread_, &QThread::finished, generator, &PerlinGenerator::deleteLater);
-    connect(&generator_thread_, &QThread::finished, this, &TerrainViewWidget::on_gen_thread_finished);
+    connect(&generator_thread_, &QThread::finished, this, &TerrainViewWidget::OnGenThreadFinished);
 
     // generator signals/slots
-    connect(generator, &PerlinGenerator::progress_made, this, &TerrainViewWidget::on_generation_progress);
-    connect(generator, &PerlinGenerator::done_generating, this, &TerrainViewWidget::on_terrain_generated);
-    connect(generator, &PerlinGenerator::done, &generator_thread_, &QThread::quit);
+    connect(generator, &PerlinGenerator::ProgressMade, this, &TerrainViewWidget::OnGenerationProgress);
+    connect(generator, &PerlinGenerator::DoneGenerating, this, &TerrainViewWidget::OnTerrainGenerated);
+    connect(generator, &PerlinGenerator::Done, &generator_thread_, &QThread::quit);
 
     generator_thread_.start();
 }
 
-void TerrainViewWidget::on_generation_progress(float percent)
+void TerrainViewWidget::OnGenerationProgress(float percent)
 {
-    emit progress_update((int)floor(percent * 100));
+    emit ProgressUpdate((int)floor(percent * 100));
 }
 
-void TerrainViewWidget::on_terrain_generated(std::vector<glm::vec3>* verts)
+void TerrainViewWidget::OnTerrainGenerated(std::vector<glm::vec3>* verts)
 {
-    emit status_update("Done generating!");
+    emit StatusUpdate("Done generating!");
     terrain_verts_ = std::unique_ptr<std::vector<glm::vec3>>(verts);
 
     makeCurrent();
@@ -152,18 +154,18 @@ void TerrainViewWidget::on_terrain_generated(std::vector<glm::vec3>* verts)
     update();
 }
 
-void TerrainViewWidget::on_gen_thread_finished()
+void TerrainViewWidget::OnGenThreadFinished()
 {
     // Nothing to do?
 }
 
-void TerrainViewWidget::set_render_wireframe(bool wireframe)
+void TerrainViewWidget::SetRenderWireframe(bool wireframe)
 {
     render_wireframe_ = wireframe;
     update();
 }
 
-void TerrainViewWidget::set_cube_size(double newSize)
+void TerrainViewWidget::SetCubeSize(double newSize)
 {
     if(newSize > 0.0f)
     {
@@ -171,11 +173,11 @@ void TerrainViewWidget::set_cube_size(double newSize)
     }
     else
     {
-        emit status_update("Cube size must be non-zero!");
+        emit StatusUpdate("Cube size must be non-zero!");
     }
 }
 
-void TerrainViewWidget::set_grid_size(int newSize)
+void TerrainViewWidget::SetGridSize(int newSize)
 {
     if(newSize > 0)
     {
@@ -183,11 +185,11 @@ void TerrainViewWidget::set_grid_size(int newSize)
     }
     else
     {
-        emit status_update("Grid size must be non-zero!");
+        emit StatusUpdate("Grid size must be non-zero!");
     }
 }
 
-bool TerrainViewWidget::compile_shaders()
+bool TerrainViewWidget::CompileShaders_()
 {
     bool success = false;
 
@@ -236,7 +238,7 @@ bool TerrainViewWidget::compile_shaders()
     if(!status)
     {
         glGetShaderInfoLog(vert, 512, nullptr, log);
-        emit status_update(QString("Vertex shader error: %1").arg(log));
+        emit StatusUpdate(QString("Vertex shader error: %1").arg(log));
     }
 
     unsigned int frag = glCreateShader(GL_FRAGMENT_SHADER);
@@ -247,7 +249,7 @@ bool TerrainViewWidget::compile_shaders()
     if(!status)
     {
         glGetShaderInfoLog(frag, 512, nullptr, log);
-        emit status_update(QString("Fragment shader error: %1").arg(log));
+        emit StatusUpdate(QString("Fragment shader error: %1").arg(log));
     }
 
     shader_prog_ = glCreateProgram();
@@ -259,7 +261,7 @@ bool TerrainViewWidget::compile_shaders()
     if(!status)
     {
         glGetProgramInfoLog(shader_prog_, 512, nullptr, log);
-        emit status_update(QString("Shader link error: %1").arg(log));
+        emit StatusUpdate(QString("Shader link error: %1").arg(log));
     }
 
     glDeleteShader(vert);

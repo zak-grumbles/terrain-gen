@@ -23,18 +23,18 @@ public:
     ~TerrainViewWidget();
 
 public slots:
-    void generate();
-    void on_generation_progress(float percent);
-    void on_terrain_generated(std::vector<glm::vec3>* verts);
-    void on_gen_thread_finished();
+    void Generate();
+    void OnGenerationProgress(float percent);
+    void OnTerrainGenerated(std::vector<glm::vec3>* verts);
+    void OnGenThreadFinished();
 
-    void set_render_wireframe(bool wireframe);
-    void set_cube_size(double new_size);
-    void set_grid_size(int new_size);
+    void SetRenderWireframe(bool wireframe);
+    void SetCubeSize(double new_size);
+    void SetGridSize(int new_size);
 
 signals:
-    void status_update(const QString& msg);
-    void progress_update(int value);
+    void StatusUpdate(const QString& msg);
+    void ProgressUpdate(int value);
 
 protected:
     // QOpenGLWidget overrides
@@ -43,7 +43,7 @@ protected:
     void paintGL() override;
 
     // Helper methods
-    bool compile_shaders();
+    bool CompileShaders_();
 
     QThread generator_thread_;
 

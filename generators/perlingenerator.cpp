@@ -13,10 +13,10 @@ PerlinGenerator::PerlinGenerator(int num_cubes, float cube_size)
 
 PerlinGenerator::~PerlinGenerator()
 {
-    clean_up();
+    CleanUp();
 }
 
-void PerlinGenerator::clean_up()
+void PerlinGenerator::CleanUp()
 {
     if(verts_ != nullptr)
     {
@@ -24,19 +24,19 @@ void PerlinGenerator::clean_up()
     }
 }
 
-void PerlinGenerator::generate()
+void PerlinGenerator::Generate()
 {
-    marching_cubes();
-    emit done_generating(std::move(verts_));
-    emit done();
+    MarchingCubes_();
+    emit DoneGenerating(std::move(verts_));
+    emit Done();
 }
 
-void PerlinGenerator::marching_cubes()
+void PerlinGenerator::MarchingCubes_()
 {
     for(int x = 0; x < num_cells_; x++)
     {
         if(x % 2 == 0)
-            emit progress_made((float)x / (float)num_cells_);
+            emit ProgressMade((float)x / (float)num_cells_);
         for(int y = 0; y < num_cells_; y++)
         {
             for(int z = 0; z < num_cells_; z++)
@@ -45,14 +45,14 @@ void PerlinGenerator::marching_cubes()
                             origin_.y + y * cell_size_,
                             origin_.z + z * cell_size_);
 
-                march_cube(p);
+                MarchCube_(p);
             }
         }
     }
-    emit progress_made(1.0f);
+    emit ProgressMade(1.0f);
 }
 
-void PerlinGenerator::march_cube(glm::vec3 p) {
+void PerlinGenerator::MarchCube_(glm::vec3 p) {
     std::vector<float> cube_values(8);
 
     // get values at corners of the cube / cell
@@ -85,7 +85,7 @@ void PerlinGenerator::march_cube(glm::vec3 p) {
         float offset = 0;
         for (int edge = 0; edge < 12; edge++) {
             if (edge_flags & (1 << edge)) {
-                offset = get_offset(
+                offset = GetOffset_(
                             cube_values[edge_connection[edge][0]],
                             cube_values[edge_connection[edge][1]]
                         );
@@ -122,7 +122,7 @@ void PerlinGenerator::march_cube(glm::vec3 p) {
     }
 }
 
-float PerlinGenerator::get_offset(float a, float b)
+float PerlinGenerator::GetOffset_(float a, float b)
 {
     float offset = 0.5;
     float d = b - a;
