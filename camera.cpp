@@ -33,6 +33,28 @@ void Camera::Move(int directionFlags)
     {
         pos_ += look_ * 0.25f;
     }
+    else if(directionFlags & CameraDirections::kBackward)
+    {
+        pos_ -= look_ * 0.25f;
+    }
+    else if(directionFlags & CameraDirections::kRight)
+    {
+        glm::vec3 right = glm::normalize(glm::cross(look_, glm::vec3(0, 1, 0)));
+        pos_ += right * 0.25f;
+    }
+    else if(directionFlags & CameraDirections::kLeft)
+    {
+        glm::vec3 right = glm::normalize(glm::cross(look_, glm::vec3(0, 1, 0)));
+        pos_ -= right * 0.25f;
+    }
+    else if(directionFlags & CameraDirections::kUp)
+    {
+        pos_ += glm::vec3(0, 0.25f, 0);
+    }
+    else if(directionFlags & CameraDirections::kDown)
+    {
+        pos_ -= glm::vec3(0, 0.25f, 0);
+    }
 
     BuildViewMatrix_();
 }

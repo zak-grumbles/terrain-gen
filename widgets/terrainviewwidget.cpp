@@ -37,10 +37,32 @@ TerrainViewWidget::~TerrainViewWidget()
 void TerrainViewWidget::keyPressEvent(QKeyEvent* event)
 {
     int direction = 0;
+
     if(event->key() == Qt::Key_W)
     {
         direction |= CameraDirections::kForward;
     }
+    else if(event->key() == Qt::Key_S)
+    {
+        direction |= CameraDirections::kBackward;
+    }
+    else if(event->key() == Qt::Key_D)
+    {
+        direction |= CameraDirections::kRight;
+    }
+    else if(event->key() == Qt::Key_A)
+    {
+        direction |= CameraDirections::kLeft;
+    }
+    else if(event->key() == Qt::Key_Space)
+    {
+        direction |= CameraDirections::kUp;
+    }
+    else if(event->key() == Qt::Key_Shift)
+    {
+        direction |= CameraDirections::kDown;
+    }
+
     camera_->Move(direction);
     update();
 }
