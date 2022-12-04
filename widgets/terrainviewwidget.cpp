@@ -74,6 +74,8 @@ void TerrainViewWidget::initializeGL()
 {
     initializeOpenGLFunctions();
 
+    glEnable(GL_DEPTH_TEST);
+
     CompileShaders_();
 
     std::vector<glm::vec3> verts = {
@@ -111,7 +113,7 @@ void TerrainViewWidget::resizeGL(int w, int h)
 void TerrainViewWidget::paintGL()
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(shader_prog_);
     vao_.bind();
