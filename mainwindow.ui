@@ -215,12 +215,12 @@
    <extends>QOpenGLWidget</extends>
    <header>widgets/terrainviewwidget.h</header>
    <slots>
-    <signal>statusUpdate(QString)</signal>
-    <signal>progressUpdate(int)</signal>
-    <slot>generate()</slot>
-    <slot>setRenderWireframe(bool)</slot>
-    <slot>setCubeSize(double)</slot>
-    <slot>setGridSize(int)</slot>
+    <signal>ProgressUpdate(int)</signal>
+    <signal>StatusUpdate(QString)</signal>
+    <slot>SetRenderWireframe(bool)</slot>
+    <slot>SetCubeSize(double)</slot>
+    <slot>SetGridSize(int)</slot>
+    <slot>Generate()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -230,79 +230,47 @@
    <sender>pushButton</sender>
    <signal>released()</signal>
    <receiver>openGLWidget</receiver>
-   <slot>generate()</slot>
+   <slot>Generate()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>891</x>
-     <y>905</y>
+     <x>824</x>
+     <y>893</y>
     </hint>
     <hint type="destinationlabel">
-     <x>197</x>
-     <y>241</y>
+     <x>209</x>
+     <y>795</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>openGLWidget</sender>
-   <signal>statusUpdate(QString)</signal>
+   <signal>StatusUpdate(QString)</signal>
    <receiver>MainWindow</receiver>
-   <slot>setStatusMessage(QString)</slot>
+   <slot>SetStatusMessage(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>199</x>
-     <y>150</y>
+     <x>1174</x>
+     <y>639</y>
     </hint>
     <hint type="destinationlabel">
-     <x>92</x>
-     <y>77</y>
+     <x>1458</x>
+     <y>651</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>openGLWidget</sender>
-   <signal>progressUpdate(int)</signal>
+   <signal>ProgressUpdate(int)</signal>
    <receiver>progressBar</receiver>
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1080</x>
-     <y>752</y>
+     <x>1223</x>
+     <y>706</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1059</x>
-     <y>901</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>openGLWidget</receiver>
-   <slot>setRenderWireframe(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>686</x>
-     <y>891</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>566</x>
-     <y>745</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>doubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>openGLWidget</receiver>
-   <slot>setCubeSize(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>467</x>
-     <y>897</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>805</y>
+     <x>1078</x>
+     <y>889</y>
     </hint>
    </hints>
   </connection>
@@ -310,20 +278,52 @@
    <sender>spinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>openGLWidget</receiver>
-   <slot>setGridSize(int)</slot>
+   <slot>SetGridSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>222</x>
-     <y>885</y>
+     <x>335</x>
+     <y>878</y>
     </hint>
     <hint type="destinationlabel">
-     <x>256</x>
-     <y>689</y>
+     <x>365</x>
+     <y>765</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>openGLWidget</receiver>
+   <slot>SetCubeSize(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>612</x>
+     <y>879</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>664</x>
+     <y>757</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>openGLWidget</receiver>
+   <slot>SetRenderWireframe(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>61</x>
+     <y>877</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>103</x>
+     <y>707</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
-  <slot>setStatusMessage(QString)</slot>
+  <slot>SetStatusMessage(QString)</slot>
  </slots>
 </ui>
