@@ -1,5 +1,7 @@
 #include "camera.h"
 
+#include <glm/vec3.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 Directions operator|(Directions lhs, Directions rhs)
@@ -73,6 +75,12 @@ void Camera::Move(Directions dir)
 
     // Trigger recreation of view matrix
     LookAt(pos_ + look_);
+}
+
+void Camera::Rotate(float degrees, glm::vec3 axis)
+{
+    look_ = glm::normalize(glm::rotate(look_, glm::radians(degrees) * rotate_speed_, axis));
+    view_matrix_ = glm::lookAt(pos_, pos_ + look_, glm::vec3(0, 1, 0));
 }
 
 void Camera::BuildProjectionMatrix_() {

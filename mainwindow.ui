@@ -23,6 +23,9 @@
     </property>
     <item>
      <widget class="TerrainViewWidget" name="openGLWidget">
+      <property name="mouseTracking">
+       <bool>true</bool>
+      </property>
       <property name="focusPolicy">
        <enum>Qt::StrongFocus</enum>
       </property>

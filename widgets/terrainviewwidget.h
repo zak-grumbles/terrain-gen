@@ -22,7 +22,6 @@ public:
     TerrainViewWidget(QWidget* parent);
     ~TerrainViewWidget();
 
-    void keyPressEvent(QKeyEvent* event) override;
 
 public slots:
     void Generate();
@@ -44,6 +43,14 @@ protected:
     void resizeGL(int w, int h) override;
     void paintGL() override;
 
+    // Keyboard event overrides
+    void keyPressEvent(QKeyEvent* event) override;
+
+    // Mouse event overrides
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
+
     // Helper methods
     bool CompileShaders_();
 
@@ -62,6 +69,10 @@ protected:
     float cube_size_ = 1.0f;
     int grid_size_ = 64;
     bool render_wireframe_ = false;
+
+    // Mouse variables
+    bool is_dragging_ = false;
+    glm::vec3 drag_start_ = glm::vec3(0.0, 0.0, 0.0);
 };
 
 #endif // TERRAINVIEWWIDGET_H

@@ -18,6 +18,7 @@ enum Directions {
 };
 
 Directions operator|(Directions lhs, Directions rhs);
+Directions operator&(Directions lhs, Directions rhs);
 
 class Camera
 {
@@ -28,18 +29,21 @@ public:
            float near,
            float far);
 
-    const glm::mat4& GetViewMatrix() const { return view_matrix_; }
+    const glm::mat4& ViewMatrix() const { return view_matrix_; }
     const float* GetViewMatrixValuePtr() const { return glm::value_ptr(view_matrix_); }
 
-    const glm::mat4& GetProjectionMatrix() const { return projection_matrix_; }
+    const glm::mat4& ProjectionMatrix() const { return projection_matrix_; }
     const float* GetProjectionMatrixValuePtr() const { return glm::value_ptr(projection_matrix_); }
 
-    const glm::vec3& GetPosition() const { return pos_; }
+    const glm::vec3& Position() const { return pos_; }
+
+    const glm::vec3& LookVector() const { return look_; }
 
     void LookAt(glm::vec3 target);
     void SetAspectRatio(float aspect_ratio);
 
     void Move(Directions dir);
+    void Rotate(float degrees, glm::vec3 axis);
 
 protected:
     void BuildProjectionMatrix_();
@@ -50,6 +54,7 @@ protected:
     float aspect_ratio_;
     float near_;
     float far_;
+    float rotate_speed_ = 0.5f;
 
     glm::mat4 view_matrix_;
     glm::mat4 projection_matrix_;
