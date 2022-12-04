@@ -22,8 +22,6 @@ public:
     TerrainViewWidget(QWidget* parent);
     ~TerrainViewWidget();
 
-    void keyPressEvent(QKeyEvent* event) override;
-
 public slots:
     void Generate();
     void OnGenerationProgress(float percent);
