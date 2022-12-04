@@ -7,6 +7,18 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+enum Directions {
+    kForward 	= 1 << 0,
+    kBackward 	= 1 << 1,
+    kLeft 		= 1 << 2,
+    kRight 		= 1 << 3,
+    kUp 		= 1 << 4,
+    kDown 		= 1 << 5,
+    kNone		= 1 << 6
+};
+
+Directions operator|(Directions lhs, Directions rhs);
+
 class Camera
 {
 public:
@@ -27,10 +39,13 @@ public:
     void LookAt(glm::vec3 target);
     void SetAspectRatio(float aspect_ratio);
 
+    void Move(Directions dir);
+
 protected:
     void BuildProjectionMatrix_();
 
     glm::vec3 pos_;
+    glm::vec3 look_;
     float fov_;
     float aspect_ratio_;
     float near_;

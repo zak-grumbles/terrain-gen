@@ -11,11 +11,11 @@ TerrainViewWidget::TerrainViewWidget(QWidget* parent) : QOpenGLWidget(parent),
     vbo_(QOpenGLBuffer::VertexBuffer)
 {
     float aspect = (float)width() / (float)height();
-    auto camera_position = glm::vec3(5.0f, 30.0f, 10.0f);
+    auto camera_position = glm::vec3(0.0f, 0.0f, 10.0f);
 
     camera_ = std::make_unique<Camera>(camera_position,
-        45.0f, aspect, 0.1f, 100.0f);
-    camera_->LookAt(glm::vec3(5.0f, 0, -5));
+        45.0f, aspect, 0.1f, 1000.0f);
+    camera_->LookAt(glm::vec3(0.0f, 0, 0));
 
 
     model_matrix_ = glm::mat4(1.0f);
@@ -32,6 +32,42 @@ TerrainViewWidget::~TerrainViewWidget()
     doneCurrent();
 
     camera_.reset();
+}
+
+void TerrainViewWidget::keyPressEvent(QKeyEvent* event)
+{
+    Directions dir = Directions::kNone;
+
+    if(event->key() == Qt::Key_S)
+    {
+        dir =  dir | Directions::kBackward;
+    }
+    if(event->key() == Qt::Key_W)
+    {
+        dir = dir | Directions::kForward;
+    }
+
+    if(event->key() == Qt::Key_D)
+    {
+        dir = dir | Directions::kRight;
+    }
+    if(event->key() == Qt::Key_A)
+    {
+        dir = dir | Directions::kLeft;
+    }
+
+    if(event->key() == Qt::Key_Q)
+    {
+        dir = dir | Directions::kUp;
+    }
+    if(event->key() == Qt::Key_E)
+    {
+        dir = dir | Directions::kDown;
+    }
+
+    camera_->Move(dir);
+
+    update();
 }
 
 void TerrainViewWidget::initializeGL()
@@ -196,33 +232,36 @@ bool TerrainViewWidget::CompileShaders_()
     const char *vertexShaderSource = "#version 330 core\n"
         "layout (location = 0) in vec3 aPos;\n"
         "out vec4 pos;\n"
+        "out vec3 original_pos;\n"
         "uniform mat4 model;\n"
         "uniform mat4 view;\n"
         "uniform mat4 proj;\n"
         "void main()\n"
         "{\n"
-        "	mat4 mvp = proj * view * model;"
-        "	pos = mvp * vec4(aPos.x, aPos.y * 2.0, aPos.z, 1.0);\n"
-        "	gl_Position = pos;"
+        "	mat4 mvp = proj * view * model;\n"
+        "	original_pos = aPos;\n"
+        "	pos = mvp * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "	gl_Position = pos;\n"
         "}\0";
     const char *fragmentShaderSource = "#version 330 core\n"
         "in vec4 pos;\n"
+        "in vec3 original_pos;\n"
         "out vec4 FragColor;\n"
         "void main()\n"
         "{\n"
-        "   if(pos.y <= 0.5f)\n"
+        "   if(original_pos.y <= 4.0f)\n"
         "   {\n"
         "		FragColor = vec4(0.871f, 0.878f, 0.706f, 1.0f);\n"
         "	}\n"
-        "   else if(pos.y > 0.5f && pos.y <= 5.0f)\n"
+        "   else if(original_pos.y > 4.0f && original_pos.y <= 15.0f)\n"
         "   {\n"
         "		FragColor = vec4(0.114f, 0.420f, 0.153f, 1.0f);\n"
         "	}\n"
-        "   else if(pos.y > 5.0f && pos.y <= 7.0f)\n"
+        "   else if(original_pos.y > 15.0f && original_pos.y <= 25.0f)\n"
         "   {\n"
         "		FragColor = vec4(0.710f, 0.710f, 0.710f, 1.0f);\n"
         "	}\n"
-        "   else if(pos.y > 7.0f)\n"
+        "   else if(original_pos.y > 25.0f)\n"
         "   {\n"
         "		FragColor = vec4(0.969f, 1.0f, 0.980f, 1.0f);\n"
         "	}\n"

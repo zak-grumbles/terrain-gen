@@ -22,7 +22,11 @@
      <enum>QLayout::SetDefaultConstraint</enum>
     </property>
     <item>
-     <widget class="TerrainViewWidget" name="openGLWidget"/>
+     <widget class="TerrainViewWidget" name="openGLWidget">
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QFrame" name="frame">
