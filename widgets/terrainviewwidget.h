@@ -32,6 +32,7 @@ public slots:
     void SetRenderWireframe(bool wireframe);
     void SetCubeSize(double new_size);
     void SetGridSize(int new_size);
+    void SetSeed(int new_seed);
 
 signals:
     void StatusUpdate(const QString& msg);
@@ -69,6 +70,7 @@ protected:
     float cube_size_ = 1.0f;
     int grid_size_ = 64;
     bool render_wireframe_ = false;
+    int noise_seed_ = 1337;
 
     // Mouse variables
     bool is_dragging_ = false;

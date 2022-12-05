@@ -41,7 +41,7 @@ void TerrainViewWidget::Generate()
 
     FastNoiseLite noise;
     noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    noise.SetSeed(1337);
+    noise.SetSeed(noise_seed_);
 
     PerlinGenerator* generator = new PerlinGenerator(grid_size_, cube_size_);
     generator->SetNoise(noise);
@@ -124,6 +124,11 @@ void TerrainViewWidget::SetGridSize(int newSize)
     {
         emit StatusUpdate("Grid size must be non-zero!");
     }
+}
+
+void TerrainViewWidget::SetSeed(int new_seed)
+{
+    noise_seed_ = new_seed;
 }
 
 void TerrainViewWidget::initializeGL()

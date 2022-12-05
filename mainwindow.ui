@@ -75,6 +75,53 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
+           <widget class="QFrame" name="frame_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QLabel" name="label_3">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Seed</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="seed">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="maximum">
+                <number>9999</number>
+               </property>
+               <property name="value">
+                <number>1337</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
            <widget class="QFrame" name="gridSize">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -224,6 +271,7 @@
     <slot>SetCubeSize(double)</slot>
     <slot>SetGridSize(int)</slot>
     <slot>Generate()</slot>
+    <slot>SetSeed(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -236,8 +284,8 @@
    <slot>Generate()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>824</x>
-     <y>893</y>
+     <x>955</x>
+     <y>896</y>
     </hint>
     <hint type="destinationlabel">
      <x>209</x>
@@ -284,8 +332,8 @@
    <slot>SetGridSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>335</x>
-     <y>878</y>
+     <x>526</x>
+     <y>897</y>
     </hint>
     <hint type="destinationlabel">
      <x>365</x>
@@ -300,8 +348,8 @@
    <slot>SetCubeSize(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>612</x>
-     <y>879</y>
+     <x>761</x>
+     <y>897</y>
     </hint>
     <hint type="destinationlabel">
      <x>664</x>
@@ -322,6 +370,22 @@
     <hint type="destinationlabel">
      <x>103</x>
      <y>707</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>seed</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>openGLWidget</receiver>
+   <slot>SetSeed(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>284</x>
+     <y>877</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>322</x>
+     <y>785</y>
     </hint>
    </hints>
   </connection>
