@@ -2,6 +2,8 @@
 
 #include <math.h>
 
+#include "shader.h"
+
 #include "generators/perlingenerator.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -25,7 +27,6 @@ TerrainViewWidget::~TerrainViewWidget()
 {
     makeCurrent();
 
-    glDeleteProgram(shader_prog_);
     vbo_.destroy();
     vao_.destroy();
 
@@ -169,16 +170,16 @@ void TerrainViewWidget::paintGL()
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glUseProgram(shader_prog_);
+    glUseProgram(shader_prog_->Id());
     vao_.bind();
 
-    unsigned int modelLoc = glGetUniformLocation(shader_prog_, "model");
+    unsigned int modelLoc = glGetUniformLocation(shader_prog_->Id(), "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model_matrix_));
 
-    unsigned int viewLoc = glGetUniformLocation(shader_prog_, "view");
+    unsigned int viewLoc = glGetUniformLocation(shader_prog_->Id(), "view");
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera_->GetViewMatrixValuePtr());
 
-    unsigned int projLoc = glGetUniformLocation(shader_prog_, "proj");
+    unsigned int projLoc = glGetUniformLocation(shader_prog_->Id(), "proj");
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, camera_->GetProjectionMatrixValuePtr());
 
     if(render_wireframe_ == true)
@@ -265,82 +266,18 @@ bool TerrainViewWidget::CompileShaders_()
 {
     bool success = false;
 
-    const char *vertexShaderSource = "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "out vec4 pos;\n"
-        "out vec3 original_pos;\n"
-        "uniform mat4 model;\n"
-        "uniform mat4 view;\n"
-        "uniform mat4 proj;\n"
-        "void main()\n"
-        "{\n"
-        "	mat4 mvp = proj * view * model;\n"
-        "	original_pos = aPos;\n"
-        "	pos = mvp * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "	gl_Position = pos;\n"
-        "}\0";
-    const char *fragmentShaderSource = "#version 330 core\n"
-        "in vec4 pos;\n"
-        "in vec3 original_pos;\n"
-        "out vec4 FragColor;\n"
-        "void main()\n"
-        "{\n"
-        "   if(original_pos.y <= 4.0f)\n"
-        "   {\n"
-        "		FragColor = vec4(0.871f, 0.878f, 0.706f, 1.0f);\n"
-        "	}\n"
-        "   else if(original_pos.y > 4.0f && original_pos.y <= 15.0f)\n"
-        "   {\n"
-        "		FragColor = vec4(0.114f, 0.420f, 0.153f, 1.0f);\n"
-        "	}\n"
-        "   else if(original_pos.y > 15.0f && original_pos.y <= 25.0f)\n"
-        "   {\n"
-        "		FragColor = vec4(0.710f, 0.710f, 0.710f, 1.0f);\n"
-        "	}\n"
-        "   else if(original_pos.y > 25.0f)\n"
-        "   {\n"
-        "		FragColor = vec4(0.969f, 1.0f, 0.980f, 1.0f);\n"
-        "	}\n"
-        "}\n\0";
+    std::shared_ptr<Shader> vert = std::make_shared<Shader>(
+                "shaders/default_vert.glsl",
+                ShaderType::kVertex);
+    success = vert->Compile();
 
-    unsigned int vert = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vert, 1, &vertexShaderSource, nullptr);
-    glCompileShader(vert);
+    std::shared_ptr<Shader> frag = std::make_shared<Shader>(
+                "shaders/default_frag.glsl",
+                ShaderType::kFragment);
+    success &= frag->Compile();
 
-    int status;
-    char log[512];
-    glGetShaderiv(vert, GL_COMPILE_STATUS, &status);
-    if(!status)
-    {
-        glGetShaderInfoLog(vert, 512, nullptr, log);
-        emit StatusUpdate(QString("Vertex shader error: %1").arg(log));
-    }
-
-    unsigned int frag = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(frag, 1, &fragmentShaderSource, nullptr);
-    glCompileShader(frag);
-
-    glGetShaderiv(frag, GL_COMPILE_STATUS, &status);
-    if(!status)
-    {
-        glGetShaderInfoLog(frag, 512, nullptr, log);
-        emit StatusUpdate(QString("Fragment shader error: %1").arg(log));
-    }
-
-    shader_prog_ = glCreateProgram();
-    glAttachShader(shader_prog_, vert);
-    glAttachShader(shader_prog_, frag);
-    glLinkProgram(shader_prog_);
-
-    glGetProgramiv(shader_prog_, GL_LINK_STATUS, &status);
-    if(!status)
-    {
-        glGetProgramInfoLog(shader_prog_, 512, nullptr, log);
-        emit StatusUpdate(QString("Shader link error: %1").arg(log));
-    }
-
-    glDeleteShader(vert);
-    glDeleteShader(frag);
+    shader_prog_ = std::make_unique<ShaderProgram>(vert, frag);
+    success &= shader_prog_->Link();
 
     return success;
 }

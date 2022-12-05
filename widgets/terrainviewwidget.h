@@ -13,6 +13,7 @@
 #include <glm/vec3.hpp>
 
 #include "camera.h"
+#include "shader.h"
 
 class TerrainViewWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -61,7 +62,7 @@ protected:
 
     glm::mat4 model_matrix_;
 
-    unsigned int shader_prog_;
+    std::unique_ptr<ShaderProgram> shader_prog_ = nullptr;
     QOpenGLVertexArrayObject vao_;
     QOpenGLBuffer vbo_;
 
