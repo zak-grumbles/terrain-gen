@@ -29,7 +29,11 @@ set(PROJECT_SOURCES
         widgets/terrainviewwidget.cpp
         camera.h
         camera.cpp
+        shader.h
+        shader.cpp
 )
+
+set(TG_SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(terrain-gen
@@ -56,6 +60,11 @@ endif()
 
 target_link_libraries(terrain-gen PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::OpenGLWidgets opengl32)
 target_include_directories(terrain-gen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}glm)
+
+add_custom_command(
+        TARGET terrain-gen
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${TG_SHADER_DIR} $<TARGET_FILE_DIR:terrain-gen>/shaders)
 
 set_target_properties(terrain-gen PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

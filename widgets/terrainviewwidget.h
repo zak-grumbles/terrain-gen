@@ -22,7 +22,6 @@ public:
     TerrainViewWidget(QWidget* parent);
     ~TerrainViewWidget();
 
-
 public slots:
     void Generate();
     void OnGenerationProgress(float percent);
