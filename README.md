@@ -14,4 +14,4 @@ generation time. There are plans to make this _much_ faster in the future.
 
 ## Screenshots
 
-[screenshot](screenshots/generated.PNG)
+![screenshot](screenshots/generated.PNG)
