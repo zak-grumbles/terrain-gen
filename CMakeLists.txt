@@ -62,7 +62,7 @@ target_link_libraries(terrain-gen PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_
 target_include_directories(terrain-gen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}glm)
 
 add_custom_command(
-        TARGET terrain-gen
+        TARGET terrain-gen POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
                 ${TG_SHADER_DIR} $<TARGET_FILE_DIR:terrain-gen>/shaders)
 

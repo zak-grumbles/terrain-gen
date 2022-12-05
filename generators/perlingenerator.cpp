@@ -64,7 +64,7 @@ void PerlinGenerator::MarchCube_(glm::vec3 p) {
                 p.y + offsets[vert][1] * cell_size_,
                 p.z + offsets[vert][2] * cell_size_);
 
-        cube_values[vert] = noise_.GetNoise(temp.x, temp.y, temp.z);
+        cube_values[vert] = noise_.GetNoise(temp.x, temp.z) - temp.y;
     }
 
     // edge table index is determined by values at corners
@@ -116,7 +116,10 @@ void PerlinGenerator::MarchCube_(glm::vec3 p) {
             // add 3 verts of triangle
             for (int corner = 0; corner < 3; corner++) {
                 int vert = tri_table[index][3 * tri + corner];
-                verts_->push_back(edge_vertices[vert]);
+
+                auto new_vert = edge_vertices[vert];
+                new_vert.y *= 10.0f;
+                verts_->push_back(new_vert);
             }
         }
     }
