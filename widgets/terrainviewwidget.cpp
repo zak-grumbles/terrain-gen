@@ -216,11 +216,11 @@ void TerrainViewWidget::keyPressEvent(QKeyEvent* event)
 
     if(event->key() == Qt::Key_Q)
     {
-        dir = dir | Directions::kUp;
+        dir = dir | Directions::kDown;
     }
     if(event->key() == Qt::Key_E)
     {
-        dir = dir | Directions::kDown;
+        dir = dir | Directions::kUp;
     }
 
     camera_->Move(dir);
