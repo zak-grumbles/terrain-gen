@@ -15,3 +15,7 @@ generation time. There are plans to make this _much_ faster in the future.
 ## Screenshots
 
 ![screenshot](screenshots/generated.PNG)
+
+## Libraries Used
+- (FastNoiseLite)[https://github.com/Auburn/FastNoiseLite]
+- (GLM)[https://github.com/g-truc/glm]
