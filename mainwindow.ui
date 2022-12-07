@@ -32,7 +32,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QFrame" name="frame">
+     <widget class="QFrame" name="controlsFrame">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -74,6 +74,50 @@
           <string>Terrain Controls</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QFrame" name="noiseFrame">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QLabel" name="label_4">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Noise Type</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="noiseComboBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumContentsLength">
+                <number>0</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
           <item>
            <widget class="QFrame" name="frame_2">
             <property name="sizePolicy">
@@ -272,6 +316,7 @@
     <slot>SetGridSize(int)</slot>
     <slot>Generate()</slot>
     <slot>SetSeed(int)</slot>
+    <slot>SetNoiseType(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -320,8 +365,8 @@
      <y>706</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1078</x>
-     <y>889</y>
+     <x>1183</x>
+     <y>896</y>
     </hint>
    </hints>
   </connection>
@@ -332,7 +377,7 @@
    <slot>SetGridSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>526</x>
+     <x>674</x>
      <y>897</y>
     </hint>
     <hint type="destinationlabel">
@@ -348,7 +393,7 @@
    <slot>SetCubeSize(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>761</x>
+     <x>872</x>
      <y>897</y>
     </hint>
     <hint type="destinationlabel">
@@ -380,12 +425,28 @@
    <slot>SetSeed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>284</x>
-     <y>877</y>
+     <x>491</x>
+     <y>897</y>
     </hint>
     <hint type="destinationlabel">
      <x>322</x>
      <y>785</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>noiseComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>openGLWidget</receiver>
+   <slot>SetNoiseType(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>291</x>
+     <y>877</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>243</x>
+     <y>734</y>
     </hint>
    </hints>
   </connection>

@@ -12,7 +12,9 @@
 #include <glm/matrix.hpp>
 #include <glm/vec3.hpp>
 
+#include "FastNoiseLite/FastNoiseLite.h"
 #include "camera.h"
+#include "qcombobox.h"
 #include "shader.h"
 
 class TerrainViewWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -33,6 +35,8 @@ public slots:
     void SetCubeSize(double new_size);
     void SetGridSize(int new_size);
     void SetSeed(int new_seed);
+
+    void SetNoiseType(int noise_index);
 
 signals:
     void StatusUpdate(const QString& msg);
@@ -67,14 +71,19 @@ protected:
     QOpenGLVertexArrayObject vao_;
     QOpenGLBuffer vbo_;
 
+    // Grid variables
     float cube_size_ = 1.0f;
     int grid_size_ = 64;
     bool render_wireframe_ = false;
+    FastNoiseLite::NoiseType noise_type_ = FastNoiseLite::NoiseType_Perlin;
     int noise_seed_ = 1337;
 
     // Mouse variables
     bool is_dragging_ = false;
     glm::vec2 drag_start_ = glm::vec2(0.0, 0.0);
+
+    // Necessary references to controls
+    QComboBox* noise_combo_box_;
 };
 
 #endif // TERRAINVIEWWIDGET_H
