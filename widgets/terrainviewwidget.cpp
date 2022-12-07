@@ -9,6 +9,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+enum NoiseTypes
+{
+    kPerlin = 0,
+    kValue,
+    kValueCubic,
+    kOpenSimplex2,
+    kOpenSimplex2S
+};
+
 TerrainViewWidget::TerrainViewWidget(QWidget* parent) : QOpenGLWidget(parent),
     vbo_(QOpenGLBuffer::VertexBuffer)
 {
@@ -21,6 +30,7 @@ TerrainViewWidget::TerrainViewWidget(QWidget* parent) : QOpenGLWidget(parent),
 
 
     model_matrix_ = glm::mat4(1.0f);
+
 }
 
 TerrainViewWidget::~TerrainViewWidget()
@@ -40,7 +50,7 @@ void TerrainViewWidget::Generate()
     emit StatusUpdate("Starting generation...");
 
     FastNoiseLite noise;
-    noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    noise.SetNoiseType(noise_type_);
     noise.SetSeed(noise_seed_);
 
     PerlinGenerator* generator = new PerlinGenerator(grid_size_, cube_size_);
@@ -131,8 +141,46 @@ void TerrainViewWidget::SetSeed(int new_seed)
     noise_seed_ = new_seed;
 }
 
+void TerrainViewWidget::SetNoiseType(int noise_index)
+{
+    switch(noise_index)
+    {
+    default:
+    case kPerlin:
+        noise_type_ = FastNoiseLite::NoiseType_Perlin;
+        break;
+    case kValue:
+        noise_type_ = FastNoiseLite::NoiseType_Value;
+        break;
+    case kValueCubic:
+        noise_type_ = FastNoiseLite::NoiseType_ValueCubic;
+        break;
+    case kOpenSimplex2:
+        noise_type_ = FastNoiseLite::NoiseType_OpenSimplex2;
+        break;
+    case kOpenSimplex2S:
+        noise_type_ = FastNoiseLite::NoiseType_OpenSimplex2S;
+        break;
+    }
+}
+
 void TerrainViewWidget::initializeGL()
 {
+    noise_combo_box_ = this->parent()->findChild<QComboBox*>("noiseComboBox");
+
+    if(noise_combo_box_ != nullptr)
+    {
+        QStringList opts;
+        opts.append("Perlin");
+        opts.append("Value");
+        opts.append("Value Cubic");
+        opts.append("Open Simplex2");
+        opts.append("Open Simplex2S");
+
+        noise_combo_box_->addItems(opts);
+        noise_combo_box_->setCurrentIndex(0);
+    }
+
     initializeOpenGLFunctions();
 
     glEnable(GL_DEPTH_TEST);
