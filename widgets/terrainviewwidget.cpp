@@ -190,7 +190,10 @@ void TerrainViewWidget::paintGL()
 
     if(render_wireframe_ == true)
     {
-        glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)terrain_verts_->size());
+        for(int i = 0; i < terrain_verts_->size(); i += 3)
+        {
+            glDrawArrays(GL_LINE_LOOP, i, 3);
+        }
     }
     else
     {
@@ -239,7 +242,7 @@ void TerrainViewWidget::mousePressEvent(QMouseEvent *event)
     if((event->buttons() & Qt::MouseButton::RightButton) == Qt::MouseButton::RightButton)
     {
         is_dragging_ = true;
-        drag_start_ = glm::vec3(event->pos().x(), event->pos().y(), 0.0);
+        drag_start_ = glm::vec2(event->pos().x(), event->pos().y());
     }
 }
 
@@ -247,14 +250,14 @@ void TerrainViewWidget::mouseMoveEvent(QMouseEvent* event)
 {
     if(is_dragging_ == true)
     {
-        glm::vec3 drag_end = glm::vec3(event->pos().x(), event->pos().y(), 0.0);
-        glm::vec3 rotate_dir = drag_end - drag_start_;
-        rotate_dir.y *= -1;
-        glm::vec3 axis = glm::cross(camera_->LookVector(), rotate_dir);
+        glm::vec2 drag_end = glm::vec2(event->pos().x(), event->pos().y());
 
-        camera_->Rotate(rotate_dir.length(), axis);
+        glm::vec2 offset = glm::vec2(
+                    drag_end.x - drag_start_.x,
+                    drag_start_.y - drag_end.y);
+
+        camera_->Rotate(offset);
         update();
-
 
         drag_start_ = drag_end;
     }

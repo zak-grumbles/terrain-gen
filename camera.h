@@ -43,18 +43,26 @@ public:
     void SetAspectRatio(float aspect_ratio);
 
     void Move(Directions dir);
-    void Rotate(float degrees, glm::vec3 axis);
+    void Rotate(glm::vec2 offset);
 
 protected:
     void BuildProjectionMatrix_();
+    void BuildViewMatrix_();
 
     glm::vec3 pos_;
     glm::vec3 look_;
+    glm::vec3 up_ = glm::vec3(0, 1, 0);
+    glm::vec3 world_up_ = glm::vec3(0, 1, 0);
+
+    float yaw_ = -90.0f;
+    float pitch_ = 0.0f;
+    float move_speed_ = 2.5f;
+    float rotate_speed_ = 0.1f;
+
     float fov_;
     float aspect_ratio_;
     float near_;
     float far_;
-    float rotate_speed_ = 0.5f;
 
     glm::mat4 view_matrix_;
     glm::mat4 projection_matrix_;

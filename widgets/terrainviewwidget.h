@@ -74,7 +74,7 @@ protected:
 
     // Mouse variables
     bool is_dragging_ = false;
-    glm::vec3 drag_start_ = glm::vec3(0.0, 0.0, 0.0);
+    glm::vec2 drag_start_ = glm::vec2(0.0, 0.0);
 };
 
 #endif // TERRAINVIEWWIDGET_H
