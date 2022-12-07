@@ -64,7 +64,7 @@ void PerlinGenerator::MarchCube_(glm::vec3 p) {
                 p.y + offsets[vert][1] * cell_size_,
                 p.z + offsets[vert][2] * cell_size_);
 
-        cube_values[vert] = noise_.GetNoise(temp.x, temp.z) - temp.y;
+        cube_values[vert] = noise_.GetNoise(temp.x, temp.z) - (0.5 * temp.y);
     }
 
     // edge table index is determined by values at corners
