@@ -190,7 +190,10 @@ void TerrainViewWidget::paintGL()
 
     if(render_wireframe_ == true)
     {
-        glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)terrain_verts_->size());
+        for(int i = 0; i < terrain_verts_->size(); i += 3)
+        {
+            glDrawArrays(GL_LINE_LOOP, i, 3);
+        }
     }
     else
     {
