@@ -34,6 +34,10 @@ set(PROJECT_SOURCES
 )
 
 set(TG_SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+set(QT_NODES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nodeeditor)
+
+# node editor library
+add_subdirectory(${QT_NODES_DIR})
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(terrain-gen
@@ -58,8 +62,14 @@ else()
     endif()
 endif()
 
-target_link_libraries(terrain-gen PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::OpenGLWidgets opengl32)
-target_include_directories(terrain-gen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}glm)
+target_link_libraries(terrain-gen PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::OpenGLWidgets
+    QtNodes
+    opengl32)
+target_include_directories(terrain-gen PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}glm
+    ${QT_NODES_DIR})
 
 add_custom_command(
         TARGET terrain-gen POST_BUILD
