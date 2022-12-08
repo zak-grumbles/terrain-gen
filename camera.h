@@ -56,7 +56,7 @@ protected:
 
     float yaw_ = -90.0f;
     float pitch_ = 0.0f;
-    float move_speed_ = 2.5f;
+    float move_speed_ = 1.0f;
     float rotate_speed_ = 0.1f;
 
     float fov_;
