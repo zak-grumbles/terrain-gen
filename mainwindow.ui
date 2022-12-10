@@ -23,18 +23,18 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout_7">
     <property name="sizeConstraint">
      <enum>QLayout::SetDefaultConstraint</enum>
     </property>
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="generate">
        <attribute name="title">
-        <string>Tab 1</string>
+        <string>Generate</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -131,6 +131,9 @@
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="sizeAdjustPolicy">
+                    <enum>QComboBox::AdjustToContents</enum>
                    </property>
                    <property name="minimumContentsLength">
                     <number>0</number>
@@ -309,10 +312,11 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_2">
+      <widget class="HeightmapEditorTab" name="edit">
        <attribute name="title">
-        <string>Tab 2</string>
+        <string>Edit</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout"/>
       </widget>
      </widget>
     </item>
@@ -349,6 +353,12 @@
     <slot>SetSeed(int)</slot>
     <slot>SetNoiseType(int)</slot>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>HeightmapEditorTab</class>
+   <extends>QWidget</extends>
+   <header>widgets/heightmapeditortab.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -25,6 +25,8 @@ set(PROJECT_SOURCES
         generators/perlingenerator.h
         generators/perlingenerator.cpp
         generators/tables.h
+        widgets/heightmapeditortab.h
+        widgets/heightmapeditortab.cpp
         widgets/terrainviewwidget.h
         widgets/terrainviewwidget.cpp
         camera.h
@@ -33,6 +35,7 @@ set(PROJECT_SOURCES
         shader.cpp
 )
 
+# various directories we need to keep track of
 set(TG_SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 set(QT_NODES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nodeeditor)
 
