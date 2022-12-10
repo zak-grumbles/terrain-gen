@@ -18,21 +18,29 @@ find_package(OpenGL REQUIRED)
 
 set(PROJECT_SOURCES
         FastNoiseLite/FastNoiseLite.h
+
+        camera.h
+        camera.cpp
         main.cpp
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        shader.h
+        shader.cpp
+
         generators/perlingenerator.h
         generators/perlingenerator.cpp
         generators/tables.h
+
+        nodes/noisedata.h
+        nodes/noisedata.cpp
+        nodes/noisesourcedatamodel.h
+        nodes/noisesourcedatamodel.cpp
+
         widgets/heightmapeditortab.h
         widgets/heightmapeditortab.cpp
         widgets/terrainviewwidget.h
         widgets/terrainviewwidget.cpp
-        camera.h
-        camera.cpp
-        shader.h
-        shader.cpp
 )
 
 # various directories we need to keep track of
