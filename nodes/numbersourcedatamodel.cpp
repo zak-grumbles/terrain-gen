@@ -47,6 +47,7 @@ QWidget* NumberSourceDataModel::embeddedWidget()
         spin_box_ = new QSpinBox();
         spin_box_->setSingleStep(1);
         spin_box_->setMinimumSize(100, 25);
+        spin_box_->setRange(0, 9999);
 
         connect(spin_box_, &QSpinBox::valueChanged,
                 this, &NumberSourceDataModel::OnValueChanged_);
