@@ -1,19 +1,23 @@
 #include "heightmapeditortab.h"
-#include "qboxlayout.h"
+#include "nodes/noisesourcedatamodel.h"
+
+#include <QBoxLayout>
 
 HeightmapEditorTab::HeightmapEditorTab(QWidget *parent)
     : QWidget{parent}
 {
     model_registry_ = std::make_shared<QtNodes::NodeDelegateModelRegistry>();
+    model_registry_->registerModel<NoiseSourceDataModel>("Sources");
 
     QVBoxLayout* l = new QVBoxLayout(this);
 
-    QtNodes::DataFlowGraphModel model(model_registry_);
-    node_scene_ = std::make_shared<QtNodes::DataFlowGraphicsScene>(model, this);
+    graph_model_ = std::make_shared<QtNodes::DataFlowGraphModel>(model_registry_);
+    node_scene_ = std::make_shared<QtNodes::DataFlowGraphicsScene>(*graph_model_);
     node_view_ = std::make_shared<QtNodes::GraphicsView>(node_scene_.get());
 
     l->addWidget(node_view_.get());
 
     QObject::connect(node_scene_.get(), &QtNodes::DataFlowGraphicsScene::sceneLoaded,
                      node_view_.get(), &QtNodes::GraphicsView::centerScene);
+
 }

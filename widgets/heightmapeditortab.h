@@ -21,6 +21,7 @@ protected:
     std::shared_ptr<QtNodes::NodeDelegateModelRegistry> model_registry_ = nullptr;
     std::shared_ptr<QtNodes::GraphicsView> node_view_ = nullptr;
     std::shared_ptr<QtNodes::DataFlowGraphicsScene> node_scene_ = nullptr;
+    std::shared_ptr<QtNodes::DataFlowGraphModel> graph_model_ = nullptr;
 };
 
 #endif // HEIGHTMAPEDITORTAB_H
