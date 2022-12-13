@@ -32,10 +32,14 @@ set(PROJECT_SOURCES
         generators/perlingenerator.cpp
         generators/tables.h
 
+        nodes/integerdata.h
+        nodes/integerdata.cpp
         nodes/noisedata.h
         nodes/noisedata.cpp
         nodes/noisesourcedatamodel.h
         nodes/noisesourcedatamodel.cpp
+        nodes/numbersourcedatamodel.h
+        nodes/numbersourcedatamodel.cpp
 
         widgets/heightmapeditortab.h
         widgets/heightmapeditortab.cpp
