@@ -1,7 +1,7 @@
 #ifndef NUMBERSOURCEDATAMODEL_H
 #define NUMBERSOURCEDATAMODEL_H
 
-#include "nodes/integerdata.h"
+#include "nodes/data/integerdata.h"
 #include "qspinbox.h"
 
 #include <QObject>

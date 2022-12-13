@@ -4,7 +4,7 @@
 #include <QtNodes/NodeDelegateModel>
 #include <QComboBox>
 
-#include "noisedata.h"
+#include "data/noisedata.h"
 
 enum NoiseSourceType
 {

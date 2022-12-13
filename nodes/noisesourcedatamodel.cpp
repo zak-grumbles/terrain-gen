@@ -1,5 +1,5 @@
 #include "noisesourcedatamodel.h"
-#include "nodes/integerdata.h"
+#include "data/integerdata.h"
 
 NoiseSourceDataModel::NoiseSourceDataModel() :
     noise_data_(std::make_shared<NoiseData>()),
