@@ -1,4 +1,5 @@
 #include "noisesourcedatamodel.h"
+#include "nodes/integerdata.h"
 
 NoiseSourceDataModel::NoiseSourceDataModel() :
     noise_data_(std::make_shared<NoiseData>()),
@@ -27,7 +28,7 @@ unsigned int NoiseSourceDataModel::nPorts(QtNodes::PortType port_type) const
     switch(port_type)
     {
     case QtNodes::PortType::In:
-        result = 0;
+        result = 1;
         break;
     case QtNodes::PortType::Out:
         result = 1;
@@ -42,7 +43,31 @@ QtNodes::NodeDataType NoiseSourceDataModel::dataType(
         QtNodes::PortType port_type,
         QtNodes::PortIndex port_index) const
 {
-    return noise_data_->type();
+    QtNodes::NodeDataType type = noise_data_->type();
+
+    if(port_type == QtNodes::PortType::In)
+    {
+        type = IntegerData().type();
+    }
+
+    return type;
+}
+
+void NoiseSourceDataModel::setInData(
+        std::shared_ptr<QtNodes::NodeData> data,
+        QtNodes::PortIndex port_index)
+{
+    auto seed_data = std::dynamic_pointer_cast<IntegerData>(data);
+
+    if(seed_data != nullptr)
+    {
+        noise_data_->SetNoiseSeed(seed_data->value());
+        emit dataUpdated(port_index);
+    }
+    else
+    {
+        emit dataInvalidated(port_index);
+    }
 }
 
 std::shared_ptr<QtNodes::NodeData> NoiseSourceDataModel::outData(
@@ -70,5 +95,27 @@ QWidget* NoiseSourceDataModel::embeddedWidget()
 
 void NoiseSourceDataModel::OnNoiseTypeChanged_(NoiseSourceType new_type)
 {
-    // TODO
+    noise_data_->SetNoiseType(ToFastNoiseEnum_(new_type));
+    emit dataUpdated(0);
+}
+
+FastNoiseLite::NoiseType NoiseSourceDataModel::ToFastNoiseEnum_(NoiseSourceType type) const
+{
+    FastNoiseLite::NoiseType result = FastNoiseLite::NoiseType_Perlin;
+    switch(type)
+    {
+    case NoiseSourceType::kValue:
+        result = FastNoiseLite::NoiseType_Value;
+        break;
+    case NoiseSourceType::kOpenSimplex2:
+        result = FastNoiseLite::NoiseType_OpenSimplex2;
+        break;
+    case NoiseSourceType::kOpenSimplex2S:
+        result = FastNoiseLite::NoiseType_OpenSimplex2S;
+        break;
+    case NoiseSourceType::kPerlin:
+    default:
+        break;
+    }
+    return result;
 }

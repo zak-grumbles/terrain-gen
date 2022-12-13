@@ -15,6 +15,9 @@ public:
 
     QtNodes::NodeDataType type() const override;
 
+    void SetNoiseType(FastNoiseLite::NoiseType new_type);
+    void SetNoiseSeed(int new_seed);
+
 protected:
     std::unique_ptr<FastNoiseLite> noise_ = nullptr;
 };

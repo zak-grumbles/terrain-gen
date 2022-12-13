@@ -15,3 +15,13 @@ QtNodes::NodeDataType NoiseData::type() const
         "noise", "Noise"
     };
 }
+
+void NoiseData::SetNoiseType(FastNoiseLite::NoiseType new_type)
+{
+    noise_->SetNoiseType(new_type);
+}
+
+void NoiseData::SetNoiseSeed(int new_seed)
+{
+    noise_->SetSeed(new_seed);
+}

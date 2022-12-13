@@ -44,8 +44,7 @@ public:
 
     void setInData(
             std::shared_ptr<QtNodes::NodeData> data,
-            QtNodes::PortIndex index) override
-    {}
+            QtNodes::PortIndex index) override;
 
     QWidget* embeddedWidget() override;
 
@@ -53,6 +52,8 @@ protected slots:
     void OnNoiseTypeChanged_(NoiseSourceType new_type);
 
 protected:
+    FastNoiseLite::NoiseType ToFastNoiseEnum_(NoiseSourceType type) const;
+
     std::shared_ptr<NoiseData> noise_data_;
 
     QComboBox* combo_box_;
