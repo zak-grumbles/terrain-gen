@@ -33,15 +33,18 @@ set(PROJECT_SOURCES
         generators/tables.h
 
         nodes/data/integerdata.h
-        nodes/data/integerdata.cpp
-        nodes/data/noisedata.h
-        nodes/data/noisedata.cpp
-		
         nodes/noisesourcedatamodel.h
         nodes/noisesourcedatamodel.cpp
         nodes/numbersourcedatamodel.h
         nodes/numbersourcedatamodel.cpp
 
+        nodes/data/integerdata.cpp
+        nodes/data/noisedata.h
+        nodes/data/noisedata.cpp
+
+        nodes/widgets/noiseviewwidget.h
+        nodes/widgets/noiseviewwidget.cpp
+		
         widgets/heightmapeditortab.h
         widgets/heightmapeditortab.cpp
         widgets/terrainviewwidget.h

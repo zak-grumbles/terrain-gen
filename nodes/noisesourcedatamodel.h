@@ -4,15 +4,9 @@
 #include <QtNodes/NodeDelegateModel>
 #include <QComboBox>
 
-#include "data/noisedata.h"
+#include "nodes/data/noisedata.h"
+#include "nodes/widgets/noiseviewwidget.h"
 
-enum NoiseSourceType
-{
-    kPerlin = 0,
-    kValue,
-    kOpenSimplex2,
-    kOpenSimplex2S
-};
 
 class NoiseSourceDataModel : public QtNodes::NodeDelegateModel
 {
@@ -25,7 +19,7 @@ public:
 
     QString caption() const override { return QStringLiteral("Noise Source"); }
 
-    bool captionVisible() const override { return false; }
+    bool captionVisible() const override { return true; }
 
     QString name() const override { return QStringLiteral("NoiseSource"); }
 
@@ -49,14 +43,13 @@ public:
     QWidget* embeddedWidget() override;
 
 protected slots:
-    void OnNoiseTypeChanged_(NoiseSourceType new_type);
+    //void OnNoiseTypeChanged_(NoiseSourceType new_type);
+    void OnNoiseTypeChanged_(FastNoiseLite::NoiseType new_type);
 
 protected:
-    FastNoiseLite::NoiseType ToFastNoiseEnum_(NoiseSourceType type) const;
-
     std::shared_ptr<NoiseData> noise_data_;
 
-    QComboBox* combo_box_;
+    NoiseViewWidget* view_;
 };
 
 #endif // NOISESOURCEDATAMODEL_H

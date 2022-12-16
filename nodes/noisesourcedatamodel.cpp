@@ -3,7 +3,7 @@
 
 NoiseSourceDataModel::NoiseSourceDataModel() :
     noise_data_(std::make_shared<NoiseData>()),
-    combo_box_{nullptr}
+    view_{nullptr}
 {
 }
 
@@ -78,44 +78,19 @@ std::shared_ptr<QtNodes::NodeData> NoiseSourceDataModel::outData(
 
 QWidget* NoiseSourceDataModel::embeddedWidget()
 {
-    if(combo_box_ == nullptr)
+    if(view_ == nullptr)
     {
-        QStringList opts;
-        opts.append("Perlin");
-        opts.append("Value");
-        opts.append("Open Simplex2");
-        opts.append("Open Simplex2S");
-
-        combo_box_ = new QComboBox();
-        combo_box_->addItems(opts);
-        combo_box_->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        view_ = new NoiseViewWidget(noise_data_);
+        connect(view_, &NoiseViewWidget::NoiseTypeChanged,
+                this, &NoiseSourceDataModel::OnNoiseTypeChanged_);
     }
-    return combo_box_;
+    return view_;
 }
 
-void NoiseSourceDataModel::OnNoiseTypeChanged_(NoiseSourceType new_type)
+
+void NoiseSourceDataModel::OnNoiseTypeChanged_(FastNoiseLite::NoiseType new_type)
 {
-    noise_data_->SetNoiseType(ToFastNoiseEnum_(new_type));
+    noise_data_->SetNoiseType(new_type);
+    view_->UpdateNoise();
     emit dataUpdated(0);
-}
-
-FastNoiseLite::NoiseType NoiseSourceDataModel::ToFastNoiseEnum_(NoiseSourceType type) const
-{
-    FastNoiseLite::NoiseType result = FastNoiseLite::NoiseType_Perlin;
-    switch(type)
-    {
-    case NoiseSourceType::kValue:
-        result = FastNoiseLite::NoiseType_Value;
-        break;
-    case NoiseSourceType::kOpenSimplex2:
-        result = FastNoiseLite::NoiseType_OpenSimplex2;
-        break;
-    case NoiseSourceType::kOpenSimplex2S:
-        result = FastNoiseLite::NoiseType_OpenSimplex2S;
-        break;
-    case NoiseSourceType::kPerlin:
-    default:
-        break;
-    }
-    return result;
 }
