@@ -3,6 +3,10 @@
 #include <math.h>
 #include <limits>
 
+#include <QByteArray>
+#include <QFile>
+#include <QTextStream>
+
 NoiseViewWidget::NoiseViewWidget(std::shared_ptr<NoiseData> data, QWidget *parent)
     : QWidget{parent}
 {
@@ -76,11 +80,53 @@ void NoiseViewWidget::GenerateBitmap_()
         image_data[i] = rounded_val;
     }
 
+    /*
     if(noise_bitmap_ != nullptr)
     {
         delete noise_bitmap_;
     }
-    noise_bitmap_ = new QBitmap(QBitmap::fromData(size, image_data));
+    noise_bitmap_ = new QPixmap(size);
+
+    noise_bitmap_->loadFromData(image_data, size.width() * size.height(), "BMP");
+    */
+
+    // 54 here is the size of a bitmap file header plus the DIB header
+    int file_size = size.width() * size.height() + 54;
+
+    QByteArray data;
+    data.reserve(file_size);
+
+    // bitmap file header
+    data.push_back(QByteArray::fromStdString("BM")); 	// data format
+    data.push_back(QByteArray::number(file_size));		// file size
+    data.push_back(QByteArray::number((quint16)0));		// gap
+    data.push_back(QByteArray::number((quint16)0));		// gap
+    data.push_back(QByteArray::number(54));				// Offset of pixel array
+
+    // dib header
+    data.push_back(QByteArray::number(40));			 	// size of DIB header
+    data.push_back(QByteArray::number(size.width()));	// width of image
+    data.push_back(QByteArray::number(size.height()));	// height of image
+    data.push_back(QByteArray::number((quint16)1));		// number of color planes
+    data.push_back(QByteArray::number((quint16)32));	// number of bits per pixel
+    data.push_back(QByteArray::number(0));				// compression method (0 == BI_RGB)
+    data.push_back(QByteArray::number(0));				// size of pixel data. Can use 0 since BI_RGB
+    data.push_back(QByteArray::number(size.width()));
+    data.push_back(QByteArray::number(size.height()));
+    data.push_back(QByteArray::number(0));				// number of colors in pallete (0 defaults to 2^n)
+    data.push_back(QByteArray::number(0));				// usually ignored
+
+    data.push_back(image_data);
+    QFile file("TEST.bmp");
+    if(file.open(QIODevice::ReadWrite))
+    {
+        file.write(data);
+    }
+
+    if(noise_bitmap_ != nullptr)
+        delete noise_bitmap_;
+
+    noise_bitmap_ = new QPixmap(size);
 
     delete[] image_data;
     delete[] noise_values;

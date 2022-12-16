@@ -38,7 +38,7 @@ protected:
     FastNoiseLite::NoiseType ToFastNoiseEnum_(NoiseSourceType type) const;
 
     QComboBox* noise_picker_ = nullptr;
-    QBitmap* noise_bitmap_ = nullptr;
+    QPixmap* noise_bitmap_ = nullptr;
     QLabel* noise_preview_ = nullptr;
 
     std::shared_ptr<NoiseData> noise_data_ = nullptr;
