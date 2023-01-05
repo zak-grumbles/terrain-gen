@@ -56,9 +56,9 @@ void NoiseViewWidget::GenerateBitmap_()
 
     float* noise_values = new float[size.width() * size.height()];
     int index = 0;
-    for(int y = 0; y < size.height(); y++)
+    for(int y = size.height() / -2; y < size.height() / 2; y++)
     {
-        for(int x = 0; x < size.width(); x++)
+        for(int x = size.width() / -2; x < size.width() / 2; x++)
         {
             float fx = x;
             float fy = y;
