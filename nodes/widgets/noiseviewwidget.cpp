@@ -1,7 +1,10 @@
 #include "noiseviewwidget.h"
 
-#include <math.h>
+#include "bitmap.h"
+
+#include <fstream>
 #include <limits>
+#include <math.h>
 
 #include <QByteArray>
 #include <QFile>
@@ -68,7 +71,10 @@ void NoiseViewWidget::GenerateBitmap_()
         }
     }
 
-    uchar* image_data = new uchar[size.width() * size.height()];
+    //uchar* image_data = new uchar[size.width() * size.height()];
+    std::vector<BitmapPixel> image_data;
+    image_data.reserve(size.width() * size.height());
+
     float scale = 255 / (max_val - min_val);
     for(int i = 0; i < size.width() * size.height(); i++)
     {
@@ -77,7 +83,13 @@ void NoiseViewWidget::GenerateBitmap_()
         float clamped_val = std::clamp(value, 0.0f, 255.0f);
         int rounded_val = std::round(clamped_val);
 
-        image_data[i] = rounded_val;
+        //image_data[i] = rounded_val;
+        BitmapPixel pxl;
+        pxl.blue = rounded_val;
+        pxl.green = rounded_val;
+        pxl.red = rounded_val;
+
+        image_data.push_back(pxl);
     }
 
     /*
@@ -90,45 +102,31 @@ void NoiseViewWidget::GenerateBitmap_()
     noise_bitmap_->loadFromData(image_data, size.width() * size.height(), "BMP");
     */
 
-    // 54 here is the size of a bitmap file header plus the DIB header
-    int file_size = size.width() * size.height() + 54;
+    auto bmp = new Bitmap(size.width(), size.height());
+    //bmp->GivePixelData(size.width() * size.height(), image_data);
+    bmp->GivePixelData(image_data);
 
-    QByteArray data;
-    data.reserve(file_size);
-
-    // bitmap file header
-    data.push_back(QByteArray::fromStdString("BM")); 	// data format
-    data.push_back(QByteArray::number(file_size));		// file size
-    data.push_back(QByteArray::number((quint16)0));		// gap
-    data.push_back(QByteArray::number((quint16)0));		// gap
-    data.push_back(QByteArray::number(54));				// Offset of pixel array
-
-    // dib header
-    data.push_back(QByteArray::number(40));			 	// size of DIB header
-    data.push_back(QByteArray::number(size.width()));	// width of image
-    data.push_back(QByteArray::number(size.height()));	// height of image
-    data.push_back(QByteArray::number((quint16)1));		// number of color planes
-    data.push_back(QByteArray::number((quint16)32));	// number of bits per pixel
-    data.push_back(QByteArray::number(0));				// compression method (0 == BI_RGB)
-    data.push_back(QByteArray::number(0));				// size of pixel data. Can use 0 since BI_RGB
-    data.push_back(QByteArray::number(size.width()));
-    data.push_back(QByteArray::number(size.height()));
-    data.push_back(QByteArray::number(0));				// number of colors in pallete (0 defaults to 2^n)
-    data.push_back(QByteArray::number(0));				// usually ignored
-
-    data.push_back(image_data);
-    QFile file("TEST.bmp");
-    if(file.open(QIODevice::ReadWrite))
+    std::ofstream test("TEST.bmp", std::ios::out | std::ios::binary);
+    auto data = bmp->Data();
+    if(test)
     {
-        file.write(data);
+        /*
+        test.write((char*)data.data(), data.size() * sizeof(char));
+        test.flush();
+        test.close();
+        */
+        test << *bmp;
+        test.flush();
+        test.close();
     }
 
     if(noise_bitmap_ != nullptr)
         delete noise_bitmap_;
 
     noise_bitmap_ = new QPixmap(size);
+    //noise_bitmap_->loadFromData(data.data(), data.size(), "BMP");
 
-    delete[] image_data;
+    //delete[] image_data;
     delete[] noise_values;
 }
 

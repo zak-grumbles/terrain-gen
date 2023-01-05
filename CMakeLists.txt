@@ -19,6 +19,9 @@ find_package(OpenGL REQUIRED)
 set(PROJECT_SOURCES
         FastNoiseLite/FastNoiseLite.h
 
+        bitmap.h
+        bitmap.cpp
+
         camera.h
         camera.cpp
         main.cpp
