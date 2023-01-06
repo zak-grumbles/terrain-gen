@@ -1,0 +1,26 @@
+#ifndef NOISEDATA_H
+#define NOISEDATA_H
+
+#include <FastNoiseLite/FastNoiseLite.h>
+#include <QtNodes/NodeData>
+
+class NoiseData : public QtNodes::NodeData
+{
+public:
+    NoiseData() : NoiseData(FastNoiseLite::NoiseType_OpenSimplex2S) {}
+
+    NoiseData(FastNoiseLite::NoiseType noise_type);
+
+    virtual ~NoiseData() { noise_.reset(); }
+
+    QtNodes::NodeDataType type() const override;
+
+    void SetNoiseType(FastNoiseLite::NoiseType new_type);
+    void SetNoiseSeed(int new_seed);
+
+    float GetNoise(float x, float y);
+
+protected:
+    std::unique_ptr<FastNoiseLite> noise_ = nullptr;
+};
+#endif // NOISEDATA_H
