@@ -18,22 +18,49 @@ find_package(OpenGL REQUIRED)
 
 set(PROJECT_SOURCES
         FastNoiseLite/FastNoiseLite.h
+
+        bitmap.h
+        bitmap.cpp
+
+        camera.h
+        camera.cpp
         main.cpp
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        shader.h
+        shader.cpp
+
         generators/perlingenerator.h
         generators/perlingenerator.cpp
         generators/tables.h
+
+
+        nodes/noisesourcedatamodel.h
+        nodes/noisesourcedatamodel.cpp
+        nodes/numbersourcedatamodel.h
+        nodes/numbersourcedatamodel.cpp
+
+        nodes/data/integerdata.h
+        nodes/data/integerdata.cpp
+        nodes/data/noisedata.h
+        nodes/data/noisedata.cpp
+
+        nodes/widgets/noiseviewwidget.h
+        nodes/widgets/noiseviewwidget.cpp
+		
+        widgets/heightmapeditortab.h
+        widgets/heightmapeditortab.cpp
         widgets/terrainviewwidget.h
         widgets/terrainviewwidget.cpp
-        camera.h
-        camera.cpp
-        shader.h
-        shader.cpp
 )
 
+# various directories we need to keep track of
 set(TG_SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+set(QT_NODES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nodeeditor)
+
+# node editor library
+add_subdirectory(${QT_NODES_DIR})
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(terrain-gen
@@ -58,8 +85,14 @@ else()
     endif()
 endif()
 
-target_link_libraries(terrain-gen PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::OpenGLWidgets opengl32)
-target_include_directories(terrain-gen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}glm)
+target_link_libraries(terrain-gen PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::OpenGLWidgets
+    QtNodes
+    opengl32)
+target_include_directories(terrain-gen PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}glm
+    ${QT_NODES_DIR})
 
 add_custom_command(
         TARGET terrain-gen POST_BUILD
