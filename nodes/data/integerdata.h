@@ -12,7 +12,7 @@ public:
     IntegerData(int const value) : value_(value)
     {}
 
-    QtNodes::NodeDataType type() const override;
+    virtual QtNodes::NodeDataType type() const override;
 
     int value() const { return value_; }
 

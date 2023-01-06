@@ -43,7 +43,6 @@ public:
     QWidget* embeddedWidget() override;
 
 protected slots:
-    //void OnNoiseTypeChanged_(NoiseSourceType new_type);
     void OnNoiseTypeChanged_(FastNoiseLite::NoiseType new_type);
 
 protected:

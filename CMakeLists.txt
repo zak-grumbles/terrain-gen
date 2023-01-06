@@ -35,12 +35,13 @@ set(PROJECT_SOURCES
         generators/perlingenerator.cpp
         generators/tables.h
 
-        nodes/data/integerdata.h
+
         nodes/noisesourcedatamodel.h
         nodes/noisesourcedatamodel.cpp
         nodes/numbersourcedatamodel.h
         nodes/numbersourcedatamodel.cpp
 
+        nodes/data/integerdata.h
         nodes/data/integerdata.cpp
         nodes/data/noisedata.h
         nodes/data/noisedata.cpp

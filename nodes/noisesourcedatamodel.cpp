@@ -48,6 +48,7 @@ QtNodes::NodeDataType NoiseSourceDataModel::dataType(
     if(port_type == QtNodes::PortType::In)
     {
         type = IntegerData().type();
+        type.name = "Seed (int)";
     }
 
     return type;
@@ -62,6 +63,7 @@ void NoiseSourceDataModel::setInData(
     if(seed_data != nullptr)
     {
         noise_data_->SetNoiseSeed(seed_data->value());
+        view_->UpdateNoise();
         emit dataUpdated(port_index);
     }
     else
