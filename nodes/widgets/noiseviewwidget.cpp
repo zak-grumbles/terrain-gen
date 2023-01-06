@@ -38,6 +38,7 @@ NoiseViewWidget::NoiseViewWidget(std::shared_ptr<NoiseData> data, QWidget *paren
 
     noise_preview_ = new QLabel();
     noise_preview_->setPixmap(*noise_bitmap_);
+    noise_preview_->setFixedSize(128, 128);
 
     layout->addWidget(noise_preview_);
 }
@@ -50,7 +51,7 @@ void NoiseViewWidget::UpdateNoise()
 
 void NoiseViewWidget::GenerateBitmap_()
 {
-    QSize size(125, 125);
+    QSize size(256, 256);
 
     float min_val = std::numeric_limits<float>::max();
     float max_val = std::numeric_limits<float>::min();
