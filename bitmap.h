@@ -8,6 +8,8 @@
 #include <memory>
 #include <vector>
 
+#include <QDataStream>
+
 struct BitmapHeader
 {
     char bmp_signature_bytes[2] = {'B', 'M'};
@@ -17,6 +19,7 @@ struct BitmapHeader
     uint32_t data_offset = 54;
 
     friend std::ostream& operator<<(std::ostream& os, const BitmapHeader& header);
+    friend QDataStream& operator<<(QDataStream& stream, const BitmapHeader& header);
 };
 
 struct BitmapInfo
@@ -34,6 +37,7 @@ struct BitmapInfo
     uint32_t important_colors = 0;
 
     friend std::ostream& operator<<(std::ostream& os, const BitmapInfo& header);
+    friend QDataStream& operator<<(QDataStream& stream, const BitmapInfo& header);
 };
 
 struct BitmapPixel
@@ -43,7 +47,8 @@ struct BitmapPixel
     uint8_t red = 0;
     uint8_t alpha = 0;
 
-    friend std::ostream& operator<<(std::ostream& os, const BitmapInfo& header);
+    friend std::ostream& operator<<(std::ostream& os, const BitmapPixel& pxl);
+    friend QDataStream& operator<<(QDataStream& stream, const BitmapPixel& pxl);
 };
 
 class Bitmap
@@ -59,6 +64,7 @@ public:
     std::vector<BitmapPixel> Data() const { return pixel_data_; }
 
     friend std::ostream& operator<<(std::ostream& os, const Bitmap& bmp);
+    friend QDataStream& operator<<(QDataStream& stream, const Bitmap& bmp);
 
 protected:
     BitmapInfo bmp_info_;

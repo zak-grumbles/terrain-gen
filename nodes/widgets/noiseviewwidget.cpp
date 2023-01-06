@@ -1,6 +1,7 @@
 #include "noiseviewwidget.h"
 
 #include "bitmap.h"
+#include "qbuffer.h"
 
 #include <fstream>
 #include <limits>
@@ -56,9 +57,9 @@ void NoiseViewWidget::GenerateBitmap_()
 
     float* noise_values = new float[size.width() * size.height()];
     int index = 0;
-    for(int y = size.height() / -2; y < size.height() / 2; y++)
+    for(int y = 0; y < size.height(); y++)
     {
-        for(int x = size.width() / -2; x < size.width() / 2; x++)
+        for(int x = 0; x < size.width(); x++)
         {
             float fx = x;
             float fy = y;
@@ -92,16 +93,6 @@ void NoiseViewWidget::GenerateBitmap_()
         image_data.push_back(pxl);
     }
 
-    /*
-    if(noise_bitmap_ != nullptr)
-    {
-        delete noise_bitmap_;
-    }
-    noise_bitmap_ = new QPixmap(size);
-
-    noise_bitmap_->loadFromData(image_data, size.width() * size.height(), "BMP");
-    */
-
     auto bmp = new Bitmap(size.width(), size.height());
     //bmp->GivePixelData(size.width() * size.height(), image_data);
     bmp->GivePixelData(image_data);
@@ -110,23 +101,26 @@ void NoiseViewWidget::GenerateBitmap_()
     auto data = bmp->Data();
     if(test)
     {
-        /*
-        test.write((char*)data.data(), data.size() * sizeof(char));
-        test.flush();
-        test.close();
-        */
         test << *bmp;
         test.flush();
         test.close();
     }
 
+    QByteArray bmp_bytes;
+    QBuffer buf(&bmp_bytes);
+    buf.open(QIODevice::WriteOnly);
+
+    QDataStream bmp_stream(&buf);
+    bmp_stream << *bmp;
+
+    buf.close();
+
     if(noise_bitmap_ != nullptr)
         delete noise_bitmap_;
 
     noise_bitmap_ = new QPixmap(size);
-    //noise_bitmap_->loadFromData(data.data(), data.size(), "BMP");
+    noise_bitmap_->loadFromData(bmp_bytes);
 
-    //delete[] image_data;
     delete[] noise_values;
 }
 
