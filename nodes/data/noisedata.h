@@ -20,6 +20,10 @@ public:
 
     float GetNoise(float x, float y);
 
+    QPixmap* AsBitmap(float x_offset, float y_offset,
+                    float width, float height);
+    QPixmap* AsBitmap(QSize offset, QSize size);
+
 protected:
     std::unique_ptr<FastNoiseLite> noise_ = nullptr;
 };

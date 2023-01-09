@@ -35,7 +35,8 @@ set(PROJECT_SOURCES
         generators/perlingenerator.cpp
         generators/tables.h
 
-
+        nodes/noiseoutputdatamodel.h
+        nodes/noiseoutputdatamodel.cpp
         nodes/noisesourcedatamodel.h
         nodes/noisesourcedatamodel.cpp
         nodes/numbersourcedatamodel.h
