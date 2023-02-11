@@ -24,4 +24,5 @@ HeightmapEditorTab::HeightmapEditorTab(QWidget *parent)
     QObject::connect(node_scene_.get(), &QtNodes::DataFlowGraphicsScene::sceneLoaded,
                      node_view_.get(), &QtNodes::GraphicsView::centerScene);
 
+    output_node_id_ = graph_model_->addNode("NoiseOutput");
 }
