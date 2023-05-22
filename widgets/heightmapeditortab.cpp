@@ -24,5 +24,27 @@ HeightmapEditorTab::HeightmapEditorTab(QWidget *parent)
     QObject::connect(node_scene_.get(), &QtNodes::DataFlowGraphicsScene::sceneLoaded,
                      node_view_.get(), &QtNodes::GraphicsView::centerScene);
 
+    connect(graph_model_.get(), &QtNodes::DataFlowGraphModel::inPortDataWasSet,
+            this, &HeightmapEditorTab::OnOutputUpdated);
+
     output_node_id_ = graph_model_->addNode("NoiseOutput");
+}
+
+void HeightmapEditorTab::OnOutputUpdated(
+        QtNodes::NodeId const node_id,
+        QtNodes::PortType const port_type,
+        QtNodes::PortIndex const port_index)
+{
+    if(node_id == output_node_id_)
+    {
+        QVariant vNoise = graph_model_->portData(output_node_id_,
+                               QtNodes::PortType::Out,
+                               QtNodes::PortIndex(0),
+                               QtNodes::PortRole::Data);
+        auto noise_data = vNoise.value<std::shared_ptr<NoiseData>>();
+        std::unique_ptr<QPixmap> heightmap = std::make_unique<QPixmap>(
+                    *noise_data->AsBitmap(0, 0, 256, 256));
+        emit HeightmapChanged(std::move(heightmap));
+        noise_data.reset();
+    }
 }

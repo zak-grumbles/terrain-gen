@@ -38,7 +38,8 @@ QtNodes::NodeDataType NoiseOutputDataModel::dataType(
 {
     QtNodes::NodeDataType type;
 
-    if(port_type == QtNodes::PortType::In)
+    if(port_type == QtNodes::PortType::In ||
+        port_type == QtNodes::PortType::Out)
     {
         type = NoiseData().type();
     }
@@ -74,7 +75,7 @@ void NoiseOutputDataModel::setInData(
 std::shared_ptr<QtNodes::NodeData> NoiseOutputDataModel::outData(
         QtNodes::PortIndex)
 {
-    return nullptr;
+    return noise_data_;
 }
 
 QWidget* NoiseOutputDataModel::embeddedWidget()

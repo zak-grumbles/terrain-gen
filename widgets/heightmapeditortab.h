@@ -16,6 +16,13 @@ public:
     explicit HeightmapEditorTab(QWidget *parent = nullptr);
 
 signals:
+    void HeightmapChanged(std::unique_ptr<QPixmap> heightmap);
+
+public slots:
+    void OnOutputUpdated(
+            QtNodes::NodeId const node_id,
+            QtNodes::PortType const port_type,
+            QtNodes::PortIndex const port_index);
 
 protected:
     std::shared_ptr<QtNodes::NodeDelegateModelRegistry> model_registry_ = nullptr;
