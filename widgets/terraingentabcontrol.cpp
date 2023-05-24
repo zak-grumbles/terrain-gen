@@ -15,3 +15,8 @@ TerrainGenTabControl::TerrainGenTabControl(QWidget* parent)
     node_tab = nullptr;
     terrain_tab = nullptr;
 }
+
+void TerrainGenTabControl::OnHeightmapChanged(std::shared_ptr<QPixmap> heightmap)
+{
+
+}
