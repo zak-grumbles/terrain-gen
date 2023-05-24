@@ -32,7 +32,7 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="generate">
+      <widget class="TerrainTab" name="generate">
        <attribute name="title">
         <string>Generate</string>
        </attribute>
@@ -358,6 +358,12 @@
    <class>HeightmapEditorTab</class>
    <extends>QWidget</extends>
    <header>widgets/heightmapeditortab.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TerrainTab</class>
+   <extends>QWidget</extends>
+   <header location="global">widgets/terraintab.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

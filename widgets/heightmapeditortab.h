@@ -16,7 +16,7 @@ public:
     explicit HeightmapEditorTab(QWidget *parent = nullptr);
 
 signals:
-    void HeightmapChanged(std::unique_ptr<QPixmap> heightmap);
+    void HeightmapChanged(std::shared_ptr<QPixmap> heightmap);
 
 public slots:
     void OnOutputUpdated(
