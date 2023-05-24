@@ -1,5 +1,4 @@
 #include "noiseoutputdatamodel.h"
-#include "qboxlayout.h"
 #include "qlabel.h"
 
 NoiseOutputDataModel::NoiseOutputDataModel()

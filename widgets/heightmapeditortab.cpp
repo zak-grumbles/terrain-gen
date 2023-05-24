@@ -41,10 +41,13 @@ void HeightmapEditorTab::OnOutputUpdated(
                                QtNodes::PortType::Out,
                                QtNodes::PortIndex(0),
                                QtNodes::PortRole::Data);
-        auto noise_data = vNoise.value<std::shared_ptr<NoiseData>>();
-        std::shared_ptr<QPixmap> heightmap = std::make_shared<QPixmap>(
-                    *noise_data->AsBitmap(0, 0, 256, 256));
-        emit HeightmapChanged(heightmap);
-        noise_data.reset();
+        auto node_data = vNoise.value<std::shared_ptr<QtNodes::NodeData>>();
+        auto noise_data = std::dynamic_pointer_cast<NoiseData>(node_data);
+        if(noise_data != nullptr)
+        {
+            std::shared_ptr<QPixmap> heightmap = std::make_shared<QPixmap>(
+                        *noise_data->AsBitmap(0, 0, 256, 256));
+            emit HeightmapChanged(heightmap);
+        }
     }
 }

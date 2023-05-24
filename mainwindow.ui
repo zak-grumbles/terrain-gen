@@ -28,9 +28,9 @@
      <enum>QLayout::SetDefaultConstraint</enum>
     </property>
     <item>
-     <widget class="QTabWidget" name="tabWidget">
+     <widget class="TerrainGenTabControl" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="TerrainTab" name="generate">
        <attribute name="title">
@@ -366,6 +366,12 @@
    <header location="global">widgets/terraintab.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>TerrainGenTabControl</class>
+   <extends>QTabWidget</extends>
+   <header location="global">widgets/terraingentabcontrol.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -376,8 +382,8 @@
    <slot>Generate()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>955</x>
-     <y>896</y>
+     <x>1025</x>
+     <y>885</y>
     </hint>
     <hint type="destinationlabel">
      <x>209</x>
@@ -412,8 +418,8 @@
      <y>706</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1183</x>
-     <y>896</y>
+     <x>1176</x>
+     <y>885</y>
     </hint>
    </hints>
   </connection>
@@ -424,8 +430,8 @@
    <slot>SetGridSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>674</x>
-     <y>897</y>
+     <x>676</x>
+     <y>886</y>
     </hint>
     <hint type="destinationlabel">
      <x>365</x>
@@ -440,8 +446,8 @@
    <slot>SetCubeSize(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>872</x>
-     <y>897</y>
+     <x>871</x>
+     <y>886</y>
     </hint>
     <hint type="destinationlabel">
      <x>664</x>
@@ -456,8 +462,8 @@
    <slot>SetRenderWireframe(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>61</x>
-     <y>877</y>
+     <x>82</x>
+     <y>875</y>
     </hint>
     <hint type="destinationlabel">
      <x>103</x>
@@ -472,8 +478,8 @@
    <slot>SetSeed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>491</x>
-     <y>897</y>
+     <x>496</x>
+     <y>886</y>
     </hint>
     <hint type="destinationlabel">
      <x>322</x>
