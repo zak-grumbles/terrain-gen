@@ -52,10 +52,6 @@ set(PROJECT_SOURCES
 		
         widgets/heightmapeditortab.h
         widgets/heightmapeditortab.cpp
-        widgets/terraingentabcontrol.h
-        widgets/terraingentabcontrol.cpp
-        widgets/terraintab.h
-        widgets/terraintab.cpp
         widgets/terrainviewwidget.h
         widgets/terrainviewwidget.cpp
 )
