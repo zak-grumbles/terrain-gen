@@ -38,6 +38,8 @@ public slots:
 
     void SetNoiseType(int noise_index);
 
+    void OnHeightmapUpdated(std::shared_ptr<QPixmap> heightmap);
+
 signals:
     void StatusUpdate(const QString& msg);
     void ProgressUpdate(int value);
