@@ -31,10 +31,6 @@ set(PROJECT_SOURCES
         shader.h
         shader.cpp
 
-        generators/perlingenerator.h
-        generators/perlingenerator.cpp
-        generators/tables.h
-
         nodes/noiseoutputdatamodel.h
         nodes/noiseoutputdatamodel.cpp
         nodes/noisesourcedatamodel.h

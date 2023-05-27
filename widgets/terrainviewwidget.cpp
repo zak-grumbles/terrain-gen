@@ -4,19 +4,8 @@
 
 #include "shader.h"
 
-#include "generators/perlingenerator.h"
-
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-enum NoiseTypes
-{
-    kPerlin = 0,
-    kValue,
-    kValueCubic,
-    kOpenSimplex2,
-    kOpenSimplex2S
-};
 
 TerrainViewWidget::TerrainViewWidget(QWidget* parent) : QOpenGLWidget(parent),
     vbo_(QOpenGLBuffer::VertexBuffer)
@@ -30,7 +19,6 @@ TerrainViewWidget::TerrainViewWidget(QWidget* parent) : QOpenGLWidget(parent),
 
 
     model_matrix_ = glm::mat4(1.0f);
-
 }
 
 TerrainViewWidget::~TerrainViewWidget()
@@ -45,123 +33,10 @@ TerrainViewWidget::~TerrainViewWidget()
     camera_.reset();
 }
 
-void TerrainViewWidget::Generate()
-{
-    emit StatusUpdate("Starting generation...");
-
-    FastNoiseLite noise;
-    noise.SetNoiseType(noise_type_);
-    noise.SetSeed(noise_seed_);
-
-    PerlinGenerator* generator = new PerlinGenerator(grid_size_, cube_size_);
-    generator->SetNoise(noise);
-    generator->moveToThread(&generator_thread_);
-
-    // thread signals/slots
-    connect(&generator_thread_, &QThread::started, generator, &PerlinGenerator::Generate);
-    connect(&generator_thread_, &QThread::finished, generator, &PerlinGenerator::deleteLater);
-    connect(&generator_thread_, &QThread::finished, this, &TerrainViewWidget::OnGenThreadFinished);
-
-    // generator signals/slots
-    connect(generator, &PerlinGenerator::ProgressMade, this, &TerrainViewWidget::OnGenerationProgress);
-    connect(generator, &PerlinGenerator::DoneGenerating, this, &TerrainViewWidget::OnTerrainGenerated);
-    connect(generator, &PerlinGenerator::Done, &generator_thread_, &QThread::quit);
-
-    generator_thread_.start();
-}
-
-void TerrainViewWidget::OnGenerationProgress(float percent)
-{
-    emit ProgressUpdate((int)floor(percent * 100));
-}
-
-void TerrainViewWidget::OnTerrainGenerated(std::vector<glm::vec3>* verts)
-{
-    emit StatusUpdate("Done generating!");
-    terrain_verts_ = std::unique_ptr<std::vector<glm::vec3>>(verts);
-
-    makeCurrent();
-    vbo_.destroy();
-
-    vao_.bind();
-    vbo_.create();
-    vbo_.bind();
-
-    vbo_.setUsagePattern(QOpenGLBuffer::UsagePattern::StaticDraw);
-    vbo_.allocate(terrain_verts_->data(), (int)(sizeof(glm::vec3) * terrain_verts_->size()));
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    vbo_.release();
-    vao_.release();
-
-    doneCurrent();
-
-    update();
-}
-
-void TerrainViewWidget::OnGenThreadFinished()
-{
-    // Nothing to do?
-}
-
 void TerrainViewWidget::SetRenderWireframe(bool wireframe)
 {
     render_wireframe_ = wireframe;
     update();
-}
-
-void TerrainViewWidget::SetCubeSize(double newSize)
-{
-    if(newSize > 0.0f)
-    {
-        cube_size_ = (float)newSize;
-    }
-    else
-    {
-        emit StatusUpdate("Cube size must be non-zero!");
-    }
-}
-
-void TerrainViewWidget::SetGridSize(int newSize)
-{
-    if(newSize > 0)
-    {
-        grid_size_ = newSize;
-    }
-    else
-    {
-        emit StatusUpdate("Grid size must be non-zero!");
-    }
-}
-
-void TerrainViewWidget::SetSeed(int new_seed)
-{
-    noise_seed_ = new_seed;
-}
-
-void TerrainViewWidget::SetNoiseType(int noise_index)
-{
-    switch(noise_index)
-    {
-    default:
-    case kPerlin:
-        noise_type_ = FastNoiseLite::NoiseType_Perlin;
-        break;
-    case kValue:
-        noise_type_ = FastNoiseLite::NoiseType_Value;
-        break;
-    case kValueCubic:
-        noise_type_ = FastNoiseLite::NoiseType_ValueCubic;
-        break;
-    case kOpenSimplex2:
-        noise_type_ = FastNoiseLite::NoiseType_OpenSimplex2;
-        break;
-    case kOpenSimplex2S:
-        noise_type_ = FastNoiseLite::NoiseType_OpenSimplex2S;
-        break;
-    }
 }
 
 void TerrainViewWidget::OnHeightmapUpdated(std::shared_ptr<QPixmap> heightmap)
@@ -171,21 +46,6 @@ void TerrainViewWidget::OnHeightmapUpdated(std::shared_ptr<QPixmap> heightmap)
 
 void TerrainViewWidget::initializeGL()
 {
-    noise_combo_box_ = this->parent()->findChild<QComboBox*>("noiseComboBox");
-
-    if(noise_combo_box_ != nullptr)
-    {
-        QStringList opts;
-        opts.append("Perlin");
-        opts.append("Value");
-        opts.append("Value Cubic");
-        opts.append("Open Simplex2");
-        opts.append("Open Simplex2S");
-
-        noise_combo_box_->addItems(opts);
-        noise_combo_box_->setCurrentIndex(0);
-    }
-
     initializeOpenGLFunctions();
 
     glEnable(GL_DEPTH_TEST);

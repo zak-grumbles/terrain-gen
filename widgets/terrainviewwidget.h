@@ -26,23 +26,11 @@ public:
     ~TerrainViewWidget();
 
 public slots:
-    void Generate();
-    void OnGenerationProgress(float percent);
-    void OnTerrainGenerated(std::vector<glm::vec3>* verts);
-    void OnGenThreadFinished();
-
     void SetRenderWireframe(bool wireframe);
-    void SetCubeSize(double new_size);
-    void SetGridSize(int new_size);
-    void SetSeed(int new_seed);
-
-    void SetNoiseType(int noise_index);
-
     void OnHeightmapUpdated(std::shared_ptr<QPixmap> heightmap);
 
 signals:
     void StatusUpdate(const QString& msg);
-    void ProgressUpdate(int value);
 
 protected:
     // QOpenGLWidget overrides
@@ -61,8 +49,6 @@ protected:
     // Helper methods
     bool CompileShaders_();
 
-    QThread generator_thread_;
-
     std::unique_ptr<std::vector<glm::vec3>> terrain_verts_;
 
     std::unique_ptr<Camera> camera_;
@@ -73,19 +59,11 @@ protected:
     QOpenGLVertexArrayObject vao_;
     QOpenGLBuffer vbo_;
 
-    // Grid variables
-    float cube_size_ = 1.0f;
-    int grid_size_ = 64;
     bool render_wireframe_ = false;
-    FastNoiseLite::NoiseType noise_type_ = FastNoiseLite::NoiseType_Perlin;
-    int noise_seed_ = 1337;
 
     // Mouse variables
     bool is_dragging_ = false;
     glm::vec2 drag_start_ = glm::vec2(0.0, 0.0);
-
-    // Necessary references to controls
-    QComboBox* noise_combo_box_;
 };
 
 #endif // TERRAINVIEWWIDGET_H
