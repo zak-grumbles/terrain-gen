@@ -12,9 +12,7 @@
 #include <glm/matrix.hpp>
 #include <glm/vec3.hpp>
 
-#include "FastNoiseLite/FastNoiseLite.h"
 #include "camera.h"
-#include "qcombobox.h"
 #include "shader.h"
 
 class TerrainViewWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -50,6 +48,7 @@ protected:
     bool CompileShaders_();
 
     std::unique_ptr<std::vector<glm::vec3>> terrain_verts_;
+    std::unique_ptr<std::vector<unsigned int>> terrain_indices_;
 
     std::unique_ptr<Camera> camera_;
 
@@ -58,6 +57,7 @@ protected:
     std::unique_ptr<ShaderProgram> shader_prog_ = nullptr;
     QOpenGLVertexArrayObject vao_;
     QOpenGLBuffer vbo_;
+    QOpenGLBuffer ebo_;
 
     bool render_wireframe_ = false;
 

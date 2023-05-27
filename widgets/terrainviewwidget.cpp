@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 TerrainViewWidget::TerrainViewWidget(QWidget* parent) : QOpenGLWidget(parent),
-    vbo_(QOpenGLBuffer::VertexBuffer)
+    vbo_(QOpenGLBuffer::VertexBuffer), ebo_(QOpenGLBuffer::Type::IndexBuffer)
 {
     float aspect = (float)width() / (float)height();
     auto camera_position = glm::vec3(0.0f, 0.0f, 10.0f);
@@ -41,7 +41,77 @@ void TerrainViewWidget::SetRenderWireframe(bool wireframe)
 
 void TerrainViewWidget::OnHeightmapUpdated(std::shared_ptr<QPixmap> heightmap)
 {
-    qDebug() << "CONNECTED";
+    qDebug() << "HEIGHTMAP UPDATED";
+    auto img = heightmap->toImage();
+
+    if(!img.isNull())
+    {
+        /*
+         * Build vertex data
+         */
+
+        // Clear existing verts if needed
+        if(terrain_verts_ != nullptr)
+        {
+            terrain_verts_.reset(new std::vector<glm::vec3>());
+        }
+        else
+        {
+            terrain_verts_ = std::make_unique<std::vector<glm::vec3>>();
+        }
+
+        terrain_verts_->reserve(heightmap->width() * heightmap->height());
+
+        for(int z = 0; z < heightmap->height(); z++)
+        {
+            for(int x = 0; x < heightmap->width(); x++)
+            {
+                glm::vec3 new_vert(x, img.pixel(x, z), z);
+                terrain_verts_->push_back(new_vert);
+            }
+        }
+
+        /*
+         * Build index data
+         */
+        int num_strips = heightmap->height() - 1;
+        int num_degens = 2 * (num_strips - 1);
+        int verts_per_strip = 2 * heightmap->width();
+
+        // clear indices if needed
+        if(terrain_indices_ != nullptr)
+        {
+            terrain_indices_.reset(new std::vector<unsigned int>());
+        }
+        else
+        {
+            terrain_indices_ = std::make_unique<std::vector<unsigned int>>();
+        }
+        terrain_indices_->reserve((verts_per_strip * num_strips) + num_degens);
+
+        unsigned int offset = 0;
+        for(int z = 0; z < heightmap->height() - 1; z++)
+        {
+            // Do we need to add a degen triangle at the start?
+            if(z > 0)
+            {
+                terrain_indices_->at(offset) = z * heightmap->height();
+                offset++;
+            }
+
+            for(int x = 0; x < heightmap->width(); x++)
+            {
+                terrain_indices_->at(offset++) = (z * heightmap->height()) + x;
+                terrain_indices_->at(offset++) = ((z + 1) * heightmap->height()) + x;
+            }
+
+            // Do we need to add a degen triangle at the end?
+            if(z < heightmap->height() - 2)
+            {
+                terrain_indices_->at(offset++) = ((z + 1) * heightmap->height()) + (heightmap->width() - 1);
+            }
+        }
+    }
 }
 
 void TerrainViewWidget::initializeGL()
@@ -53,11 +123,18 @@ void TerrainViewWidget::initializeGL()
     CompileShaders_();
 
     std::vector<glm::vec3> verts = {
-        glm::vec3(-0.5f, -0.5f, 0.0f),
+        glm::vec3(0.5f, 0.5f, 0.0f),
         glm::vec3(0.5f, -0.5f, 0.0f),
-        glm::vec3(0.0f, 0.5f, 0.0f)
+        glm::vec3(-0.5f, -0.5f, 0.0f),
+        glm::vec3(-0.5f, 0.5f, 0.0f)
     };
     terrain_verts_ = std::make_unique<std::vector<glm::vec3>>(verts);
+
+    std::vector<unsigned int> indices = {
+        0, 1, 3,
+        1, 2, 3
+    };
+    terrain_indices_ = std::make_unique<std::vector<unsigned int>>(indices);
 
     vao_.create();
     if(vao_.isCreated())
@@ -67,9 +144,13 @@ void TerrainViewWidget::initializeGL()
 
     vbo_.create();
     vbo_.bind();
-
     vbo_.setUsagePattern(QOpenGLBuffer::UsagePattern::StaticDraw);
     vbo_.allocate(terrain_verts_->data(), (int)(sizeof(glm::vec3) * terrain_verts_->size()));
+
+    ebo_.create();
+    ebo_.bind();
+    ebo_.setUsagePattern(QOpenGLBuffer::UsagePattern::StaticDraw);
+    ebo_.allocate(terrain_indices_->data(), (int)(sizeof(unsigned int)) * terrain_indices_->size());
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -101,17 +182,7 @@ void TerrainViewWidget::paintGL()
     unsigned int projLoc = glGetUniformLocation(shader_prog_->Id(), "proj");
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, camera_->GetProjectionMatrixValuePtr());
 
-    if(render_wireframe_ == true)
-    {
-        for(int i = 0; i < terrain_verts_->size(); i += 3)
-        {
-            glDrawArrays(GL_LINE_LOOP, i, 3);
-        }
-    }
-    else
-    {
-        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)terrain_verts_->size());
-    }
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 void TerrainViewWidget::keyPressEvent(QKeyEvent* event)
