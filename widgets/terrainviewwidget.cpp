@@ -164,6 +164,11 @@ void TerrainViewWidget::SetNoiseType(int noise_index)
     }
 }
 
+void TerrainViewWidget::OnHeightmapUpdated(std::shared_ptr<QPixmap> heightmap)
+{
+    qDebug() << "CONNECTED";
+}
+
 void TerrainViewWidget::initializeGL()
 {
     noise_combo_box_ = this->parent()->findChild<QComboBox*>("noiseComboBox");
