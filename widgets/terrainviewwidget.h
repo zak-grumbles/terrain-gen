@@ -46,6 +46,7 @@ protected:
 
     // Helper methods
     bool CompileShaders_();
+    void UpdateBuffers_();
 
     std::unique_ptr<std::vector<glm::vec3>> terrain_verts_;
     std::unique_ptr<std::vector<unsigned int>> terrain_indices_;

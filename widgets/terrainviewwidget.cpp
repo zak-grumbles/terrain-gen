@@ -66,7 +66,7 @@ void TerrainViewWidget::OnHeightmapUpdated(std::shared_ptr<QPixmap> heightmap)
         {
             for(int x = 0; x < heightmap->width(); x++)
             {
-                glm::vec3 new_vert(x, img.pixel(x, z), z);
+                glm::vec3 new_vert(x, img.pixelColor(x, z).red(), z);
                 terrain_verts_->push_back(new_vert);
             }
         }
@@ -89,28 +89,28 @@ void TerrainViewWidget::OnHeightmapUpdated(std::shared_ptr<QPixmap> heightmap)
         }
         terrain_indices_->reserve((verts_per_strip * num_strips) + num_degens);
 
-        unsigned int offset = 0;
         for(int z = 0; z < heightmap->height() - 1; z++)
         {
             // Do we need to add a degen triangle at the start?
             if(z > 0)
             {
-                terrain_indices_->at(offset) = z * heightmap->height();
-                offset++;
+                terrain_indices_->push_back(z * heightmap->height());
             }
 
             for(int x = 0; x < heightmap->width(); x++)
             {
-                terrain_indices_->at(offset++) = (z * heightmap->height()) + x;
-                terrain_indices_->at(offset++) = ((z + 1) * heightmap->height()) + x;
+                terrain_indices_->push_back( (z * heightmap->height()) + x );
+                terrain_indices_->push_back( ( (z + 1) * heightmap->height() ) + x );
             }
 
             // Do we need to add a degen triangle at the end?
             if(z < heightmap->height() - 2)
             {
-                terrain_indices_->at(offset++) = ((z + 1) * heightmap->height()) + (heightmap->width() - 1);
+                terrain_indices_->push_back( ( (z + 1) * heightmap->height() ) + ( heightmap->width() - 1 ) );
             }
         }
+        UpdateBuffers_();
+        update();
     }
 }
 
@@ -157,6 +157,8 @@ void TerrainViewWidget::initializeGL()
 
     vbo_.release();
     vao_.release();
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void TerrainViewWidget::resizeGL(int w, int h)
@@ -182,7 +184,9 @@ void TerrainViewWidget::paintGL()
     unsigned int projLoc = glGetUniformLocation(shader_prog_->Id(), "proj");
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, camera_->GetProjectionMatrixValuePtr());
 
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLE_STRIP, terrain_indices_->size(), GL_UNSIGNED_INT, 0);
+
+    vao_.release();
 }
 
 void TerrainViewWidget::keyPressEvent(QKeyEvent* event)
@@ -273,4 +277,31 @@ bool TerrainViewWidget::CompileShaders_()
     success &= shader_prog_->Link();
 
     return success;
+}
+
+void TerrainViewWidget::UpdateBuffers_()
+{
+    makeCurrent();
+    vao_.bind();
+    ebo_.release();
+    ebo_.destroy();
+
+    vbo_.release();
+    vbo_.destroy();
+
+    vbo_.create();
+    vbo_.bind();
+    vbo_.setUsagePattern(QOpenGLBuffer::UsagePattern::StaticDraw);
+    vbo_.allocate(terrain_verts_->data(), (int)(sizeof(glm::vec3) * terrain_verts_->size()));
+
+    ebo_.create();
+    ebo_.bind();
+    ebo_.setUsagePattern(QOpenGLBuffer::UsagePattern::StaticDraw);
+    ebo_.allocate(terrain_indices_->data(), (int)(sizeof(unsigned int)) * terrain_indices_->size());
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    vbo_.release();
+    vao_.release();
 }
