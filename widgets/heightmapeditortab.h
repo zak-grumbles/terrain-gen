@@ -15,6 +15,8 @@ class HeightmapEditorTab : public QWidget
 public:
     explicit HeightmapEditorTab(QWidget *parent = nullptr);
 
+    std::shared_ptr<QPixmap> GetHeightmap() const;
+
 signals:
     void HeightmapChanged(std::shared_ptr<QPixmap> heightmap);
 

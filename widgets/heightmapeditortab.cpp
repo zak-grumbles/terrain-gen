@@ -37,17 +37,28 @@ void HeightmapEditorTab::OnOutputUpdated(
 {
     if(node_id == output_node_id_)
     {
-        QVariant vNoise = graph_model_->portData(output_node_id_,
-                               QtNodes::PortType::Out,
-                               QtNodes::PortIndex(0),
-                               QtNodes::PortRole::Data);
-        auto node_data = vNoise.value<std::shared_ptr<QtNodes::NodeData>>();
-        auto noise_data = std::dynamic_pointer_cast<NoiseData>(node_data);
-        if(noise_data != nullptr)
+        auto heightmap = GetHeightmap();
+        if(heightmap != nullptr)
         {
-            std::shared_ptr<QPixmap> heightmap = std::make_shared<QPixmap>(
-                        *noise_data->AsBitmap(0, 0, 256, 256));
             emit HeightmapChanged(heightmap);
         }
     }
+}
+
+std::shared_ptr<QPixmap> HeightmapEditorTab::GetHeightmap() const
+{
+    std::shared_ptr<QPixmap> heightmap = nullptr;
+
+    QVariant vNoise = graph_model_->portData(output_node_id_,
+                           QtNodes::PortType::Out,
+                           QtNodes::PortIndex(0),
+                           QtNodes::PortRole::Data);
+    auto node_data = vNoise.value<std::shared_ptr<QtNodes::NodeData>>();
+    auto noise_data = std::dynamic_pointer_cast<NoiseData>(node_data);
+    if(noise_data != nullptr)
+    {
+        heightmap = std::make_shared<QPixmap>(*noise_data->AsBitmap(0, 0, 256, 256));
+    }
+
+    return heightmap;
 }

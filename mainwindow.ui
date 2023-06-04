@@ -42,16 +42,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1280</width>
-     <height>21</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QStatusBar" name="statusbar">
    <property name="sizeGripEnabled">
     <bool>false</bool>
@@ -115,6 +105,14 @@
     </layout>
    </widget>
   </widget>
+  <action name="actionExport_Heightmap">
+   <property name="icon">
+    <iconset theme="document-save"/>
+   </property>
+   <property name="text">
+    <string>Export Heightmap</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -137,6 +135,9 @@
    <extends>QWidget</extends>
    <header>widgets/heightmapeditortab.h</header>
    <container>1</container>
+   <slots>
+    <slot>OnExportHeightmap(QAction*)</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
