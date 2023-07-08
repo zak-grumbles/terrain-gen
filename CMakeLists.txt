@@ -48,6 +48,8 @@ set(PROJECT_SOURCES
         nodes/data/noisedata.h
         nodes/data/noisedata.cpp
 
+        nodes/widgets/imagesourceviewwidget.h
+        nodes/widgets/imagesourceviewwidget.cpp
         nodes/widgets/noiseviewwidget.h
         nodes/widgets/noiseviewwidget.cpp
 		
