@@ -41,6 +41,7 @@ set(PROJECT_SOURCES
         nodes/numbersourcedatamodel.h
         nodes/numbersourcedatamodel.cpp
 
+        nodes/data/heightdata.h
         nodes/data/imagesourcedata.h
         nodes/data/imagesourcedata.cpp
         nodes/data/integerdata.h

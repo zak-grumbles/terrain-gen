@@ -1,6 +1,8 @@
 #include "noiseoutputdatamodel.h"
 #include "qlabel.h"
 
+#include "data/heightdata.h"
+
 NoiseOutputDataModel::NoiseOutputDataModel()
     : noise_data_{nullptr}, view_{nullptr}
 {
@@ -37,6 +39,12 @@ QtNodes::NodeDataType NoiseOutputDataModel::dataType(
 {
     QtNodes::NodeDataType type;
 
+    /*
+     * This is a bit hacky. NoiseData will
+     * return HeightData::type() because it inherits
+     * and does not override. can't call HeightData
+     * directly because it is an abstract class.
+     */
     if(port_type == QtNodes::PortType::In ||
         port_type == QtNodes::PortType::Out)
     {
@@ -50,20 +58,36 @@ void NoiseOutputDataModel::setInData(
         std::shared_ptr<QtNodes::NodeData> data,
         QtNodes::PortIndex port_index)
 {
-    auto noise = std::dynamic_pointer_cast<NoiseData>(data);
-
     if(data != nullptr)
     {
-        noise_data_ = noise;
-
-        if(noise_view_ != nullptr)
+        auto height_data = std::dynamic_pointer_cast<HeightData>(data);
+        if(height_data != nullptr)
         {
-            delete noise_view_;
-        }
-        noise_view_ = noise_data_->AsBitmap(0, 0, 256, 256);
-        view_->setPixmap(*noise_view_);
+            HeightDataType data_type = height_data->GetHeightDataType();
 
-        emit dataUpdated(port_index);
+            if(data_type == HeightDataType::kNoiseSource)
+            {
+                auto noise = std::dynamic_pointer_cast<NoiseData>(height_data);
+                noise_data_ = noise;
+
+                if(noise_view_ != nullptr)
+                {
+                    delete noise_view_;
+                }
+                noise_view_ = noise_data_->AsBitmap(0, 0, 256, 256);
+                view_->setPixmap(*noise_view_);
+
+                emit dataUpdated(port_index);
+            }
+            else if(data_type == HeightDataType::kImageSource)
+            {
+                qDebug() << "AAAAA";
+            }
+        }
+        else
+        {
+            emit dataInvalidated(port_index);
+        }
     }
     else
     {

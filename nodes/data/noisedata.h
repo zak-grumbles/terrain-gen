@@ -4,7 +4,9 @@
 #include <FastNoiseLite/FastNoiseLite.h>
 #include <QtNodes/NodeData>
 
-class NoiseData : public QtNodes::NodeData
+#include "heightdata.h"
+
+class NoiseData : public HeightData
 {
 public:
     NoiseData() : NoiseData(FastNoiseLite::NoiseType_OpenSimplex2S) {}
@@ -13,7 +15,7 @@ public:
 
     virtual ~NoiseData() { noise_.reset(); }
 
-    QtNodes::NodeDataType type() const override;
+    HeightDataType GetHeightDataType() const override { return HeightDataType::kNoiseSource; }
 
     void SetNoiseType(FastNoiseLite::NoiseType new_type);
     void SetNoiseSeed(int new_seed);
