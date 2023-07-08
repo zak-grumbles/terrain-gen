@@ -32,6 +32,8 @@ set(PROJECT_SOURCES
         shader.h
         shader.cpp
 
+        nodes/imagesourcedatamodel.h
+        nodes/imagesourcedatamodel.cpp
         nodes/noiseoutputdatamodel.h
         nodes/noiseoutputdatamodel.cpp
         nodes/noisesourcedatamodel.h
@@ -39,6 +41,8 @@ set(PROJECT_SOURCES
         nodes/numbersourcedatamodel.h
         nodes/numbersourcedatamodel.cpp
 
+        nodes/data/imagesourcedata.h
+        nodes/data/imagesourcedata.cpp
         nodes/data/integerdata.h
         nodes/data/integerdata.cpp
         nodes/data/noisedata.h

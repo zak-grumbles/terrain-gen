@@ -49,7 +49,6 @@ void MainWindow::ExportHeightmap()
         {
             if(dest.open(QIODevice::WriteOnly))
             {
-                auto heightmap_img = heightmap->toImage();
                 heightmap->save(&dest);
             }
             else
