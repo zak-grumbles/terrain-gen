@@ -32,6 +32,8 @@ set(PROJECT_SOURCES
         shader.h
         shader.cpp
 
+        nodes/multiplynoisedatamodel.h
+        nodes/multiplynoisedatamodel.cpp
         nodes/noiseoutputdatamodel.h
         nodes/noiseoutputdatamodel.cpp
         nodes/noisesourcedatamodel.h
