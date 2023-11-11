@@ -36,8 +36,8 @@ set(PROJECT_SOURCES
         nodes/multiplynoisedatamodel.cpp
         nodes/noiseoutputdatamodel.h
         nodes/noiseoutputdatamodel.cpp
-        nodes/noisesourcedatamodel.h
-        nodes/noisesourcedatamodel.cpp
+        nodes/noisesamplerdatamodel.h
+        nodes/noisesamplerdatamodel.cpp
         nodes/numbersourcedatamodel.h
         nodes/numbersourcedatamodel.cpp
 
@@ -46,8 +46,8 @@ set(PROJECT_SOURCES
         nodes/data/noisedata.h
         nodes/data/noisedata.cpp
 
-        nodes/widgets/noiseviewwidget.h
-        nodes/widgets/noiseviewwidget.cpp
+        nodes/widgets/noisetypeselectorwidget.h
+        nodes/widgets/noisetypeselectorwidget.cpp
 		
         widgets/heightmapeditortab.h
         widgets/heightmapeditortab.cpp

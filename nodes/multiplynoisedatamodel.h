@@ -1,27 +1,24 @@
-#ifndef NOISESOURCEDATAMODEL_H
-#define NOISESOURCEDATAMODEL_H
-
-#include <QtNodes/NodeDelegateModel>
-#include <QComboBox>
+#ifndef MULTIPLYNOISEDATAMODEL_H
+#define MULTIPLYNOISEDATAMODEL_H
 
 #include "nodes/data/noisedata.h"
-#include "nodes/widgets/noiseviewwidget.h"
+#include <QObject>
 
+#include <QtNodes/NodeDelegateModel>
 
-class NoiseSourceDataModel : public QtNodes::NodeDelegateModel
+class MultiplyNoiseDataModel : public QtNodes::NodeDelegateModel
 {
     Q_OBJECT
 
 public:
-    NoiseSourceDataModel();
+    MultiplyNoiseDataModel();
+    virtual ~MultiplyNoiseDataModel() {}
 
-    virtual ~NoiseSourceDataModel() {}
-
-    QString caption() const override { return QStringLiteral("Noise Source"); }
+    QString caption() const override { return QStringLiteral("Multiply"); }
 
     bool captionVisible() const override { return true; }
 
-    QString name() const override { return QStringLiteral("NoiseSource"); }
+    QString name() const override { return QStringLiteral("MultiplyNoise"); }
 
     QJsonObject save() const override;
 
@@ -42,13 +39,11 @@ public:
 
     QWidget* embeddedWidget() override;
 
-protected slots:
-    void OnNoiseTypeChanged_(FastNoiseLite::NoiseType new_type);
-
 protected:
-    std::shared_ptr<NoiseData> noise_data_;
+    std::shared_ptr<NoiseData> inputA_ = nullptr;
+    std::shared_ptr<NoiseData> inputB_ = nullptr;
 
-    NoiseViewWidget* view_;
+    std::shared_ptr<NoiseData> output_ = nullptr;
 };
 
-#endif // NOISESOURCEDATAMODEL_H
+#endif // MULTIPLYNOISEDATAMODEL_H

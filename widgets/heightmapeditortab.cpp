@@ -1,7 +1,7 @@
 #include "heightmapeditortab.h"
 #include "nodes/multiplynoisedatamodel.h"
 #include "nodes/noiseoutputdatamodel.h"
-#include "nodes/noisesourcedatamodel.h"
+#include "nodes/noisesamplerdatamodel.h"
 #include "nodes/numbersourcedatamodel.h"
 
 #include <QBoxLayout>
@@ -10,7 +10,8 @@ HeightmapEditorTab::HeightmapEditorTab(QWidget *parent)
     : QWidget{parent}
 {
     model_registry_ = std::make_shared<QtNodes::NodeDelegateModelRegistry>();
-    model_registry_->registerModel<NoiseSourceDataModel>("Sources");
+    //model_registry_->registerModel<NoiseSourceDataModel>("Sources");
+    model_registry_->registerModel<NoiseSamplerDataModel>("Sources");
     model_registry_->registerModel<NumberSourceDataModel>("Sources");
     model_registry_->registerModel<MultiplyNoiseDataModel>("Operations");
     model_registry_->registerModel<NoiseOutputDataModel>("Output");
