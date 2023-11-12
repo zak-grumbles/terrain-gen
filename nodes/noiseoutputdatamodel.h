@@ -41,7 +41,7 @@ public:
     QWidget* embeddedWidget() override;
 
 protected:
-    std::shared_ptr<NoiseData> noise_data_;
+    std::shared_ptr<HeightData> output_data_;
 
     QPixmap* noise_view_ = nullptr;
     QLabel* view_ = nullptr;

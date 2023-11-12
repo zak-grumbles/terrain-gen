@@ -44,7 +44,7 @@ QtNodes::NodeDataType MultiplyNoiseDataModel::dataType(
     if(port_type == QtNodes::PortType::In ||
         port_type == QtNodes::PortType::Out)
     {
-        type = NoiseData().type();
+        type = HeightData().type();
     }
 
     return type;
@@ -62,7 +62,7 @@ void MultiplyNoiseDataModel::setInData(
         std::shared_ptr<QtNodes::NodeData> data,
         QtNodes::PortIndex index)
 {
-    auto noiseIn = std::dynamic_pointer_cast<NoiseData>(data);
+    auto noiseIn = std::dynamic_pointer_cast<HeightData>(data);
 
     if(noiseIn != nullptr)
     {
