@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QtNodes/NodeDelegateModel>
 
-#include "nodes/data/noisedata.h"
+#include "nodes/data/heightdata.h"
 #include "qlabel.h"
 
 class NoiseOutputDataModel : public QtNodes::NodeDelegateModel

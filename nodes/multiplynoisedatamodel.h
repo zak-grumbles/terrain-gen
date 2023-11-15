@@ -1,7 +1,7 @@
 #ifndef MULTIPLYNOISEDATAMODEL_H
 #define MULTIPLYNOISEDATAMODEL_H
 
-#include "nodes/data/heightdata.h"
+#include "nodes/data/multiplyoperationdata.h"
 #include <QObject>
 
 #include <QtNodes/NodeDelegateModel>
@@ -40,10 +40,7 @@ public:
     QWidget* embeddedWidget() override;
 
 protected:
-    std::shared_ptr<HeightData> inputA_ = nullptr;
-    std::shared_ptr<HeightData> inputB_ = nullptr;
-
-    std::shared_ptr<HeightData> output_ = nullptr;
+    std::shared_ptr<MultiplyOperationData> data_;
 };
 
 #endif // MULTIPLYNOISEDATAMODEL_H

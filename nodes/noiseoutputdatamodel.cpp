@@ -40,7 +40,7 @@ QtNodes::NodeDataType NoiseOutputDataModel::dataType(
     if(port_type == QtNodes::PortType::In ||
         port_type == QtNodes::PortType::Out)
     {
-        type = NoiseData().type();
+        type = HeightData().type();
     }
 
     return type;
@@ -52,7 +52,10 @@ void NoiseOutputDataModel::setInData(
 {
     auto height_data = std::dynamic_pointer_cast<HeightData>(data);
 
-    if(data != nullptr)
+    // Data is null when connection is removed, which is valid
+    // If connection is created, and height_data is not null,
+    // we have valid height data
+    if(data == nullptr || height_data != nullptr)
     {
         output_data_ = height_data;
 
@@ -65,6 +68,7 @@ void NoiseOutputDataModel::setInData(
 
         emit dataUpdated(port_index);
     }
+    // This indicates data is not null, but is also not a valid HeightData
     else
     {
         emit dataInvalidated(port_index);

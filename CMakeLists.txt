@@ -43,8 +43,12 @@ set(PROJECT_SOURCES
 
         nodes/data/heightdata.h
         nodes/data/heightdata.cpp
+        nodes/data/heightmapdata.h
+        nodes/data/heightmapdata.cpp
         nodes/data/integerdata.h
         nodes/data/integerdata.cpp
+        nodes/data/multiplyoperationdata.h
+        nodes/data/multiplyoperationdata.cpp
         nodes/data/noisedata.h
         nodes/data/noisedata.cpp
 

@@ -2,7 +2,7 @@
 
 MultiplyNoiseDataModel::MultiplyNoiseDataModel()
 {
-
+    data_ = std::make_shared<MultiplyOperationData>();
 }
 
 QJsonObject MultiplyNoiseDataModel::save() const
@@ -54,7 +54,7 @@ QtNodes::NodeDataType MultiplyNoiseDataModel::dataType(
 std::shared_ptr<QtNodes::NodeData> MultiplyNoiseDataModel::outData(
         QtNodes::PortIndex port)
 {
-    return output_;
+    return data_;
 }
 
 
@@ -64,18 +64,18 @@ void MultiplyNoiseDataModel::setInData(
 {
     auto noiseIn = std::dynamic_pointer_cast<HeightData>(data);
 
-    if(noiseIn != nullptr)
+    if(data == nullptr || noiseIn != nullptr)
     {
         if(index == 0)
         {
-            inputA_ = noiseIn;
+            data_->SetInputA(noiseIn);
         }
         else if(index == 1)
         {
-            inputB_ = noiseIn;
+            data_->SetInputB(noiseIn);
         }
 
-        emit dataUpdated(index);
+        emit dataUpdated(0);
     }
     else
     {
