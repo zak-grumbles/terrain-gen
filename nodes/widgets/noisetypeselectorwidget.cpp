@@ -1,9 +1,13 @@
 #include "noisetypeselectorwidget.h"
+#include "qboxlayout.h"
 
 NoiseTypeSelectorWidget::NoiseTypeSelectorWidget(QWidget* parent /*= nullptr*/)
     : QWidget{parent}
 {
-    noise_picker_ = new QComboBox(this);
+    properties_btn_ = new QPushButton();
+    properties_btn_->setText("...");
+
+    noise_picker_ = new QComboBox();
 
     QStringList opts;
     opts.append("Perlin");
@@ -17,12 +21,25 @@ NoiseTypeSelectorWidget::NoiseTypeSelectorWidget(QWidget* parent /*= nullptr*/)
     connect(noise_picker_, &QComboBox::currentIndexChanged,
             this, &NoiseTypeSelectorWidget::OnSelectorChanged_);
 
+    connect(properties_btn_, &QPushButton::clicked,
+            this, &NoiseTypeSelectorWidget::OnPropertiesBtnClicked_);
+
+    layout_ = new QHBoxLayout(this);
+    layout_->addWidget(noise_picker_);
+    layout_->addWidget(properties_btn_);
+
+    this->setAttribute(Qt::WA_TranslucentBackground);
 }
 
 void NoiseTypeSelectorWidget::OnSelectorChanged_(int new_type)
 {
     NoiseSelectorType type = static_cast<NoiseSelectorType>(new_type);
     emit NoiseTypeChanged(ToFastNoiseEnum_(type));
+}
+
+void NoiseTypeSelectorWidget::OnPropertiesBtnClicked_(bool checked /*= false*/)
+{
+    emit OpenPropertiesWindow();
 }
 
 FastNoiseLite::NoiseType NoiseTypeSelectorWidget::ToFastNoiseEnum_(NoiseSelectorType type) const

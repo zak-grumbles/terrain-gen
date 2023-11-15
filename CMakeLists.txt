@@ -52,6 +52,8 @@ set(PROJECT_SOURCES
         nodes/data/noisedata.h
         nodes/data/noisedata.cpp
 
+        nodes/widgets/noisepropertiespopupwidget.h
+        nodes/widgets/noisepropertiespopupwidget.cpp
         nodes/widgets/noisetypeselectorwidget.h
         nodes/widgets/noisetypeselectorwidget.cpp
 		

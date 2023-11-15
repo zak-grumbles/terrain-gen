@@ -2,8 +2,7 @@
 #include "data/integerdata.h"
 
 NoiseSamplerDataModel::NoiseSamplerDataModel() :
-    noise_data_(std::make_shared<NoiseData>()),
-    selector_{nullptr}
+    noise_data_(std::make_shared<NoiseData>())
 {
 }
 
@@ -84,6 +83,8 @@ QWidget* NoiseSamplerDataModel::embeddedWidget()
         selector_ = new NoiseTypeSelectorWidget();
         connect(selector_, &NoiseTypeSelectorWidget::NoiseTypeChanged,
                 this, &NoiseSamplerDataModel::OnNoiseTypeChanged_);
+        connect(selector_, &NoiseTypeSelectorWidget::OpenPropertiesWindow,
+                this, &NoiseSamplerDataModel::OnOpenPropertiesWindow_);
     }
     return selector_;
 }
@@ -93,4 +94,14 @@ void NoiseSamplerDataModel::OnNoiseTypeChanged_(FastNoiseLite::NoiseType new_typ
 {
     noise_data_->SetNoiseType(new_type);
     emit dataUpdated(0);
+}
+
+void NoiseSamplerDataModel::OnOpenPropertiesWindow_()
+{
+    if(properties_dlg_ == nullptr)
+    {
+        properties_dlg_ = new NoisePropertiesPopupWidget();
+        properties_dlg_->setWindowFlag(Qt::Dialog);
+    }
+    properties_dlg_->show();
 }

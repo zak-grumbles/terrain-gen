@@ -5,6 +5,7 @@
 #include <QComboBox>
 
 #include "nodes/data/noisedata.h"
+#include "nodes/widgets/noisepropertiespopupwidget.h"
 #include "nodes/widgets/noisetypeselectorwidget.h"
 
 
@@ -44,11 +45,13 @@ public:
 
 protected slots:
     void OnNoiseTypeChanged_(FastNoiseLite::NoiseType new_type);
+    void OnOpenPropertiesWindow_();
 
 protected:
     std::shared_ptr<NoiseData> noise_data_;
 
-    NoiseTypeSelectorWidget* selector_;
+    NoiseTypeSelectorWidget* selector_ = nullptr;
+    NoisePropertiesPopupWidget* properties_dlg_ = nullptr;
 };
 
 #endif // NOISESAMPLERDATAMODEL_H
