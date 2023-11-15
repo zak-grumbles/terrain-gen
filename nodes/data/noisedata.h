@@ -3,8 +3,9 @@
 
 #include <FastNoiseLite/FastNoiseLite.h>
 #include <QtNodes/NodeData>
+#include <nodes/data/heightdata.h>
 
-class NoiseData : public QtNodes::NodeData
+class NoiseData : public HeightData
 {
 public:
     NoiseData() : NoiseData(FastNoiseLite::NoiseType_OpenSimplex2S) {}
@@ -13,16 +14,10 @@ public:
 
     virtual ~NoiseData() { noise_.reset(); }
 
-    QtNodes::NodeDataType type() const override;
-
     void SetNoiseType(FastNoiseLite::NoiseType new_type);
     void SetNoiseSeed(int new_seed);
 
-    float GetNoise(float x, float y);
-
-    QPixmap* AsBitmap(float x_offset, float y_offset,
-                    float width, float height);
-    QPixmap* AsBitmap(QSize offset, QSize size);
+    float GetValueAt(float x, float y) const override;
 
 protected:
     std::unique_ptr<FastNoiseLite> noise_ = nullptr;

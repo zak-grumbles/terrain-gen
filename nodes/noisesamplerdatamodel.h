@@ -1,27 +1,27 @@
-#ifndef NOISESOURCEDATAMODEL_H
-#define NOISESOURCEDATAMODEL_H
+#ifndef NOISESAMPLERDATAMODEL_H
+#define NOISESAMPLERDATAMODEL_H
 
 #include <QtNodes/NodeDelegateModel>
 #include <QComboBox>
 
 #include "nodes/data/noisedata.h"
-#include "nodes/widgets/noiseviewwidget.h"
+#include "nodes/widgets/noisetypeselectorwidget.h"
 
 
-class NoiseSourceDataModel : public QtNodes::NodeDelegateModel
+class NoiseSamplerDataModel : public QtNodes::NodeDelegateModel
 {
     Q_OBJECT
 
 public:
-    NoiseSourceDataModel();
+    NoiseSamplerDataModel();
 
-    virtual ~NoiseSourceDataModel() {}
+    virtual ~NoiseSamplerDataModel() {}
 
-    QString caption() const override { return QStringLiteral("Noise Source"); }
+    QString caption() const override { return QStringLiteral("Noise Sampler"); }
 
     bool captionVisible() const override { return true; }
 
-    QString name() const override { return QStringLiteral("NoiseSource"); }
+    QString name() const override { return QStringLiteral("NoiseSampler"); }
 
     QJsonObject save() const override;
 
@@ -48,7 +48,7 @@ protected slots:
 protected:
     std::shared_ptr<NoiseData> noise_data_;
 
-    NoiseViewWidget* view_;
+    NoiseTypeSelectorWidget* selector_;
 };
 
-#endif // NOISESOURCEDATAMODEL_H
+#endif // NOISESAMPLERDATAMODEL_H

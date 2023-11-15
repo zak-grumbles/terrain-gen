@@ -1,25 +1,24 @@
-#ifndef NOISEOUTPUTDATAMODEL_H
-#define NOISEOUTPUTDATAMODEL_H
+#ifndef MULTIPLYNOISEDATAMODEL_H
+#define MULTIPLYNOISEDATAMODEL_H
 
+#include "nodes/data/multiplyoperationdata.h"
 #include <QObject>
+
 #include <QtNodes/NodeDelegateModel>
 
-#include "nodes/data/heightdata.h"
-#include "qlabel.h"
-
-class NoiseOutputDataModel : public QtNodes::NodeDelegateModel
+class MultiplyNoiseDataModel : public QtNodes::NodeDelegateModel
 {
     Q_OBJECT
 
 public:
-    NoiseOutputDataModel();
-    virtual ~NoiseOutputDataModel() {}
+    MultiplyNoiseDataModel();
+    virtual ~MultiplyNoiseDataModel() {}
 
-    QString caption() const override { return QStringLiteral("Noise Output"); }
+    QString caption() const override { return QStringLiteral("Multiply"); }
 
     bool captionVisible() const override { return true; }
 
-    QString name() const override { return QStringLiteral("NoiseOutput"); }
+    QString name() const override { return QStringLiteral("MultiplyNoise"); }
 
     QJsonObject save() const override;
 
@@ -41,10 +40,7 @@ public:
     QWidget* embeddedWidget() override;
 
 protected:
-    std::shared_ptr<HeightData> output_data_;
-
-    QPixmap* noise_view_ = nullptr;
-    QLabel* view_ = nullptr;
+    std::shared_ptr<MultiplyOperationData> data_;
 };
 
-#endif // NOISEOUTPUTDATAMODEL_H
+#endif // MULTIPLYNOISEDATAMODEL_H

@@ -1,6 +1,7 @@
 #include "heightmapeditortab.h"
+#include "nodes/multiplynoisedatamodel.h"
 #include "nodes/noiseoutputdatamodel.h"
-#include "nodes/noisesourcedatamodel.h"
+#include "nodes/noisesamplerdatamodel.h"
 #include "nodes/numbersourcedatamodel.h"
 
 #include <QBoxLayout>
@@ -9,8 +10,9 @@ HeightmapEditorTab::HeightmapEditorTab(QWidget *parent)
     : QWidget{parent}
 {
     model_registry_ = std::make_shared<QtNodes::NodeDelegateModelRegistry>();
-    model_registry_->registerModel<NoiseSourceDataModel>("Sources");
+    model_registry_->registerModel<NoiseSamplerDataModel>("Sources");
     model_registry_->registerModel<NumberSourceDataModel>("Sources");
+    model_registry_->registerModel<MultiplyNoiseDataModel>("Operations");
     model_registry_->registerModel<NoiseOutputDataModel>("Output");
 
     QVBoxLayout* l = new QVBoxLayout(this);
@@ -54,7 +56,7 @@ std::shared_ptr<QPixmap> HeightmapEditorTab::GetHeightmap() const
                            QtNodes::PortIndex(0),
                            QtNodes::PortRole::Data);
     auto node_data = vNoise.value<std::shared_ptr<QtNodes::NodeData>>();
-    auto noise_data = std::dynamic_pointer_cast<NoiseData>(node_data);
+    auto noise_data = std::dynamic_pointer_cast<HeightData>(node_data);
     if(noise_data != nullptr)
     {
         heightmap = std::make_shared<QPixmap>(*noise_data->AsBitmap(0, 0, 256, 256));

@@ -32,20 +32,28 @@ set(PROJECT_SOURCES
         shader.h
         shader.cpp
 
+        nodes/multiplynoisedatamodel.h
+        nodes/multiplynoisedatamodel.cpp
         nodes/noiseoutputdatamodel.h
         nodes/noiseoutputdatamodel.cpp
-        nodes/noisesourcedatamodel.h
-        nodes/noisesourcedatamodel.cpp
+        nodes/noisesamplerdatamodel.h
+        nodes/noisesamplerdatamodel.cpp
         nodes/numbersourcedatamodel.h
         nodes/numbersourcedatamodel.cpp
 
+        nodes/data/heightdata.h
+        nodes/data/heightdata.cpp
+        nodes/data/heightmapdata.h
+        nodes/data/heightmapdata.cpp
         nodes/data/integerdata.h
         nodes/data/integerdata.cpp
+        nodes/data/multiplyoperationdata.h
+        nodes/data/multiplyoperationdata.cpp
         nodes/data/noisedata.h
         nodes/data/noisedata.cpp
 
-        nodes/widgets/noiseviewwidget.h
-        nodes/widgets/noiseviewwidget.cpp
+        nodes/widgets/noisetypeselectorwidget.h
+        nodes/widgets/noisetypeselectorwidget.cpp
 		
         widgets/heightmapeditortab.h
         widgets/heightmapeditortab.cpp
