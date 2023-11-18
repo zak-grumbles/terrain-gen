@@ -103,6 +103,7 @@ void NoiseSamplerDataModel::OnOpenPropertiesWindow_()
     {
         properties_dlg_ = new NoisePropertiesPopupWidget(noise_data_);
         properties_dlg_->setWindowFlag(Qt::Dialog);
+        properties_dlg_->setWindowFlag(Qt::FramelessWindowHint);
 
         connect(properties_dlg_, &NoisePropertiesPopupWidget::SeedChanged,
                 this, &NoiseSamplerDataModel::OnNoiseSeedChanged_);

@@ -28,6 +28,11 @@ void NoiseData::SetFrequency(float new_freq)
     noise_->SetFrequency(new_freq);
 }
 
+void NoiseData::SetRotationType3D(FastNoiseLite::RotationType3D new_type)
+{
+    noise_->SetRotationType3D(new_type);
+}
+
 float NoiseData::GetValueAt(float x, float y) const
 {
     float result = 0.0f;
