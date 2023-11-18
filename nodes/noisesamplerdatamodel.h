@@ -49,6 +49,7 @@ protected slots:
 
     void OnNoiseSeedChanged_(int new_seed);
     void OnNoiseFrequencyChanged_(float new_freq);
+    void OnRotationTypeChanged_(FastNoiseLite::RotationType3D new_type);
 
 protected:
     std::shared_ptr<NoiseData> noise_data_;

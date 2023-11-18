@@ -52,7 +52,6 @@ QPixmap* HeightData::AsBitmap(QSize offset, QSize size)
         float clamped_val = std::clamp(value, 0.0f, 255.0f);
         int rounded_val = std::round(clamped_val);
 
-        //image_data[i] = rounded_val;
         BitmapPixel pxl;
         pxl.blue = rounded_val;
         pxl.green = rounded_val;

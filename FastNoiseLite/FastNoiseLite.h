@@ -190,6 +190,15 @@ public:
     }
 
     /// <summary>
+    /// Gets the domain rotation type for 3D Noise and
+    /// 3D DomainWarp.
+    /// </summary>
+    RotationType3D GetRotationType3D() const
+    {
+        return mRotationType3D;
+    }
+
+    /// <summary>
     /// Sets method for combining octaves in all fractal noise types
     /// </summary>
     /// <remarks>

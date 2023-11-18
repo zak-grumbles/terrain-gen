@@ -108,6 +108,8 @@ void NoiseSamplerDataModel::OnOpenPropertiesWindow_()
                 this, &NoiseSamplerDataModel::OnNoiseSeedChanged_);
         connect(properties_dlg_, &NoisePropertiesPopupWidget::FrequencyChanged,
                 this, &NoiseSamplerDataModel::OnNoiseFrequencyChanged_);
+        connect(properties_dlg_, &NoisePropertiesPopupWidget::RotationType3DChanged,
+                this, &NoiseSamplerDataModel::OnRotationTypeChanged_);
     }
     properties_dlg_->show();
 }
@@ -121,5 +123,11 @@ void NoiseSamplerDataModel::OnNoiseSeedChanged_(int new_seed)
 void NoiseSamplerDataModel::OnNoiseFrequencyChanged_(float new_freq)
 {
     noise_data_->SetFrequency(new_freq);
+    emit dataUpdated(0);
+}
+
+void NoiseSamplerDataModel::OnRotationTypeChanged_(FastNoiseLite::RotationType3D new_type)
+{
+    noise_data_->SetRotationType3D(new_type);
     emit dataUpdated(0);
 }

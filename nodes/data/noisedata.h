@@ -22,6 +22,9 @@ public:
     void SetFrequency(float new_freq);
     float GetFrequency() const { return noise_->GetFrequency(); }
 
+    void SetRotationType3D(FastNoiseLite::RotationType3D new_type);
+    FastNoiseLite::RotationType3D GetRotationType3D() const { return noise_->GetRotationType3D(); }
+
     float GetValueAt(float x, float y) const override;
 
 protected:

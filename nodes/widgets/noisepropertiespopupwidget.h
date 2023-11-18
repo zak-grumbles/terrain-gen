@@ -2,9 +2,11 @@
 #define NOISEPROPERTIESPOPUPWIDGET_H
 
 #include "nodes/data/noisedata.h"
-#include "qboxlayout.h"
-#include "qspinbox.h"
+#include "qcombobox.h"
+#include "qgroupbox.h"
 #include <QWidget>
+
+Q_DECLARE_METATYPE(FastNoiseLite::RotationType3D);
 
 class NoisePropertiesPopupWidget : public QWidget
 {
@@ -17,15 +19,17 @@ public:
 signals:
     void SeedChanged(int new_seed);
     void FrequencyChanged(float new_freq);
+    void RotationType3DChanged(FastNoiseLite::RotationType3D new_type);
 
 protected slots:
     void OnSeedSpinBoxChange(int new_seed);
     void OnFreqSpinBoxChange(double new_freq);
+    void OnRotationTypeChange(int new_index);
 
 private:
-    QVBoxLayout* layout_;
-    QSpinBox* seed_;
-    QDoubleSpinBox* frequency_;
+    QGroupBox* CreateGeneralSettings_(std::shared_ptr<NoiseData> noise);
+
+    QComboBox* rotation_type_ = nullptr;
 };
 
 #endif // NOISEPROPERTIESPOPUPWIDGET_H
