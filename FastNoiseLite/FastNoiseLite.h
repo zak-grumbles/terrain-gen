@@ -146,12 +146,22 @@ public:
     void SetSeed(int seed) { mSeed = seed; }
 
     /// <summary>
+    /// Returns seed used for all noise types.
+    /// </summary>
+    int GetSeed() const { return mSeed; }
+
+    /// <summary>
     /// Sets frequency for all noise types
     /// </summary>
     /// <remarks>
     /// Default: 0.01
     /// </remarks>
     void SetFrequency(float frequency) { mFrequency = frequency; }
+
+    /// <summary>
+    /// Gets frequency for all noise types
+    /// </summary>
+    float GetFrequency() const { return mFrequency; }
 
     /// <summary>
     /// Sets noise algorithm used for GetNoise(...)

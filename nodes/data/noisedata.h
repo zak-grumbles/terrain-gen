@@ -15,7 +15,12 @@ public:
     virtual ~NoiseData() { noise_.reset(); }
 
     void SetNoiseType(FastNoiseLite::NoiseType new_type);
+
     void SetNoiseSeed(int new_seed);
+    int GetNoiseSeed() const { return noise_->GetSeed(); }
+
+    void SetFrequency(float new_freq);
+    float GetFrequency() const { return noise_->GetFrequency(); }
 
     float GetValueAt(float x, float y) const override;
 

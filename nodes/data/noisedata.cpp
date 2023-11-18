@@ -23,6 +23,11 @@ void NoiseData::SetNoiseSeed(int new_seed)
     noise_->SetSeed(new_seed);
 }
 
+void NoiseData::SetFrequency(float new_freq)
+{
+    noise_->SetFrequency(new_freq);
+}
+
 float NoiseData::GetValueAt(float x, float y) const
 {
     float result = 0.0f;

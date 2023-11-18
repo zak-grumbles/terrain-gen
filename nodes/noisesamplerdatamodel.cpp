@@ -85,6 +85,7 @@ QWidget* NoiseSamplerDataModel::embeddedWidget()
                 this, &NoiseSamplerDataModel::OnNoiseTypeChanged_);
         connect(selector_, &NoiseTypeSelectorWidget::OpenPropertiesWindow,
                 this, &NoiseSamplerDataModel::OnOpenPropertiesWindow_);
+
     }
     return selector_;
 }
@@ -100,8 +101,25 @@ void NoiseSamplerDataModel::OnOpenPropertiesWindow_()
 {
     if(properties_dlg_ == nullptr)
     {
-        properties_dlg_ = new NoisePropertiesPopupWidget();
+        properties_dlg_ = new NoisePropertiesPopupWidget(noise_data_);
         properties_dlg_->setWindowFlag(Qt::Dialog);
+
+        connect(properties_dlg_, &NoisePropertiesPopupWidget::SeedChanged,
+                this, &NoiseSamplerDataModel::OnNoiseSeedChanged_);
+        connect(properties_dlg_, &NoisePropertiesPopupWidget::FrequencyChanged,
+                this, &NoiseSamplerDataModel::OnNoiseFrequencyChanged_);
     }
     properties_dlg_->show();
+}
+
+void NoiseSamplerDataModel::OnNoiseSeedChanged_(int new_seed)
+{
+    noise_data_->SetNoiseSeed(new_seed);
+    emit dataUpdated(0);
+}
+
+void NoiseSamplerDataModel::OnNoiseFrequencyChanged_(float new_freq)
+{
+    noise_data_->SetFrequency(new_freq);
+    emit dataUpdated(0);
 }

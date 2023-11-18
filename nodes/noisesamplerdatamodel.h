@@ -47,6 +47,9 @@ protected slots:
     void OnNoiseTypeChanged_(FastNoiseLite::NoiseType new_type);
     void OnOpenPropertiesWindow_();
 
+    void OnNoiseSeedChanged_(int new_seed);
+    void OnNoiseFrequencyChanged_(float new_freq);
+
 protected:
     std::shared_ptr<NoiseData> noise_data_;
 
