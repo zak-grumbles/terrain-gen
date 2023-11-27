@@ -50,7 +50,8 @@ set(PROJECT_SOURCES
         nodes/data/multiplyoperationdata.h
         nodes/data/multiplyoperationdata.cpp
         nodes/data/noisedata.h
-        nodes/data/noisedata.cpp
+        nodes/data/noisesamplerdata.h
+        nodes/data/noisesamplerdata.cpp
 
         nodes/widgets/noisepropertiespopupwidget.h
         nodes/widgets/noisepropertiespopupwidget.cpp

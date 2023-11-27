@@ -6,12 +6,13 @@
 
 NoisePropertiesPopupWidget::NoisePropertiesPopupWidget(
     std::shared_ptr<NoiseData> noise, QWidget* parent /*= nullptr*/
-)
-    : QWidget(parent) {
+) : QWidget(parent) {
+    noise_settings_ = noise;
+
     QVBoxLayout* layout = new QVBoxLayout(this);
 
-    layout->addWidget(CreateGeneralSettings_(noise));
-    layout->addWidget(CreateFractalSettings_(noise));
+    layout->addWidget(CreateGeneralSettings_());
+    layout->addWidget(CreateFractalSettings_());
 
     setLayout(layout);
 }
@@ -19,11 +20,13 @@ NoisePropertiesPopupWidget::NoisePropertiesPopupWidget(
 NoisePropertiesPopupWidget::~NoisePropertiesPopupWidget() {}
 
 void NoisePropertiesPopupWidget::OnSeedSpinBoxChange_(int new_seed) {
-    emit SeedChanged(new_seed);
+    noise_settings_->seed = new_seed;
+    emit NoiseSettingsChanged();
 }
 
 void NoisePropertiesPopupWidget::OnFreqSpinBoxChange_(double new_freq) {
-    emit FrequencyChanged((float)new_freq);
+    noise_settings_->frequency = new_freq;
+    emit NoiseSettingsChanged();
 }
 
 void NoisePropertiesPopupWidget::OnRotationTypeChange_(int new_index) {
@@ -31,31 +34,42 @@ void NoisePropertiesPopupWidget::OnRotationTypeChange_(int new_index) {
         FastNoiseLite::RotationType3D new_type =
             rotation_type_->itemData(new_index)
                 .value<FastNoiseLite::RotationType3D>();
-        emit RotationType3DChanged(new_type);
+        noise_settings_->rotation_type = new_type;
+        emit NoiseSettingsChanged();
     }
 }
 
 void NoisePropertiesPopupWidget::OnFractalTypeChange_(int new_index) {
     if (new_index != -1) {
-        FastNoiseLite::FractalType new_type =
-            fractal_type_->itemData(new_index)
-                .value<FastNoiseLite::FractalType>();
+        FastNoiseLite::FractalType new_type = fractal_type_->itemData(new_index)
+            .value<FastNoiseLite::FractalType>();
+
+        // We are switching to None from some non-None type
+        if(new_type == FastNoiseLite::FractalType_None &&
+            noise_settings_->fractal_type != FastNoiseLite::FractalType_None) {
+            SetEnabled_(false);
+        }
+        // We are switching to a non-None type from None
+        else if(noise_settings_->fractal_type == FastNoiseLite::FractalType_None){
+            SetEnabled_(true);
+        }
+        noise_settings_->fractal_type = new_type;
+
+        emit NoiseSettingsChanged();
     }
 }
 
-QGroupBox* NoisePropertiesPopupWidget::CreateGeneralSettings_(
-    std::shared_ptr<NoiseData> noise
-) {
+QGroupBox* NoisePropertiesPopupWidget::CreateGeneralSettings_() {
     QGroupBox* general_settings = new QGroupBox(tr("General"));
 
     QSpinBox* seed = new QSpinBox();
     seed->setRange(-9999, 9999);
-    seed->setValue(noise->GetNoiseSeed());
+    seed->setValue(noise_settings_->seed);
 
     QDoubleSpinBox* frequency = new QDoubleSpinBox();
     frequency->setRange(0.0, 10.0);
     frequency->setDecimals(3);
-    frequency->setValue(noise->GetFrequency());
+    frequency->setValue(noise_settings_->frequency);
     frequency->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 
     rotation_type_ = new QComboBox();
@@ -100,10 +114,10 @@ QGroupBox* NoisePropertiesPopupWidget::CreateGeneralSettings_(
     return general_settings;
 }
 
-QGroupBox* NoisePropertiesPopupWidget::CreateFractalSettings_(
-    std::shared_ptr<NoiseData> noise
-) {
+QGroupBox* NoisePropertiesPopupWidget::CreateFractalSettings_() {
     QGroupBox* fractal_settings = new QGroupBox(tr("Fractal"));
+
+    QGridLayout* layout = new QGridLayout();
 
     // Fractal type
     fractal_type_ = new QComboBox();
@@ -126,17 +140,29 @@ QGroupBox* NoisePropertiesPopupWidget::CreateFractalSettings_(
         tr("Ridged"), QVariant(FastNoiseLite::FractalType_Ridged)
     );
 
-    QGridLayout* layout = new QGridLayout();
-
     layout->addWidget(new QLabel(tr("Type")), 0, 0);
     layout->addWidget(fractal_type_, 0, 1);
 
+    // Octaves
+    fractal_octaves_ = new QSpinBox();
+    fractal_octaves_->setRange(1, 100);
+
+    layout->addWidget(new QLabel(tr("Octaves")), 1, 0);
+    layout->addWidget(fractal_octaves_, 1, 1);
+
+    // Lacunarity
+
     fractal_settings->setLayout(layout);
 
+    // Connect signals
     connect(
         fractal_type_, &QComboBox::currentIndexChanged, this,
         &NoisePropertiesPopupWidget::OnFractalTypeChange_
     );
 
     return fractal_settings;
+}
+
+void NoisePropertiesPopupWidget::SetEnabled_(bool enabled /*= true*/) {
+    fractal_octaves_->setEnabled(enabled);
 }

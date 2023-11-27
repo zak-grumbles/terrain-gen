@@ -6,6 +6,7 @@
 #include "nodes/data/noisedata.h"
 #include "qcombobox.h"
 #include "qgroupbox.h"
+#include "qspinbox.h"
 
 Q_DECLARE_METATYPE(FastNoiseLite::RotationType3D);
 Q_DECLARE_METATYPE(FastNoiseLite::FractalType);
@@ -20,25 +21,29 @@ public:
     ~NoisePropertiesPopupWidget();
 
 signals:
-    void SeedChanged(int new_seed);
-    void FrequencyChanged(float new_freq);
-    void RotationType3DChanged(FastNoiseLite::RotationType3D new_type);
-
-    void FractalTypeChanged(FastNoiseLite::FractalType new_type);
+    void NoiseSettingsChanged();
 
 protected slots:
     void OnSeedSpinBoxChange_(int new_seed);
     void OnFreqSpinBoxChange_(double new_freq);
     void OnRotationTypeChange_(int new_index);
-
     void OnFractalTypeChange_(int new_index);
 
 private:
-    QGroupBox* CreateGeneralSettings_(std::shared_ptr<NoiseData> noise);
+    std::shared_ptr<NoiseData> noise_settings_ = nullptr;
+
+    QGroupBox* CreateGeneralSettings_();
     QComboBox* rotation_type_ = nullptr;
 
-    QGroupBox* CreateFractalSettings_(std::shared_ptr<NoiseData> noise);
+    QGroupBox* CreateFractalSettings_();
     QComboBox* fractal_type_ = nullptr;
+    QSpinBox*  fractal_octaves_ = nullptr;
+    QDoubleSpinBox* fractal_lacunarity_ = nullptr;
+    QDoubleSpinBox* fractal_gain_ = nullptr;
+    QDoubleSpinBox* fractal_weighted_str = nullptr;
+    QDoubleSpinBox* fractal_pingpong_str = nullptr;
+
+    void SetEnabled_(bool enabled = true);
 };
 
 #endif  // NOISEPROPERTIESPOPUPWIDGET_H

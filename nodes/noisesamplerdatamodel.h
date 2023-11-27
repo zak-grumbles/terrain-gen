@@ -4,7 +4,7 @@
 #include <QComboBox>
 #include <QtNodes/NodeDelegateModel>
 
-#include "nodes/data/noisedata.h"
+#include "nodes/data/noisesamplerdata.h"
 #include "nodes/widgets/noisepropertiespopupwidget.h"
 #include "nodes/widgets/noisetypeselectorwidget.h"
 
@@ -42,15 +42,11 @@ public:
     QWidget* embeddedWidget() override;
 
 protected slots:
-    void OnNoiseTypeChanged_(FastNoiseLite::NoiseType new_type);
     void OnOpenPropertiesWindow_();
-
-    void OnNoiseSeedChanged_(int new_seed);
-    void OnNoiseFrequencyChanged_(float new_freq);
-    void OnRotationTypeChanged_(FastNoiseLite::RotationType3D new_type);
+    void OnNoiseSettingsChanged_();
 
 protected:
-    std::shared_ptr<NoiseData> noise_data_;
+    std::shared_ptr<NoiseSamplerData> noise_data_;
 
     NoiseTypeSelectorWidget* selector_          = nullptr;
     NoisePropertiesPopupWidget* properties_dlg_ = nullptr;
