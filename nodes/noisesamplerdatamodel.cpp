@@ -79,7 +79,8 @@ QWidget* NoiseSamplerDataModel::embeddedWidget() {
 
 void NoiseSamplerDataModel::OnOpenPropertiesWindow_() {
     if (properties_dlg_ == nullptr) {
-        properties_dlg_ = new NoisePropertiesPopupWidget(noise_data_->GetNoiseSettings());
+        properties_dlg_ =
+            new NoisePropertiesPopupWidget(noise_data_->GetNoiseSettings());
         properties_dlg_->setWindowFlag(Qt::Dialog);
         properties_dlg_->setWindowFlag(Qt::FramelessWindowHint);
 

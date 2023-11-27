@@ -1,0 +1,22 @@
+#!/bin/bash
+
+command="clang-format -i --verbose --style=file *.h *.cpp"
+
+declare -a src_dirs=("./nodes" "./nodes/data" "./nodes/widgets" "./widgets")
+
+root_dir=$(pwd)
+
+function format_dirs() {
+	# Format root directory first
+	eval $command
+
+	# Format subdirectories
+	for dir in "${src_dirs[@]}"
+	do
+		cd "$dir"
+		eval $command
+		cd "$root_dir"
+	done
+}
+
+format_dirs

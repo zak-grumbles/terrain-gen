@@ -6,7 +6,8 @@
 
 NoisePropertiesPopupWidget::NoisePropertiesPopupWidget(
     std::shared_ptr<NoiseData> noise, QWidget* parent /*= nullptr*/
-) : QWidget(parent) {
+)
+    : QWidget(parent) {
     noise_settings_ = noise;
 
     QVBoxLayout* layout = new QVBoxLayout(this);
@@ -41,16 +42,17 @@ void NoisePropertiesPopupWidget::OnRotationTypeChange_(int new_index) {
 
 void NoisePropertiesPopupWidget::OnFractalTypeChange_(int new_index) {
     if (new_index != -1) {
-        FastNoiseLite::FractalType new_type = fractal_type_->itemData(new_index)
-            .value<FastNoiseLite::FractalType>();
+        FastNoiseLite::FractalType new_type =
+            fractal_type_->itemData(new_index)
+                .value<FastNoiseLite::FractalType>();
 
         // We are switching to None from some non-None type
-        if(new_type == FastNoiseLite::FractalType_None &&
+        if (new_type == FastNoiseLite::FractalType_None &&
             noise_settings_->fractal_type != FastNoiseLite::FractalType_None) {
             SetEnabled_(false);
         }
         // We are switching to a non-None type from None
-        else if(noise_settings_->fractal_type == FastNoiseLite::FractalType_None){
+        else if (noise_settings_->fractal_type == FastNoiseLite::FractalType_None) {
             SetEnabled_(true);
         }
         noise_settings_->fractal_type = new_type;
@@ -201,7 +203,8 @@ QGroupBox* NoisePropertiesPopupWidget::CreateFractalSettings_() {
     fractal_weighted_str_->setDecimals(3);
     fractal_weighted_str_->setRange(0.0, 10.0);
     fractal_weighted_str_->setValue(noise_settings_->weighted_strength);
-    fractal_weighted_str_->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+    fractal_weighted_str_->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType
+    );
 
     layout->addWidget(new QLabel(tr("Weighted Strength")), 4, 0);
     layout->addWidget(fractal_weighted_str_, 4, 1);
@@ -211,7 +214,8 @@ QGroupBox* NoisePropertiesPopupWidget::CreateFractalSettings_() {
     fractal_pingpong_str_->setDecimals(3);
     fractal_pingpong_str_->setRange(0.0, 10.0);
     fractal_pingpong_str_->setValue(noise_settings_->pingpong_strength);
-    fractal_pingpong_str_->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+    fractal_pingpong_str_->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType
+    );
 
     layout->addWidget(new QLabel(tr("Ping Pong Strength")), 5, 0);
     layout->addWidget(fractal_pingpong_str_, 5, 1);
@@ -224,24 +228,24 @@ QGroupBox* NoisePropertiesPopupWidget::CreateFractalSettings_() {
         &NoisePropertiesPopupWidget::OnFractalTypeChange_
     );
     connect(
-        fractal_octaves_, &QSpinBox::valueChanged,
-        this, &NoisePropertiesPopupWidget::OnOctavesChange_
+        fractal_octaves_, &QSpinBox::valueChanged, this,
+        &NoisePropertiesPopupWidget::OnOctavesChange_
     );
     connect(
-        fractal_lacunarity_, &QDoubleSpinBox::valueChanged,
-        this, &NoisePropertiesPopupWidget::OnLacunarityChange_
+        fractal_lacunarity_, &QDoubleSpinBox::valueChanged, this,
+        &NoisePropertiesPopupWidget::OnLacunarityChange_
     );
     connect(
-        fractal_gain_, &QDoubleSpinBox::valueChanged,
-        this, &NoisePropertiesPopupWidget::OnGainChange_
+        fractal_gain_, &QDoubleSpinBox::valueChanged, this,
+        &NoisePropertiesPopupWidget::OnGainChange_
     );
     connect(
-        fractal_weighted_str_, &QDoubleSpinBox::valueChanged,
-        this, &NoisePropertiesPopupWidget::OnWeightedStrengthChange_
+        fractal_weighted_str_, &QDoubleSpinBox::valueChanged, this,
+        &NoisePropertiesPopupWidget::OnWeightedStrengthChange_
     );
     connect(
-        fractal_pingpong_str_, &QDoubleSpinBox::valueChanged,
-        this, &NoisePropertiesPopupWidget::OnPingPongStrengthChange_
+        fractal_pingpong_str_, &QDoubleSpinBox::valueChanged, this,
+        &NoisePropertiesPopupWidget::OnPingPongStrengthChange_
     );
 
     return fractal_settings;

@@ -42,10 +42,10 @@ private:
     QComboBox* rotation_type_ = nullptr;
 
     QGroupBox* CreateFractalSettings_();
-    QComboBox* fractal_type_ = nullptr;
-    QSpinBox*  fractal_octaves_ = nullptr;
-    QDoubleSpinBox* fractal_lacunarity_ = nullptr;
-    QDoubleSpinBox* fractal_gain_ = nullptr;
+    QComboBox* fractal_type_              = nullptr;
+    QSpinBox* fractal_octaves_            = nullptr;
+    QDoubleSpinBox* fractal_lacunarity_   = nullptr;
+    QDoubleSpinBox* fractal_gain_         = nullptr;
     QDoubleSpinBox* fractal_weighted_str_ = nullptr;
     QDoubleSpinBox* fractal_pingpong_str_ = nullptr;
 

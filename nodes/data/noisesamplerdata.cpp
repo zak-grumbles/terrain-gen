@@ -5,13 +5,12 @@
 constexpr unsigned int kDefaultNoiseSeed = 1337;
 
 NoiseSamplerData::NoiseSamplerData(FastNoiseLite::NoiseType noise_type) {
-
     type_ = HeightDataType::kFastNoise;
 
     settings_ = std::make_shared<NoiseData>();
 
     settings_->noise_type = noise_type;
-    settings_->seed = kDefaultNoiseSeed;
+    settings_->seed       = kDefaultNoiseSeed;
 
     noise_ = std::make_unique<FastNoiseLite>();
     ApplySettings_();
