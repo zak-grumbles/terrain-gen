@@ -1,20 +1,22 @@
 #ifndef NOISEPROPERTIESPOPUPWIDGET_H
 #define NOISEPROPERTIESPOPUPWIDGET_H
 
+#include <QWidget>
+
 #include "nodes/data/noisedata.h"
 #include "qcombobox.h"
 #include "qgroupbox.h"
-#include <QWidget>
 
 Q_DECLARE_METATYPE(FastNoiseLite::RotationType3D);
 Q_DECLARE_METATYPE(FastNoiseLite::FractalType);
 
-class NoisePropertiesPopupWidget : public QWidget
-{
+class NoisePropertiesPopupWidget : public QWidget {
     Q_OBJECT
 
 public:
-    NoisePropertiesPopupWidget(std::shared_ptr<NoiseData> noise, QWidget* parent = nullptr);
+    NoisePropertiesPopupWidget(
+        std::shared_ptr<NoiseData> noise, QWidget* parent = nullptr
+    );
     ~NoisePropertiesPopupWidget();
 
 signals:
@@ -39,4 +41,4 @@ private:
     QComboBox* fractal_type_ = nullptr;
 };
 
-#endif // NOISEPROPERTIESPOPUPWIDGET_H
+#endif  // NOISEPROPERTIESPOPUPWIDGET_H

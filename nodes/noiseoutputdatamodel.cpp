@@ -1,30 +1,26 @@
 #include "noiseoutputdatamodel.h"
+
 #include "qlabel.h"
 
 NoiseOutputDataModel::NoiseOutputDataModel()
-    : output_data_{nullptr}, view_{nullptr}
-{
+    : output_data_{nullptr}, view_{nullptr} {
     noise_view_ = new QPixmap();
 }
 
-QJsonObject NoiseOutputDataModel::save() const
-{
+QJsonObject NoiseOutputDataModel::save() const {
     QJsonObject model = QtNodes::NodeDelegateModel::save();
 
     return model;
 }
 
-void NoiseOutputDataModel::load(QJsonObject const& model)
-{
+void NoiseOutputDataModel::load(QJsonObject const& model) {
     // TODO
 }
 
-unsigned int NoiseOutputDataModel::nPorts(QtNodes::PortType port_type) const
-{
+unsigned int NoiseOutputDataModel::nPorts(QtNodes::PortType port_type) const {
     unsigned int result = 0;
 
-    if(port_type == QtNodes::PortType::In)
-    {
+    if (port_type == QtNodes::PortType::In) {
         result = 1;
     }
 
@@ -32,14 +28,12 @@ unsigned int NoiseOutputDataModel::nPorts(QtNodes::PortType port_type) const
 }
 
 QtNodes::NodeDataType NoiseOutputDataModel::dataType(
-        QtNodes::PortType port_type,
-        QtNodes::PortIndex port_index) const
-{
+    QtNodes::PortType port_type, QtNodes::PortIndex port_index
+) const {
     QtNodes::NodeDataType type;
 
-    if(port_type == QtNodes::PortType::In ||
-        port_type == QtNodes::PortType::Out)
-    {
+    if (port_type == QtNodes::PortType::In ||
+        port_type == QtNodes::PortType::Out) {
         type = HeightData().type();
     }
 
@@ -47,20 +41,17 @@ QtNodes::NodeDataType NoiseOutputDataModel::dataType(
 }
 
 void NoiseOutputDataModel::setInData(
-        std::shared_ptr<QtNodes::NodeData> data,
-        QtNodes::PortIndex port_index)
-{
+    std::shared_ptr<QtNodes::NodeData> data, QtNodes::PortIndex port_index
+) {
     auto height_data = std::dynamic_pointer_cast<HeightData>(data);
 
     // Data is null when connection is removed, which is valid
     // If connection is created, and height_data is not null,
     // we have valid height data
-    if(data == nullptr || height_data != nullptr)
-    {
+    if (data == nullptr || height_data != nullptr) {
         output_data_ = height_data;
 
-        if(noise_view_ != nullptr)
-        {
+        if (noise_view_ != nullptr) {
             delete noise_view_;
         }
         noise_view_ = output_data_->AsBitmap(0, 0, 256, 256);
@@ -69,22 +60,19 @@ void NoiseOutputDataModel::setInData(
         emit dataUpdated(port_index);
     }
     // This indicates data is not null, but is also not a valid HeightData
-    else
-    {
+    else {
         emit dataInvalidated(port_index);
     }
 }
 
 std::shared_ptr<QtNodes::NodeData> NoiseOutputDataModel::outData(
-        QtNodes::PortIndex)
-{
+    QtNodes::PortIndex
+) {
     return output_data_;
 }
 
-QWidget* NoiseOutputDataModel::embeddedWidget()
-{
-    if(view_ == nullptr)
-    {
+QWidget* NoiseOutputDataModel::embeddedWidget() {
+    if (view_ == nullptr) {
         view_ = new QLabel();
         view_->setFixedSize(128, 128);
         view_->setPixmap(*noise_view_);

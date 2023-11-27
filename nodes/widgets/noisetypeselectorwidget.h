@@ -9,16 +9,9 @@
 #include "qcombobox.h"
 #include "qpushbutton.h"
 
-enum NoiseSelectorType
-{
-    kPerlin = 0,
-    kValue,
-    kOpenSimplex2,
-    kOpenSimplex2S
-};
+enum NoiseSelectorType { kPerlin = 0, kValue, kOpenSimplex2, kOpenSimplex2S };
 
-class NoiseTypeSelectorWidget : public QWidget
-{
+class NoiseTypeSelectorWidget : public QWidget {
     Q_OBJECT
 
 public:
@@ -35,9 +28,9 @@ protected slots:
 protected:
     FastNoiseLite::NoiseType ToFastNoiseEnum_(NoiseSelectorType type) const;
 
-    QHBoxLayout* layout_ = nullptr;
-    QComboBox* noise_picker_ = nullptr;
+    QHBoxLayout* layout_         = nullptr;
+    QComboBox* noise_picker_     = nullptr;
     QPushButton* properties_btn_ = nullptr;
 };
 
-#endif // NOISETYPESELECTORWIDGET_H
+#endif  // NOISETYPESELECTORWIDGET_H

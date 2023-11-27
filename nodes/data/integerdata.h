@@ -3,14 +3,11 @@
 
 #include <QtNodes/NodeData>
 
-class IntegerData : public QtNodes::NodeData
-{
+class IntegerData : public QtNodes::NodeData {
 public:
-    IntegerData() : IntegerData(0)
-    {}
+    IntegerData() : IntegerData(0) {}
 
-    IntegerData(int const value) : value_(value)
-    {}
+    IntegerData(int const value) : value_(value) {}
 
     virtual QtNodes::NodeDataType type() const override;
 
@@ -21,8 +18,7 @@ public:
     void SetValue(int new_value) { value_ = new_value; }
 
 protected:
-
     int value_ = 0;
 };
 
-#endif // INTEGERDATA_H
+#endif  // INTEGERDATA_H

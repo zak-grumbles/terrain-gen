@@ -4,14 +4,9 @@
 #include <QOpenGLFunctions>
 #include <QString>
 
-enum ShaderType
-{
-    kVertex,
-    kFragment
-};
+enum ShaderType { kVertex, kFragment };
 
-class Shader
-{
+class Shader {
 public:
     Shader(QString path, ShaderType type);
     ~Shader();
@@ -23,7 +18,6 @@ public:
     std::unique_ptr<std::string> Log() { return std::move(log_); }
 
 protected:
-
     std::unique_ptr<std::string> ReadSource_();
     std::unique_ptr<std::string> FetchLog_() const;
 
@@ -36,8 +30,7 @@ protected:
     QOpenGLFunctions* gl_functions_ = nullptr;
 };
 
-class ShaderProgram
-{
+class ShaderProgram {
 public:
     ShaderProgram(std::shared_ptr<Shader> vert, std::shared_ptr<Shader> frag);
     ~ShaderProgram();
@@ -60,4 +53,4 @@ private:
     QOpenGLFunctions* gl_functions_ = nullptr;
 };
 
-#endif // SHADER_H
+#endif  // SHADER_H

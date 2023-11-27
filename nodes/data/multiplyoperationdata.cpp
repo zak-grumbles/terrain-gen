@@ -1,30 +1,23 @@
 #include "multiplyoperationdata.h"
 
-MultiplyOperationData::MultiplyOperationData()
-{
+MultiplyOperationData::MultiplyOperationData() {}
 
-}
-
-float MultiplyOperationData::GetValueAt(float x, float y) const
-{
+float MultiplyOperationData::GetValueAt(float x, float y) const {
     float result = 0.0f;
 
-    if(inputA_ != nullptr && inputB_ != nullptr)
-    {
+    if (inputA_ != nullptr && inputB_ != nullptr) {
         float aResult = inputA_->GetValueAt(x, y);
         float bResult = inputB_->GetValueAt(x, y);
-        result = aResult * bResult;
+        result        = aResult * bResult;
     }
 
     return result;
 }
 
-void MultiplyOperationData::SetInputA(std::shared_ptr<HeightData> newInput)
-{
+void MultiplyOperationData::SetInputA(std::shared_ptr<HeightData> newInput) {
     this->inputA_ = newInput;
 }
 
-void MultiplyOperationData::SetInputB(std::shared_ptr<HeightData> newInput)
-{
+void MultiplyOperationData::SetInputB(std::shared_ptr<HeightData> newInput) {
     this->inputB_ = newInput;
 }

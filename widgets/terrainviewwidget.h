@@ -1,22 +1,20 @@
 #ifndef TERRAINVIEWWIDGET_H
 #define TERRAINVIEWWIDGET_H
 
-#include <memory>
+#include <QOpenGLBuffer>
 #include <QOpenGLFunctions>
 #include <QOpenGLVertexArrayObject>
-#include <QOpenGLBuffer>
 #include <QOpenGLWidget>
 #include <QThread>
 #include <QWidget>
-
 #include <glm/matrix.hpp>
 #include <glm/vec3.hpp>
+#include <memory>
 
 #include "camera.h"
 #include "shader.h"
 
-class TerrainViewWidget : public QOpenGLWidget, protected QOpenGLFunctions
-{
+class TerrainViewWidget : public QOpenGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
 
 public:
@@ -40,7 +38,7 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
 
     // Mouse event overrides
-    void mousePressEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
 
@@ -63,8 +61,8 @@ protected:
     bool render_wireframe_ = false;
 
     // Mouse variables
-    bool is_dragging_ = false;
+    bool is_dragging_     = false;
     glm::vec2 drag_start_ = glm::vec2(0.0, 0.0);
 };
 
-#endif // TERRAINVIEWWIDGET_H
+#endif  // TERRAINVIEWWIDGET_H

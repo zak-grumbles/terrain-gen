@@ -3,13 +3,11 @@
 
 #include <QObject>
 #include <QWidget>
-
 #include <QtNodes/DataFlowGraphicsScene>
 #include <QtNodes/GraphicsView>
 #include <QtNodes/NodeDelegateModelRegistry>
 
-class HeightmapEditorTab : public QWidget
-{
+class HeightmapEditorTab : public QWidget {
     Q_OBJECT
 
 public:
@@ -22,17 +20,18 @@ signals:
 
 public slots:
     void OnOutputUpdated(
-            QtNodes::NodeId const node_id,
-            QtNodes::PortType const port_type,
-            QtNodes::PortIndex const port_index);
+        QtNodes::NodeId const node_id, QtNodes::PortType const port_type,
+        QtNodes::PortIndex const port_index
+    );
 
 protected:
-    std::shared_ptr<QtNodes::NodeDelegateModelRegistry> model_registry_ = nullptr;
-    std::shared_ptr<QtNodes::GraphicsView> node_view_ = nullptr;
+    std::shared_ptr<QtNodes::NodeDelegateModelRegistry> model_registry_ =
+        nullptr;
+    std::shared_ptr<QtNodes::GraphicsView> node_view_           = nullptr;
     std::shared_ptr<QtNodes::DataFlowGraphicsScene> node_scene_ = nullptr;
-    std::shared_ptr<QtNodes::DataFlowGraphModel> graph_model_ = nullptr;
+    std::shared_ptr<QtNodes::DataFlowGraphModel> graph_model_   = nullptr;
 
     QtNodes::NodeId output_node_id_;
 };
 
-#endif // HEIGHTMAPEDITORTAB_H
+#endif  // HEIGHTMAPEDITORTAB_H

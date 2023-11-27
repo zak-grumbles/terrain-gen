@@ -1,6 +1,3 @@
 #include "heightmapdata.h"
 
-HeightMapData::HeightMapData()
-{
-
-}
+HeightMapData::HeightMapData() {}

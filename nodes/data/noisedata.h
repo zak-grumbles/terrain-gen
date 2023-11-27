@@ -2,11 +2,11 @@
 #define NOISEDATA_H
 
 #include <FastNoiseLite/FastNoiseLite.h>
-#include <QtNodes/NodeData>
 #include <nodes/data/heightdata.h>
 
-class NoiseData : public HeightData
-{
+#include <QtNodes/NodeData>
+
+class NoiseData : public HeightData {
 public:
     NoiseData() : NoiseData(FastNoiseLite::NoiseType_OpenSimplex2S) {}
 
@@ -23,11 +23,13 @@ public:
     float GetFrequency() const { return noise_->GetFrequency(); }
 
     void SetRotationType3D(FastNoiseLite::RotationType3D new_type);
-    FastNoiseLite::RotationType3D GetRotationType3D() const { return noise_->GetRotationType3D(); }
+    FastNoiseLite::RotationType3D GetRotationType3D() const {
+        return noise_->GetRotationType3D();
+    }
 
     float GetValueAt(float x, float y) const override;
 
 protected:
     std::unique_ptr<FastNoiseLite> noise_ = nullptr;
 };
-#endif // NOISEDATA_H
+#endif  // NOISEDATA_H

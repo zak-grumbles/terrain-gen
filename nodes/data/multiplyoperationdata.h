@@ -3,8 +3,7 @@
 
 #include "nodes/data/heightdata.h"
 
-class MultiplyOperationData : public HeightData
-{
+class MultiplyOperationData : public HeightData {
 public:
     MultiplyOperationData();
     virtual ~MultiplyOperationData() {}
@@ -21,4 +20,4 @@ protected:
     std::shared_ptr<HeightData> inputB_ = nullptr;
 };
 
-#endif // MULTIPLYOPERATIONDATA_H
+#endif  // MULTIPLYOPERATIONDATA_H
