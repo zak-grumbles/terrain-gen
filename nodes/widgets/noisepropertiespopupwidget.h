@@ -27,7 +27,13 @@ protected slots:
     void OnSeedSpinBoxChange_(int new_seed);
     void OnFreqSpinBoxChange_(double new_freq);
     void OnRotationTypeChange_(int new_index);
+
     void OnFractalTypeChange_(int new_index);
+    void OnOctavesChange_(int new_value);
+    void OnLacunarityChange_(double new_value);
+    void OnGainChange_(double new_value);
+    void OnWeightedStrengthChange_(double new_value);
+    void OnPingPongStrengthChange_(double new_value);
 
 private:
     std::shared_ptr<NoiseData> noise_settings_ = nullptr;
@@ -40,8 +46,8 @@ private:
     QSpinBox*  fractal_octaves_ = nullptr;
     QDoubleSpinBox* fractal_lacunarity_ = nullptr;
     QDoubleSpinBox* fractal_gain_ = nullptr;
-    QDoubleSpinBox* fractal_weighted_str = nullptr;
-    QDoubleSpinBox* fractal_pingpong_str = nullptr;
+    QDoubleSpinBox* fractal_weighted_str_ = nullptr;
+    QDoubleSpinBox* fractal_pingpong_str_ = nullptr;
 
     void SetEnabled_(bool enabled = true);
 };
