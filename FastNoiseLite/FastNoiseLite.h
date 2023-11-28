@@ -51,6 +51,7 @@
 #define FASTNOISELITE_H
 
 #include <cmath>
+#include <string>
 
 class FastNoiseLite
 {
@@ -159,11 +160,6 @@ public:
     void SetFrequency(float frequency) { mFrequency = frequency; }
 
     /// <summary>
-    /// Gets frequency for all noise types
-    /// </summary>
-    float GetFrequency() const { return mFrequency; }
-
-    /// <summary>
     /// Sets noise algorithm used for GetNoise(...)
     /// </summary>
     /// <remarks>
@@ -187,15 +183,6 @@ public:
         mRotationType3D = rotationType3D;
         UpdateTransformType3D();
         UpdateWarpTransformType3D();
-    }
-
-    /// <summary>
-    /// Gets the domain rotation type for 3D Noise and
-    /// 3D DomainWarp.
-    /// </summary>
-    RotationType3D GetRotationType3D() const
-    {
-        return mRotationType3D;
     }
 
     /// <summary>
@@ -410,6 +397,36 @@ public:
             DomainWarpFractalIndependent(x, y, z);
             break;
         }
+    }
+
+    static std::string NoiseTypeAsString(FastNoiseLite::NoiseType noise_type) {
+        std::string result;
+
+        switch(noise_type) {
+        case NoiseType_OpenSimplex2:
+            result = "Open Simplex 2";
+            break;
+        case NoiseType_OpenSimplex2S:
+            result = "Open Simplex 2S";
+            break;
+        case NoiseType_Cellular:
+            result = "Cellular";
+            break;
+        case NoiseType_Perlin:
+            result = "Perlin";
+            break;
+        case NoiseType_ValueCubic:
+            result = "Value Cubic";
+            break;
+        case NoiseType_Value:
+            result = "Value";
+            break;
+        default:
+            result = "Unknown";
+            break;
+        }
+
+        return result;
     }
 
 private:

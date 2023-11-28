@@ -20,6 +20,15 @@ NoisePropertiesPopupWidget::NoisePropertiesPopupWidget(
 
 NoisePropertiesPopupWidget::~NoisePropertiesPopupWidget() {}
 
+void NoisePropertiesPopupWidget::OnNoiseTypeChange_(int new_index) {
+    if (new_index != -1) {
+        FastNoiseLite::NoiseType new_type =
+            noise_type_->itemData(new_index).value<FastNoiseLite::NoiseType>();
+        noise_settings_->noise_type = new_type;
+        emit NoiseSettingsChanged();
+    }
+}
+
 void NoisePropertiesPopupWidget::OnSeedSpinBoxChange_(int new_seed) {
     noise_settings_->seed = new_seed;
     emit NoiseSettingsChanged();
@@ -88,16 +97,30 @@ void NoisePropertiesPopupWidget::OnPingPongStrengthChange_(double new_value) {
 
 QGroupBox* NoisePropertiesPopupWidget::CreateGeneralSettings_() {
     QGroupBox* general_settings = new QGroupBox(tr("General"));
+    QGridLayout* layout         = new QGridLayout();
+
+    noise_type_ = CreateNoiseTypeComboBox_();
+    int current_type_index =
+        noise_type_->findData(QVariant(noise_settings_->noise_type));
+    if (current_type_index != -1) {
+        noise_type_->setCurrentIndex(current_type_index);
+    }
+    layout->addWidget(new QLabel(tr("Noise Type")), 0, 0);
+    layout->addWidget(noise_type_, 0, 1);
 
     QSpinBox* seed = new QSpinBox();
     seed->setRange(-9999, 9999);
     seed->setValue(noise_settings_->seed);
+    layout->addWidget(new QLabel(tr("Seed")), 1, 0);
+    layout->addWidget(seed, 1, 1);
 
     QDoubleSpinBox* frequency = new QDoubleSpinBox();
     frequency->setRange(0.0, 10.0);
     frequency->setDecimals(3);
     frequency->setValue(noise_settings_->frequency);
     frequency->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+    layout->addWidget(new QLabel(tr("Frequency")), 2, 0);
+    layout->addWidget(frequency, 2, 1);
 
     rotation_type_ = new QComboBox();
     rotation_type_->addItem(
@@ -111,20 +134,15 @@ QGroupBox* NoisePropertiesPopupWidget::CreateGeneralSettings_() {
         tr("Improve XZ Planes"),
         QVariant(FastNoiseLite::RotationType3D_ImproveXZPlanes)
     );
-
-    QGridLayout* layout = new QGridLayout();
-
-    layout->addWidget(new QLabel(tr("Seed")), 0, 0);
-    layout->addWidget(seed, 0, 1);
-
-    layout->addWidget(new QLabel(tr("Frequency")), 1, 0);
-    layout->addWidget(frequency, 1, 1);
-
-    layout->addWidget(new QLabel(tr("Rotation Type 3D")), 2, 0);
-    layout->addWidget(rotation_type_, 2, 1);
+    layout->addWidget(new QLabel(tr("Rotation Type 3D")), 3, 0);
+    layout->addWidget(rotation_type_, 3, 1);
 
     general_settings->setLayout(layout);
 
+    connect(
+        noise_type_, &QComboBox::currentIndexChanged, this,
+        &NoisePropertiesPopupWidget::OnNoiseTypeChange_
+    );
     connect(
         seed, &QSpinBox::valueChanged, this,
         &NoisePropertiesPopupWidget::OnSeedSpinBoxChange_
@@ -139,6 +157,27 @@ QGroupBox* NoisePropertiesPopupWidget::CreateGeneralSettings_() {
     );
 
     return general_settings;
+}
+
+QComboBox* NoisePropertiesPopupWidget::CreateNoiseTypeComboBox_() {
+    QComboBox* result = new QComboBox();
+
+    result->addItem(
+        tr("Open Simplex 2"), QVariant(FastNoiseLite::NoiseType_OpenSimplex2)
+    );
+    result->addItem(
+        tr("Open Simplex 2S"), QVariant(FastNoiseLite::NoiseType_OpenSimplex2S)
+    );
+    result->addItem(
+        tr("Cellular"), QVariant(FastNoiseLite::NoiseType_Cellular)
+    );
+    result->addItem(tr("Perlin"), QVariant(FastNoiseLite::NoiseType_Perlin));
+    result->addItem(
+        tr("Value Cubic"), QVariant(FastNoiseLite::NoiseType_ValueCubic)
+    );
+    result->addItem(tr("Value"), QVariant(FastNoiseLite::NoiseType_Value));
+
+    return result;
 }
 
 QGroupBox* NoisePropertiesPopupWidget::CreateFractalSettings_() {

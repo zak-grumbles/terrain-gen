@@ -8,6 +8,7 @@
 #include "qgroupbox.h"
 #include "qspinbox.h"
 
+Q_DECLARE_METATYPE(FastNoiseLite::NoiseType);
 Q_DECLARE_METATYPE(FastNoiseLite::RotationType3D);
 Q_DECLARE_METATYPE(FastNoiseLite::FractalType);
 
@@ -24,6 +25,7 @@ signals:
     void NoiseSettingsChanged();
 
 protected slots:
+    void OnNoiseTypeChange_(int new_index);
     void OnSeedSpinBoxChange_(int new_seed);
     void OnFreqSpinBoxChange_(double new_freq);
     void OnRotationTypeChange_(int new_index);
@@ -39,6 +41,8 @@ private:
     std::shared_ptr<NoiseData> noise_settings_ = nullptr;
 
     QGroupBox* CreateGeneralSettings_();
+    QComboBox* CreateNoiseTypeComboBox_();
+    QComboBox* noise_type_    = nullptr;
     QComboBox* rotation_type_ = nullptr;
 
     QGroupBox* CreateFractalSettings_();

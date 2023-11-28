@@ -69,6 +69,9 @@ std::shared_ptr<QtNodes::NodeData> NoiseSamplerDataModel::outData(
 QWidget* NoiseSamplerDataModel::embeddedWidget() {
     if (selector_ == nullptr) {
         selector_ = new NoiseTypeSelectorWidget();
+        selector_->UpdateButtonText(FastNoiseLite::NoiseTypeAsString(
+            noise_data_->GetNoiseSettings()->noise_type
+        ));
         connect(
             selector_, &NoiseTypeSelectorWidget::OpenPropertiesWindow, this,
             &NoiseSamplerDataModel::OnOpenPropertiesWindow_
@@ -82,7 +85,7 @@ void NoiseSamplerDataModel::OnOpenPropertiesWindow_() {
         properties_dlg_ =
             new NoisePropertiesPopupWidget(noise_data_->GetNoiseSettings());
         properties_dlg_->setWindowFlag(Qt::Dialog);
-        properties_dlg_->setWindowFlag(Qt::FramelessWindowHint);
+        // properties_dlg_->setWindowFlag(Qt::FramelessWindowHint);
 
         connect(
             properties_dlg_, &NoisePropertiesPopupWidget::NoiseSettingsChanged,
@@ -93,6 +96,9 @@ void NoiseSamplerDataModel::OnOpenPropertiesWindow_() {
 }
 
 void NoiseSamplerDataModel::OnNoiseSettingsChanged_() {
+    selector_->UpdateButtonText(FastNoiseLite::NoiseTypeAsString(
+        noise_data_->GetNoiseSettings()->noise_type
+    ));
     noise_data_->NoiseSettingsChanged();
     emit dataUpdated(0);
 }
