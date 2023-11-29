@@ -8,9 +8,11 @@
 #include "qgroupbox.h"
 #include "qspinbox.h"
 
-Q_DECLARE_METATYPE(FastNoiseLite::NoiseType);
-Q_DECLARE_METATYPE(FastNoiseLite::RotationType3D);
-Q_DECLARE_METATYPE(FastNoiseLite::FractalType);
+Q_DECLARE_METATYPE(FastNoiseLite::NoiseType)
+Q_DECLARE_METATYPE(FastNoiseLite::RotationType3D)
+Q_DECLARE_METATYPE(FastNoiseLite::FractalType)
+Q_DECLARE_METATYPE(FastNoiseLite::CellularDistanceFunction)
+Q_DECLARE_METATYPE(FastNoiseLite::CellularReturnType)
 
 class NoisePropertiesPopupWidget : public QWidget {
     Q_OBJECT
@@ -37,6 +39,10 @@ protected slots:
     void OnWeightedStrengthChange_(double new_value);
     void OnPingPongStrengthChange_(double new_value);
 
+    void OnCellularDistanceFuncChange_(int new_index);
+    void OnCellularReturnTypeChange_(int new_index);
+    void OnCellularJitterChange_(double new_value);
+
 private:
     std::shared_ptr<NoiseData> noise_settings_ = nullptr;
 
@@ -53,7 +59,12 @@ private:
     QDoubleSpinBox* fractal_weighted_str_ = nullptr;
     QDoubleSpinBox* fractal_pingpong_str_ = nullptr;
 
-    void SetEnabled_(bool enabled = true);
+    QGroupBox* CreateCellularSettings_();
+    QComboBox* CreateCellularDistanceFuncComboBox_();
+    QComboBox* CreateCellularReturnTypeComboBox_();
+    QComboBox* cellular_distance_func_ = nullptr;
+    QComboBox* cellular_return_type_   = nullptr;
+    QDoubleSpinBox* cellular_jitter_   = nullptr;
 };
 
 #endif  // NOISEPROPERTIESPOPUPWIDGET_H

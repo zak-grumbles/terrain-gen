@@ -14,6 +14,7 @@ NoisePropertiesPopupWidget::NoisePropertiesPopupWidget(
 
     layout->addWidget(CreateGeneralSettings_());
     layout->addWidget(CreateFractalSettings_());
+    layout->addWidget(CreateCellularSettings_());
 
     setLayout(layout);
 }
@@ -58,11 +59,11 @@ void NoisePropertiesPopupWidget::OnFractalTypeChange_(int new_index) {
         // We are switching to None from some non-None type
         if (new_type == FastNoiseLite::FractalType_None &&
             noise_settings_->fractal_type != FastNoiseLite::FractalType_None) {
-            SetEnabled_(false);
+            // TODO - enable stuff
         }
         // We are switching to a non-None type from None
         else if (noise_settings_->fractal_type == FastNoiseLite::FractalType_None) {
-            SetEnabled_(true);
+            // TODO - enable stuff
         }
         noise_settings_->fractal_type = new_type;
 
@@ -95,16 +96,23 @@ void NoisePropertiesPopupWidget::OnPingPongStrengthChange_(double new_value) {
     emit NoiseSettingsChanged();
 }
 
+void NoisePropertiesPopupWidget::OnCellularDistanceFuncChange_(int new_index) {
+
+}
+
+void NoisePropertiesPopupWidget::OnCellularReturnTypeChange_(int new_index) {
+
+}
+
+void NoisePropertiesPopupWidget::OnCellularJitterChange_(double new_value) {
+
+}
+
 QGroupBox* NoisePropertiesPopupWidget::CreateGeneralSettings_() {
     QGroupBox* general_settings = new QGroupBox(tr("General"));
     QGridLayout* layout         = new QGridLayout();
 
     noise_type_ = CreateNoiseTypeComboBox_();
-    int current_type_index =
-        noise_type_->findData(QVariant(noise_settings_->noise_type));
-    if (current_type_index != -1) {
-        noise_type_->setCurrentIndex(current_type_index);
-    }
     layout->addWidget(new QLabel(tr("Noise Type")), 0, 0);
     layout->addWidget(noise_type_, 0, 1);
 
@@ -176,6 +184,12 @@ QComboBox* NoisePropertiesPopupWidget::CreateNoiseTypeComboBox_() {
         tr("Value Cubic"), QVariant(FastNoiseLite::NoiseType_ValueCubic)
     );
     result->addItem(tr("Value"), QVariant(FastNoiseLite::NoiseType_Value));
+
+    int current_type_index =
+        result->findData(QVariant(noise_settings_->noise_type));
+    if (current_type_index != -1) {
+        result->setCurrentIndex(current_type_index);
+    }
 
     return result;
 }
@@ -290,6 +304,64 @@ QGroupBox* NoisePropertiesPopupWidget::CreateFractalSettings_() {
     return fractal_settings;
 }
 
-void NoisePropertiesPopupWidget::SetEnabled_(bool enabled /*= true*/) {
-    fractal_octaves_->setEnabled(enabled);
+QGroupBox* NoisePropertiesPopupWidget::CreateCellularSettings_() {
+    QGroupBox* cellular_settings = new QGroupBox("Cellular");
+    QGridLayout* layout = new QGridLayout();
+
+    cellular_distance_func_ = CreateCellularDistanceFuncComboBox_();
+    layout->addWidget(new QLabel("Distance Function"), 0, 0);
+    layout->addWidget(cellular_distance_func_, 0, 1);
+
+    cellular_return_type_ = CreateCellularReturnTypeComboBox_();
+    layout->addWidget(new QLabel("Return Type"), 1, 0);
+    layout->addWidget(cellular_return_type_, 1, 1);
+
+    cellular_jitter_ = new QDoubleSpinBox();
+    cellular_jitter_->setRange(0.1, 10.0);
+    cellular_jitter_->setValue(noise_settings_->jitter);
+    layout->addWidget(new QLabel("Jitter"), 2, 0);
+    layout->addWidget(cellular_jitter_, 2, 1);
+
+    cellular_settings->setLayout(layout);
+
+    return cellular_settings;
+}
+
+QComboBox* NoisePropertiesPopupWidget::CreateCellularDistanceFuncComboBox_() {
+    QComboBox* distance_func = new QComboBox();
+
+    distance_func->addItem("Euclidean", QVariant(FastNoiseLite::CellularDistanceFunction_Euclidean));
+    distance_func->addItem("Euclidean Square", QVariant(FastNoiseLite::CellularDistanceFunction_EuclideanSq));
+    distance_func->addItem("Manhattan", QVariant(FastNoiseLite::CellularDistanceFunction_Manhattan));
+    distance_func->addItem("Hybrid", QVariant(FastNoiseLite::CellularDistanceFunction_Hybrid));
+
+    int current_func_index = distance_func->findData(
+        QVariant(noise_settings_->cellular_distance_func)
+    );
+    if(current_func_index != -1) {
+        distance_func->setCurrentIndex(current_func_index);
+    }
+
+    return distance_func;
+}
+
+QComboBox* NoisePropertiesPopupWidget::CreateCellularReturnTypeComboBox_() {
+    QComboBox* return_type = new QComboBox();
+
+    return_type->addItem("Cell Value", QVariant(FastNoiseLite::CellularReturnType_CellValue));
+    return_type->addItem("Distance", QVariant(FastNoiseLite::CellularReturnType_Distance));
+    return_type->addItem("Distance 2", QVariant(FastNoiseLite::CellularReturnType_Distance2));
+    return_type->addItem("Distance 2 Add", QVariant(FastNoiseLite::CellularReturnType_Distance2Add));
+    return_type->addItem("Distance 2 Sub", QVariant(FastNoiseLite::CellularReturnType_Distance2Sub));
+    return_type->addItem("Distance 2 Mul", QVariant(FastNoiseLite::CellularReturnType_Distance2Mul));
+    return_type->addItem("Distance 2 Div", QVariant(FastNoiseLite::CellularReturnType_Distance2Div));
+
+    int current_type_index = return_type->findData(
+        QVariant(noise_settings_->cellular_return_type)
+    );
+    if(current_type_index != -1) {
+        return_type->setCurrentIndex(current_type_index);
+    }
+
+    return return_type;
 }
