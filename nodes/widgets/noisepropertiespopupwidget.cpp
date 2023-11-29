@@ -59,13 +59,15 @@ void NoisePropertiesPopupWidget::OnFractalTypeChange_(int new_index) {
         // We are switching to None from some non-None type
         if (new_type == FastNoiseLite::FractalType_None &&
             noise_settings_->fractal_type != FastNoiseLite::FractalType_None) {
-            // TODO - enable stuff
+
+            noise_settings_->fractal_type = new_type;
+            SetFractalSettingsEnabled_(false);
         }
-        // We are switching to a non-None type from None
-        else if (noise_settings_->fractal_type == FastNoiseLite::FractalType_None) {
-            // TODO - enable stuff
+        // We are switching to a non-None type
+        else if (new_type != FastNoiseLite::FractalType_None) {
+            noise_settings_->fractal_type = new_type;
+            SetFractalSettingsEnabled_(true);
         }
-        noise_settings_->fractal_type = new_type;
 
         emit NoiseSettingsChanged();
     }
@@ -200,26 +202,7 @@ QGroupBox* NoisePropertiesPopupWidget::CreateFractalSettings_() {
     QGridLayout* layout = new QGridLayout();
 
     // Fractal type
-    fractal_type_ = new QComboBox();
-    fractal_type_->addItem(
-        tr("None"), QVariant(FastNoiseLite::FractalType_None)
-    );
-    fractal_type_->addItem(tr("FBm"), QVariant(FastNoiseLite::FractalType_FBm));
-    fractal_type_->addItem(
-        tr("Ping Pong"), QVariant(FastNoiseLite::FractalType_PingPong)
-    );
-    fractal_type_->addItem(
-        tr("Ridged"), QVariant(FastNoiseLite::FractalType_Ridged)
-    );
-    fractal_type_->addItem(
-        tr("Domain Warp Independent"),
-        QVariant(FastNoiseLite::FractalType_DomainWarpIndependent)
-    );
-    fractal_type_->addItem(
-        tr("Domain Warp Progressive"),
-        QVariant(FastNoiseLite::FractalType_DomainWarpProgressive)
-    );
-
+    fractal_type_ = CreateFractalTypeComboBox_();
     layout->addWidget(new QLabel(tr("Type")), 0, 0);
     layout->addWidget(fractal_type_, 0, 1);
 
@@ -275,6 +258,8 @@ QGroupBox* NoisePropertiesPopupWidget::CreateFractalSettings_() {
 
     fractal_settings->setLayout(layout);
 
+    SetFractalSettingsEnabled_(noise_settings_->fractal_type != FastNoiseLite::FractalType_None);
+
     // Connect signals
     connect(
         fractal_type_, &QComboBox::currentIndexChanged, this,
@@ -302,6 +287,43 @@ QGroupBox* NoisePropertiesPopupWidget::CreateFractalSettings_() {
     );
 
     return fractal_settings;
+}
+
+QComboBox* NoisePropertiesPopupWidget::CreateFractalTypeComboBox_() {
+    QComboBox* type = new QComboBox();
+
+    type->addItem(
+        tr("None"), QVariant(FastNoiseLite::FractalType_None)
+    );
+    type->addItem(tr("FBm"), QVariant(FastNoiseLite::FractalType_FBm));
+    type->addItem(
+        tr("Ping Pong"), QVariant(FastNoiseLite::FractalType_PingPong)
+    );
+    type->addItem(
+        tr("Ridged"), QVariant(FastNoiseLite::FractalType_Ridged)
+    );
+    type->addItem(
+        tr("Domain Warp Independent"),
+        QVariant(FastNoiseLite::FractalType_DomainWarpIndependent)
+    );
+    type->addItem(
+        tr("Domain Warp Progressive"),
+        QVariant(FastNoiseLite::FractalType_DomainWarpProgressive)
+    );
+    int current_fractal_index = type->findData(QVariant(noise_settings_->fractal_type));
+    if(current_fractal_index != -1) {
+        type->setCurrentIndex(current_fractal_index);
+    }
+
+    return type;
+}
+
+void NoisePropertiesPopupWidget::SetFractalSettingsEnabled_(bool enabled) {
+    fractal_octaves_->setEnabled(enabled);
+    fractal_lacunarity_->setEnabled(enabled);
+    fractal_gain_->setEnabled(enabled);
+    fractal_weighted_str_->setEnabled(enabled);
+    fractal_pingpong_str_->setEnabled(noise_settings_->fractal_type == FastNoiseLite::FractalType_PingPong);
 }
 
 QGroupBox* NoisePropertiesPopupWidget::CreateCellularSettings_() {

@@ -52,6 +52,8 @@ private:
     QComboBox* rotation_type_ = nullptr;
 
     QGroupBox* CreateFractalSettings_();
+    QComboBox* CreateFractalTypeComboBox_();
+    void SetFractalSettingsEnabled_(bool enabled);
     QComboBox* fractal_type_              = nullptr;
     QSpinBox* fractal_octaves_            = nullptr;
     QDoubleSpinBox* fractal_lacunarity_   = nullptr;
