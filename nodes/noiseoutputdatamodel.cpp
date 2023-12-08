@@ -54,11 +54,10 @@ void NoiseOutputDataModel::setInData(
         }
 
         output_data_ = height_data;
-        if(output_data_ != nullptr) {
+        if (output_data_ != nullptr) {
             noise_view_ = output_data_->AsBitmap(0, 0, 256, 256);
             view_->setPixmap(*noise_view_);
-        }
-        else {
+        } else {
             view_->setPixmap(QPixmap());
         }
 
