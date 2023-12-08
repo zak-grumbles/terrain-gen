@@ -49,13 +49,18 @@ void NoiseOutputDataModel::setInData(
     // If connection is created, and height_data is not null,
     // we have valid height data
     if (data == nullptr || height_data != nullptr) {
-        output_data_ = height_data;
-
         if (noise_view_ != nullptr) {
             delete noise_view_;
         }
-        noise_view_ = output_data_->AsBitmap(0, 0, 256, 256);
-        view_->setPixmap(*noise_view_);
+
+        output_data_ = height_data;
+        if(output_data_ != nullptr) {
+            noise_view_ = output_data_->AsBitmap(0, 0, 256, 256);
+            view_->setPixmap(*noise_view_);
+        }
+        else {
+            view_->setPixmap(QPixmap());
+        }
 
         emit dataUpdated(port_index);
     }
