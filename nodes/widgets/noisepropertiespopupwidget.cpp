@@ -26,6 +26,9 @@ void NoisePropertiesPopupWidget::OnNoiseTypeChange_(int new_index) {
         FastNoiseLite::NoiseType new_type =
             noise_type_->itemData(new_index).value<FastNoiseLite::NoiseType>();
         noise_settings_->noise_type = new_type;
+
+        SetCellularSettingsEnabled_(new_type == FastNoiseLite::NoiseType_Cellular);
+
         emit NoiseSettingsChanged();
     }
 }
@@ -99,15 +102,30 @@ void NoisePropertiesPopupWidget::OnPingPongStrengthChange_(double new_value) {
 }
 
 void NoisePropertiesPopupWidget::OnCellularDistanceFuncChange_(int new_index) {
+    if(new_index != -1) {
+        FastNoiseLite::CellularDistanceFunction new_func =
+                cellular_distance_func_->itemData(new_index)
+                .value<FastNoiseLite::CellularDistanceFunction>();
 
+        noise_settings_->cellular_distance_func = new_func;
+        emit NoiseSettingsChanged();
+    }
 }
 
 void NoisePropertiesPopupWidget::OnCellularReturnTypeChange_(int new_index) {
+    if(new_index != -1) {
+        FastNoiseLite::CellularReturnType new_type =
+                cellular_return_type_->itemData(new_index)
+                .value<FastNoiseLite::CellularReturnType>();
 
+        noise_settings_->cellular_return_type = new_type;
+        emit NoiseSettingsChanged();
+    }
 }
 
 void NoisePropertiesPopupWidget::OnCellularJitterChange_(double new_value) {
-
+    noise_settings_->jitter = new_value;
+    emit NoiseSettingsChanged();
 }
 
 QGroupBox* NoisePropertiesPopupWidget::CreateGeneralSettings_() {
@@ -346,6 +364,13 @@ QGroupBox* NoisePropertiesPopupWidget::CreateCellularSettings_() {
 
     cellular_settings->setLayout(layout);
 
+    connect(cellular_distance_func_, &QComboBox::currentIndexChanged,
+            this, &NoisePropertiesPopupWidget::OnCellularDistanceFuncChange_);
+    connect(cellular_return_type_, &QComboBox::currentIndexChanged,
+            this, &NoisePropertiesPopupWidget::OnCellularReturnTypeChange_);
+    connect(cellular_jitter_, &QDoubleSpinBox::valueChanged,
+            this, &NoisePropertiesPopupWidget::OnCellularReturnTypeChange_);
+
     return cellular_settings;
 }
 
@@ -386,4 +411,10 @@ QComboBox* NoisePropertiesPopupWidget::CreateCellularReturnTypeComboBox_() {
     }
 
     return return_type;
+}
+
+void NoisePropertiesPopupWidget::SetCellularSettingsEnabled_(bool enabled) {
+    cellular_distance_func_->setEnabled(enabled);
+    cellular_return_type_->setEnabled(enabled);
+    cellular_jitter_->setEnabled(enabled);
 }

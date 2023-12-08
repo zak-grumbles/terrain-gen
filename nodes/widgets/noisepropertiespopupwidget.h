@@ -64,6 +64,7 @@ private:
     QGroupBox* CreateCellularSettings_();
     QComboBox* CreateCellularDistanceFuncComboBox_();
     QComboBox* CreateCellularReturnTypeComboBox_();
+    void SetCellularSettingsEnabled_(bool enabled);
     QComboBox* cellular_distance_func_ = nullptr;
     QComboBox* cellular_return_type_   = nullptr;
     QDoubleSpinBox* cellular_jitter_   = nullptr;
